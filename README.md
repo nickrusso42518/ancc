@@ -40,3 +40,6 @@ until this warning is rescinded.__
      `pip install -r requirements.txt`
   3. Run the script and specify a snapshot directory:
      `python bf.py brkrst3310`
+
+## Dev Notes
+BRKRST-3310 sub-topology: `R13--(3)--R14--(2)--R2--(0)--R10`
