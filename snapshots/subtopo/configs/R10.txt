@@ -43,6 +43,7 @@ interface Ethernet0/0
 !
 router ospf 1
  router-id 10.0.0.10
+ area 1 nssa
  redistribute connected subnets
 !
 !
