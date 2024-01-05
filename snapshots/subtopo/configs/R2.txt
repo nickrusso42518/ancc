@@ -33,7 +33,7 @@ username labadmin privilege 15 password 0 labadmin
 !
 interface Loopback0
  ip address 10.0.0.2 255.255.255.255
- ip ospf 1 area 0
+ ip ospf 1 area 1
 !
 interface Ethernet0/0
  description TO R10
@@ -50,10 +50,11 @@ interface Ethernet0/2
  ip address 10.2.14.2 255.255.255.0
  ip ospf network point-to-point
  ip ospf 1 area 0
- ip ospf cost 10
+ ip ospf cost 5
 !
 router ospf 1
  router-id 10.0.0.2
+ area 1 nssa
  passive-interface Loopback0
 !
 !

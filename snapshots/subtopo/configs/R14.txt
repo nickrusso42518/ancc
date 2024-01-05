@@ -46,7 +46,7 @@ interface Ethernet0/2
  ip address 10.2.14.14 255.255.255.0
  ip ospf network point-to-point
  ip ospf 1 area 0
- ip ospf cost 10
+ ip ospf cost 5
 !
 interface Ethernet0/3
  description TO R13
@@ -57,6 +57,7 @@ interface Ethernet0/3
 !
 router ospf 1
  router-id 10.0.0.14
+ area 3 stub
  passive-interface Loopback0
 !
 !

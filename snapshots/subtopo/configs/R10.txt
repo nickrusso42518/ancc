@@ -31,7 +31,6 @@ username labadmin privilege 15 password 0 labadmin
 !
 interface Loopback0
  ip address 10.0.0.10 255.255.255.255
- ip ospf 1 area 1
 !
 interface Ethernet0/0
  description TO R2
@@ -44,8 +43,7 @@ interface Ethernet0/0
 !
 router ospf 1
  router-id 10.0.0.10
- passive-interface Loopback0
- neighbor 10.2.10.2
+ redistribute connected subnets
 !
 !
 !

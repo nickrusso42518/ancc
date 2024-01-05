@@ -42,4 +42,11 @@ until this warning is rescinded.__
      `python bf.py brkrst3310`
 
 ## Dev Notes
-BRKRST-3310 sub-topology: `R13--(3)--R14--(2)--R2--(0)--R10`
+BRKRST-3310 sub-topology:
+```
+R13---------R14---------R2---------R10
+     et0/3       et0/2      et0/0
+     area3       area0      area1
+     p2p         bcast      p2p
+     stub                   nssa
+```

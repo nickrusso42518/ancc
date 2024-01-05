@@ -46,6 +46,7 @@ interface Ethernet0/3
 !
 router ospf 1
  router-id 10.0.0.13
+ area 3 stub
  passive-interface Loopback0
 !
 !
