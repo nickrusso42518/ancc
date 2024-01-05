@@ -49,4 +49,5 @@ R13---------R14---------R2---------R10
      area3       area0      area1
      p2p         bcast      p2p
      stub                   nssa
+     c=10        c=5        c=10
 ```
