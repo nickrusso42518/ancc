@@ -37,7 +37,7 @@ interface Loopback0
  ip ospf 1 area 3
 !
 interface Ethernet0/1
- description TO R1
+ description TO R01
  ip address 10.1.13.13 255.255.255.0
  ip ospf network point-to-point
  ip ospf 1 area 3

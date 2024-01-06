@@ -41,7 +41,7 @@ interface Loopback0
  ip address 10.0.0.14 255.255.255.255
  ip ospf 1 area 0
 !
-interface Ethernet0/0
+interface Ethernet0/2
  description TO BACKBONE LAN
  ip address 10.0.99.14 255.255.255.0
  ip ospf authentication

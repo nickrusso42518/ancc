@@ -3,7 +3,7 @@ service timestamps debug datetime msec
 service timestamps log datetime msec
 no service password-encryption
 !
-hostname R2
+hostname R02
 !
 boot-start-marker
 boot-end-marker
