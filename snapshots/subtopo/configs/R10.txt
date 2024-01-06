@@ -14,10 +14,6 @@ enable password cisco
 no aaa new-model
 !
 !
-no ip icmp rate-limit unreachable
-!
-!
-!
 !
 no ip domain lookup
 ip cef
@@ -31,13 +27,16 @@ username labadmin privilege 15 password 0 labadmin
 !
 interface Loopback0
  ip address 10.0.0.10 255.255.255.255
+ ip ospf 1 area 1
+!
+interface Loopback1
+ description EXTRANET LAN SIMULATION
+ ip address 192.168.0.10 255.255.240.0
 !
 interface Ethernet0/0
  description TO R2
  ip address 10.2.10.10 255.255.255.0
- ip ospf authentication
- ip ospf authentication-key OSPF
- ip ospf network broadcast
+ ip ospf network point-to-point
  ip ospf 1 area 1
  ip ospf cost 10
 !
@@ -48,17 +47,6 @@ router ospf 1
 !
 !
 !
-!
-!
-banner exec %
-##############################################################
-# Troubleshooting OSPF (BRKRST-3310)                         #
-#                                                            #
-# By Nicholas Russo <nickrus@cisco.com>                      #
-# Cisco Live - Demo lab with IOSv                            #
-# https://github.com/nickrusso42518/ospf_brkrst3310          #
-##############################################################
-%
 !
 line con 0
  exec-timeout 0 0

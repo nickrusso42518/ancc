@@ -36,6 +36,13 @@ interface Loopback0
  ip address 10.0.0.13 255.255.255.255
  ip ospf 1 area 3
 !
+interface Ethernet0/1
+ description TO R1
+ ip address 10.1.13.13 255.255.255.0
+ ip ospf network point-to-point
+ ip ospf 1 area 3
+ ip ospf cost 7
+!
 interface Ethernet0/3
  description TO R14
  ip address 10.13.14.13 255.255.255.0
@@ -51,16 +58,6 @@ router ospf 1
 !
 !
 !
-!
-banner exec %
-##############################################################
-# Troubleshooting OSPF (BRKRST-3310)                         #
-#                                                            #
-# By Nicholas Russo <nickrus@cisco.com>                      #
-# Cisco Live - Demo lab with IOSv                            #
-# https://github.com/nickrusso42518/ospf_brkrst3310          #
-##############################################################
-%
 !
 line con 0
  exec-timeout 0 0

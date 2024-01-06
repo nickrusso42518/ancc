@@ -33,22 +33,21 @@ username labadmin privilege 15 password 0 labadmin
 !
 interface Loopback0
  ip address 10.0.0.2 255.255.255.255
- ip ospf 1 area 1
+ ip ospf 1 area 0
 !
 interface Ethernet0/0
  description TO R10
  ip address 10.2.10.2 255.255.255.0
- ip ospf authentication
- ip ospf authentication-key OSPF
- ip ospf network broadcast
- ip ospf priority 0
+ ip ospf network point-to-point
  ip ospf 1 area 1
  ip ospf cost 10
 !
 interface Ethernet0/2
- description TO R14
- ip address 10.2.14.2 255.255.255.0
- ip ospf network point-to-point
+ description TO BACKBONE LAN
+ ip address 10.0.99.2 255.255.255.0
+ ip ospf authentication
+ ip ospf authentication-key OSPF1234
+ ip ospf network broadcast
  ip ospf 1 area 0
  ip ospf cost 5
 !
@@ -59,17 +58,6 @@ router ospf 1
 !
 !
 !
-!
-!
-banner exec %
-##############################################################
-# Troubleshooting OSPF (BRKRST-3310)                         #
-#                                                            #
-# By Nicholas Russo <nickrus@cisco.com>                      #
-# Cisco Live - Demo lab with IOSv                            #
-# https://github.com/nickrusso42518/ospf_brkrst3310          #
-##############################################################
-%
 !
 line con 0
  exec-timeout 0 0
