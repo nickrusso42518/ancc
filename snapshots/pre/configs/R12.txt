@@ -41,7 +41,7 @@ interface Ethernet0/1
 !
 interface Ethernet0/3
  description TO R01
- ip address 10.1.12.1 255.255.255.0
+ ip address 10.1.12.12 255.255.255.0
  ip ospf network point-to-point
  ip ospf 1 area 3
  ip ospf cost 7

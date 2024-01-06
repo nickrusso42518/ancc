@@ -25,7 +25,8 @@ until this warning is rescinded.__
      `sudo docker pull batfish/allinone:2023.12.16.1270`
   4. Run a new Batfish container in the background:
      ```
-     sudo docker run --name batfish \
+     sudo docker container prune --force
+     sudo docker container run --name batfish \
        --volume batfish-data:/data \
        --publish 8888:8888 --publish 9997:9997 --publish 9996:9996 \
        --detach batfish/allinone:2023.12.16.1270
