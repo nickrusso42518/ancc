@@ -49,7 +49,7 @@ interface Ethernet0/2
  ip ospf network broadcast
  ip ospf priority 0
  ip ospf 1 area 0
- ip ospf cost 10
+ ip ospf cost 5
 !
 interface Ethernet0/3
  description TO R13
