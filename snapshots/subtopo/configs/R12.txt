@@ -3,7 +3,7 @@ service timestamps debug datetime msec
 service timestamps log datetime msec
 no service password-encryption
 !
-hostname R02
+hostname R12
 !
 boot-start-marker
 boot-end-marker
@@ -20,6 +20,7 @@ no ip domain lookup
 ip cef
 !
 !
+!
 username labadmin privilege 15 password 0 labadmin
 !
 !
@@ -28,28 +29,27 @@ username labadmin privilege 15 password 0 labadmin
 !
 !
 interface Loopback0
- ip address 10.0.0.2 255.255.255.255
- ip ospf 1 area 0
+ ip address 10.0.0.12 255.255.255.255
+ ip ospf 1 area 3
 !
-interface Ethernet0/0
- description TO R10
- ip address 10.2.10.2 255.255.255.0
+interface Ethernet0/1
+ description TO R14
+ ip address 10.12.14.12 255.255.255.0
  ip ospf network point-to-point
- ip ospf 1 area 1
+ ip ospf 1 area 3
  ip ospf cost 10
 !
-interface Ethernet0/2
- description TO BACKBONE LAN
- ip address 10.0.99.2 255.255.255.0
- ip ospf authentication
- ip ospf authentication-key OSPF1234
- ip ospf network broadcast
- ip ospf 1 area 0
- ip ospf cost 5
+interface Ethernet0/3
+ description TO R01
+ ip address 10.1.12.1 255.255.255.0
+ ip ospf network point-to-point
+ ip ospf 1 area 3
+ ip ospf cost 7
+!
 !
 router ospf 1
- router-id 10.0.0.2
- area 1 nssa
+ router-id 10.0.0.12
+ area 3 stub
  passive-interface Loopback0
 !
 !

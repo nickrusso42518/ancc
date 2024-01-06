@@ -9,8 +9,6 @@ boot-start-marker
 boot-end-marker
 !
 !
-enable password cisco
-!
 no aaa new-model
 !
 !
@@ -19,16 +17,10 @@ no aaa new-model
 !
 no ip domain lookup
 ip cef
-no ipv6 cef
-!
-!
 !
 !
 !
 username labadmin privilege 15 password 0 labadmin
-!
-!
-!
 !
 !
 !
