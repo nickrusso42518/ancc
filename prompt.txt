@@ -1,0 +1,34 @@
+Convert the {{ input }} network device configuration below into {{ output }}.
+
+```
+{{ config }}
+```
+
+Here's an example of a configuration snippet displays in many different formats so you can see the design pattern/overall goal. Anything below this sentence is NOT part of the configuration I'm asking you to convert as this is just an example:
+
+```
+*** Cisco IOS-XE Example ***
+
+*** Cisco IOS-XR Example ***
+```
+
+Provide your answer in a single text block containing the entire {{ output }} configuration. Here are the requirements for how the configuration should be converted:
+
+## Requirements:
+1. If you encounter an encrypted string (such as a password or shared secret) that uses an encryption algorithm unsupported by both {{ input }} and {{ output }} formats, replace that string with the text ENCRYPTED_STRING so that the user can manually change it. If you are uncertain as to whether an encryption algorithm unsupported by both {{ input }} and {{ output }} formats, do not guess, and use ENCRYPTED_STRING by default.
+2. Preserve configuration element names to the best of your ability. For example, if Loopback0 exists in the {{ input }} configuration, you should use Loopback0 in the {{ output }} configuration. Do not arbitrarily change it to Loopback1, for example.
+3. Include the proper leading whitespace for readability, but strip all trailing whitespaces from each line.
+4. Do not abbreviate any commands.
+5. If you are uncertain as to whether a command or feature is supported by both {{ input }} and {{ output }} formats, or if you simply do not know how to convert a certain segment of configuration between these formats, do not guess. For example, Cisco IOS-XR does not support the PIM dense-mode feature. If converting from Cisco IOS-XE to Cisco IOS-XR, you should instead retain the source configuration prepended with a # character within the destination configuration. For example:
+
+```
+*** Cisco IOS-XE Example ***
+interface GigabitEthernet1
+ ip address 192.0.2.1 255.255.255.0
+ ip pim dense-mode
+
+*** Cisco IOS-XR Example ***
+interface GigabitEthernet1
+ ipv4 address 192.0.2.1 255.255.255.0
+ # ip pim dense-mode
+```
