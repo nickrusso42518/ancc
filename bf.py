@@ -7,11 +7,11 @@ on the OSPF routing protocol using archived configurations.
 """
 
 import sys
-import json
 import logging
 import pandas
 from pybatfish.client import asserts
 from pybatfish.client.session import Session
+from pybatfish.datamodel.flow import HeaderConstraints, RoutingStepDetail
 
 # Global pandas formatting for string display
 pandas.set_option("display.width", 1000)
@@ -41,23 +41,30 @@ def main(directory):
     # the number of eligible/formed edges against our expected value
     compat = bf.q.ospfSessionCompatibility().answer().frame()
     nbrs = bf.q.ospfEdges().answer().frame()
-    # print(compat); print(nbrs); breakpoint()
     logging.warning("Compare compatible vs formed edge counts: %s", len(nbrs))
     assert len(compat) == len(nbrs)
 
     # Check cost symmetry (ie, all link participants use same value)
     intfs = bf.q.ospfInterfaceConfiguration().answer().frame()
-    # print(intfs); breakpoint()
-    for _, row in nbrs.iterrows():
-        li, ri = row["Interface"], row["Remote_Interface"]
+    for _, nbr in nbrs.iterrows():
+        li, ri = nbr["Interface"], nbr["Remote_Interface"]
         lc = intfs.loc[intfs["Interface"] == li, "OSPF_Cost"].values[0]
         rc = intfs.loc[intfs["Interface"] == ri, "OSPF_Cost"].values[0]
         logging.warning("Check symmetric cost: %s(%s)---%s(%s)", li, lc, ri, rc)
         assert lc == rc
 
     # Check P2P description complements (ie, routers identify one another)
-    # TODO
     iprops = bf.q.interfaceProperties().answer().frame()
+    p2ps = intfs.loc[intfs["OSPF_Network_Type"] == "POINT_TO_POINT", "Interface"]
+
+    # Loop over P2P interface ... a Series, not a DataFrame, so no iterrows()
+    for p2p in p2ps:
+        desc = iprops.loc[iprops["Interface"] == p2p, "Description"].values[0]
+        nbr = nbrs.loc[nbrs["Interface"] == p2p, "Remote_Interface"].values[0]
+        logging.warning(
+            "Check complementary desc: %s / %s,%s", desc, nbr.hostname, nbr.interface
+        )
+        assert desc.lower().endswith(nbr.hostname)
 
     logging.warning("Collect routes")
     routes = bf.q.routes().answer().frame()
@@ -106,36 +113,50 @@ def main(directory):
     logging.warning("Ensure stub nodes all saw %s routes", other_set)
     assert len(other_set) == 1
 
-    # TODO reachability from stub to NSSA extranet
+    # Run unidirectional traceroute from stub to NSSA intranet (via R14)
+    r10lb0 = HeaderConstraints(dstIps="r10[Loopback0]")
+    for node in ["r12", "r13"]:
+        tracert = (
+            bf.q.traceroute(startLocation=f"{node}[Loopback0]", headers=r10lb0)
+            .answer()
+            .frame()
+        )
+        logging.warning("Traceroute: %s", str(tracert.Flow.values[0]))
+        assert tracert.Traces[0][0].disposition == "ACCEPTED"
+
+        for tstep in tracert.Traces[0][0][0].steps:
+            if isinstance(tstep.detail, RoutingStepDetail):
+                logging.warning("Routing step: %s", str(tstep))
+                route = tstep.detail.routes[0]
+                assert route.network != "0.0.0.0/0"
+                assert route.nextHop.ip.startswith("10.")
+                assert route.nextHop.ip.endswith(".14.14")
+                break
+
+    # Run unidirectional traceroute from stub to NSSA extranet (via R01)
+    r10lb1 = HeaderConstraints(dstIps="r10[Loopback1]")
+    for node in ["r12", "r13"]:
+        tracert = (
+            bf.q.traceroute(startLocation=f"{node}[Loopback0]", headers=r10lb1)
+            .answer()
+            .frame()
+        )
+        logging.warning("Traceroute: %s", str(tracert.Flow.values[0]))
+        assert tracert.Traces[0][0].disposition == "ACCEPTED"
+
+        for tstep in tracert.Traces[0][0][0].steps:
+            if isinstance(tstep.detail, RoutingStepDetail):
+                logging.warning("Routing step: %s", str(tstep))
+                route = tstep.detail.routes[0]
+                assert route.network == "0.0.0.0/0"
+                assert route.nextHop.ip.startswith("10.1.")
+                assert route.nextHop.ip.endswith(".1")
+                break
+
+    # Run undirectional traceroute from NSSA to R12 (ECMP E01/R14)
+    # TODO
 
     # display(bf, directory)
-
-
-def display(bf, directory):
-    # Identify the questions to ask (not calling methods yet)
-    questions = {
-        "proc": bf.q.ospfProcessConfiguration,
-        "intf": bf.q.ospfInterfaceConfiguration,
-        "area": bf.q.ospfAreaConfiguration,
-        "l3if": bf.q.layer3Edges,
-        "scmp": bf.q.ospfSessionCompatibility,
-        "nbrs": bf.q.ospfEdges,
-        "rtes": bf.q.routes,
-    }
-
-    # Unpack dictionary tuples and iterate over them
-    for short_name, question in questions.items():
-        # Ask the question and store the response pandas frame
-        pandas_frame = question().answer().frame()
-        print(f"---{short_name}---\n{pandas_frame}\n")
-
-        # Assemble the generic file name prefix
-        file_name = f"outputs/{short_name}_{directory}"
-
-        # Generate JSON data for programmatic consumption
-        json_data = json.loads(pandas_frame.to_json(orient="records"))
-        with open(f"{file_name}.json", "w") as handle:
-            json.dump(json_data, handle, indent=2)
 
 
 if __name__ == "__main__":
