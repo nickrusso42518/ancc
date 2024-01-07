@@ -2,3 +2,4 @@ openai
 pybatfish
 black
 pylint
+pytest
