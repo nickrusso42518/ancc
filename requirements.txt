@@ -1,5 +1,6 @@
 openai
 pybatfish
+httpx
 black
 pylint
 pytest
