@@ -224,12 +224,75 @@ def _run_traceroute(bf, params):
     assert tracert.Traces[0][0].disposition == "ACCEPTED"
     return tracert
 
+
 def test_generate_topology(bf):
     """
     Collects the layer-3 interfaces and writes them to disk in JSON format.
+    It also reforms the topology to dynamically discover multi-access networks
+    so that GNS3 can add an "etherswitch" to the topology.
     This can be consumed by the lab simulation topology builder script.
     """
+
+    # Get the layer-3 edges (links) and load them as JSON data
     links = bf.q.layer3Edges().answer().frame()
     json_data = json.loads(links.to_json(orient="records"))
+
+    # For each link, ensure each interface has exactly one IP address,
+    # then remove them. They are extraneous and GNS3 doesn't need them.
+    for link in json_data:
+        assert len(link["IPs"]) + len(link["Remote_IPs"]) == 2
+        link.pop("IPs")
+        link.pop("Remote_IPs")
+
+        # To protect against Batfish dataframe schema changes, check for
+        # the specific interface keys in each sub-dictionary
+        for subdict in ["Interface", "Remote_Interface"]:
+            assert subdict in link.keys()
+
+            # Further ensure the presence of the attribute keys
+            for attr in ["hostname", "interface"]:
+                assert attr in link[subdict]
+
+    # Find links that have a duplicate "Interface" dict, indicating a
+    # multi-access network. Use an anomymous lambda function to create a
+    # hashable dict of each "Interface" within the json_data list.
+    seen = set()
+    dupes = []
+    for intf in map(lambda d: frozenset(d["Interface"].items()), json_data):
+        # If we haven't seen this hostname/interface pair, it's unique
+        if not intf in seen:
+            seen.add(intf)
+
+        # We've seen it before, so it's a duplicate (ie, multi-access network)
+        else:
+            dupes.append(intf)
+
+    # Extract the duplication hostnames via set comprehension
+    remaining_hosts = {dict(dupe)["hostname"] for dupe in dupes}
+
+    # Increment counter for the GNS3 "etherswitch" interface numbering
+    sw_intf = 0
+
+    # Check entire topology for those duplicate interfaces
+    for link in json_data:
+        if frozenset(link["Interface"].items()) in dupes:
+            # If we haven't processed that duplicate, overwrite the
+            # remote hostname and interface accordingly, remove the host
+            # from the set because it's just been processed, then increment
+            # the switch interface counter
+            if link["Interface"]["hostname"] in remaining_hosts:
+                link["Remote_Interface"]["hostname"] = "SW"
+                link["Remote_Interface"]["interface"] = sw_intf
+                remaining_hosts.remove(link["Interface"]["hostname"])
+                sw_intf += 1
+
+            # Host was already processed; mark duplicate element for removal
+            else:
+                link["remove"] = True
+
+    # Rebuild topology list by excluding items marked as "remove"
+    topology = [link for link in json_data if not link.get("remove")]
+
+    # Write resulting topology to disk in pretty format
     with open("topology.json", "w", encoding="utf-8") as handle:
-        json.dump(json_data, handle, indent=2)
+        json.dump(topology, handle, indent=2)

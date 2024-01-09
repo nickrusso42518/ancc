@@ -14,12 +14,14 @@ test:	lint bfq
 .PHONY: cont
 cont:
 	@echo "Starting  batfish container"
-	ansible-playbook tests/unittest_playbook.yml
 	sudo docker container prune --force
 	sudo docker container run --name batfish \
 		--volume batfish-data:/data \
 		--publish 8888:8888 --publish 9997:9997 --publish 9996:9996 \
 		--detach batfish/allinone:2023.12.16.1270
+	nc -v -n -w 1 127.0.0.1 8888
+	nc -v -n -w 1 127.0.0.1 9997
+	nc -v -n -w 1 127.0.0.1 9996
 	@echo "Completed batfish container"
 
 .PHONY: lint
@@ -40,5 +42,6 @@ bfq:
 .PHONY: clean
 clean:
 	@echo "Starting  clean"
+	sudo docker container ls --all --quiet | sudo xargs docker stop | sudo xargs docker rm
 	find . -name "*.pyc" | xargs -r rm
 	@echo "Completed clean"
