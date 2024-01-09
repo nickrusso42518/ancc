@@ -47,7 +47,7 @@ interface Ethernet0/2
  description TO BACKBONE LAN
  ip address 10.0.99.14 255.255.255.0
  ip ospf authentication
- ip ospf authentication-key OSPF
+ ip ospf authentication-key OSPF1234
  ip ospf network broadcast
  ip ospf priority 0
  ip ospf 1 area 0

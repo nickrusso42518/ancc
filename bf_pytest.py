@@ -6,6 +6,7 @@ Purpose: Tests Batfish on sample Cisco Live sessions focused
 on the OSPF routing protocol using archived configurations.
 """
 
+import json
 import pytest
 from pybatfish.client import asserts
 from pybatfish.client.session import Session
@@ -209,6 +210,11 @@ def test_traceroute_stub_to_nssa_external(bf):
 
 
 def _run_traceroute(bf, params):
+    """
+    Helper function to run a undirectional traceroute based on the params
+    dict, including "src" and "dest" targets formatted as "node[intf]".
+    Ensures ACCEPTED disposition and returns traceroute dataframe.
+    """
     headers = HeaderConstraints(dstIps=params["dest"])
     tracert = (
         bf.q.traceroute(startLocation=params["src"], headers=headers)
@@ -217,3 +223,13 @@ def _run_traceroute(bf, params):
     )
     assert tracert.Traces[0][0].disposition == "ACCEPTED"
     return tracert
+
+def test_generate_topology(bf):
+    """
+    Collects the layer-3 interfaces and writes them to disk in JSON format.
+    This can be consumed by the lab simulation topology builder script.
+    """
+    links = bf.q.layer3Edges().answer().frame()
+    json_data = json.loads(links.to_json(orient="records"))
+    with open("topology.json", "w", encoding="utf-8") as handle:
+        json.dump(json_data, handle, indent=2)
