@@ -43,10 +43,8 @@ def main():
         # template. Certain parameters can be overridden/customized.
         for i, node in enumerate(["R01"]):
             x, y = (i * 10 % 40, i // 4 * 10)
-            console = 5000 + int(node[-2:])
             node_body = {
                 "name": node,
-                "console": console,
                 "x": x,
                 "y": y,
                 "compute_id": comp_uuid,
