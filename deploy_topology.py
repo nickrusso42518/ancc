@@ -60,6 +60,8 @@ def main():
             # TODO record node UUIDs and ports?
 
         for links in topology:
+            # since topo is sorted, after all R01 is done, ignore all
+            # links with R01 as the remote, etc
             pass
 
 
