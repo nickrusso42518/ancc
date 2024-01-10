@@ -1,0 +1,546 @@
+[
+  {
+    "Node": "r10",
+    "VRF": "default",
+    "Network": "10.0.0.2/32",
+    "Next_Hop": {
+      "interface": "Ethernet0/0",
+      "ip": "10.2.10.2",
+      "type": "interface"
+    },
+    "Next_Hop_IP": "10.2.10.2",
+    "Next_Hop_Interface": "Ethernet0/0",
+    "Protocol": "ospf",
+    "Metric": 11,
+    "Admin_Distance": 110,
+    "Tag": null
+  },
+  {
+    "Node": "r10",
+    "VRF": "default",
+    "Network": "10.0.0.10/32",
+    "Next_Hop": {
+      "interface": "Loopback0",
+      "ip": null,
+      "type": "interface"
+    },
+    "Next_Hop_IP": "AUTO/NONE(-1l)",
+    "Next_Hop_Interface": "Loopback0",
+    "Protocol": "connected",
+    "Metric": 0,
+    "Admin_Distance": 0,
+    "Tag": null
+  },
+  {
+    "Node": "r10",
+    "VRF": "default",
+    "Network": "10.0.0.13/32",
+    "Next_Hop": {
+      "interface": "Ethernet0/0",
+      "ip": "10.2.10.2",
+      "type": "interface"
+    },
+    "Next_Hop_IP": "10.2.10.2",
+    "Next_Hop_Interface": "Ethernet0/0",
+    "Protocol": "ospfIA",
+    "Metric": 26,
+    "Admin_Distance": 110,
+    "Tag": null
+  },
+  {
+    "Node": "r10",
+    "VRF": "default",
+    "Network": "10.0.0.14/32",
+    "Next_Hop": {
+      "interface": "Ethernet0/0",
+      "ip": "10.2.10.2",
+      "type": "interface"
+    },
+    "Next_Hop_IP": "10.2.10.2",
+    "Next_Hop_Interface": "Ethernet0/0",
+    "Protocol": "ospfIA",
+    "Metric": 16,
+    "Admin_Distance": 110,
+    "Tag": null
+  },
+  {
+    "Node": "r10",
+    "VRF": "default",
+    "Network": "10.2.10.0/24",
+    "Next_Hop": {
+      "interface": "Ethernet0/0",
+      "ip": null,
+      "type": "interface"
+    },
+    "Next_Hop_IP": "AUTO/NONE(-1l)",
+    "Next_Hop_Interface": "Ethernet0/0",
+    "Protocol": "connected",
+    "Metric": 0,
+    "Admin_Distance": 0,
+    "Tag": null
+  },
+  {
+    "Node": "r10",
+    "VRF": "default",
+    "Network": "10.2.10.10/32",
+    "Next_Hop": {
+      "interface": "Ethernet0/0",
+      "ip": null,
+      "type": "interface"
+    },
+    "Next_Hop_IP": "AUTO/NONE(-1l)",
+    "Next_Hop_Interface": "Ethernet0/0",
+    "Protocol": "local",
+    "Metric": 0,
+    "Admin_Distance": 0,
+    "Tag": null
+  },
+  {
+    "Node": "r10",
+    "VRF": "default",
+    "Network": "10.2.14.0/24",
+    "Next_Hop": {
+      "interface": "Ethernet0/0",
+      "ip": "10.2.10.2",
+      "type": "interface"
+    },
+    "Next_Hop_IP": "10.2.10.2",
+    "Next_Hop_Interface": "Ethernet0/0",
+    "Protocol": "ospfIA",
+    "Metric": 15,
+    "Admin_Distance": 110,
+    "Tag": null
+  },
+  {
+    "Node": "r10",
+    "VRF": "default",
+    "Network": "10.13.14.0/24",
+    "Next_Hop": {
+      "interface": "Ethernet0/0",
+      "ip": "10.2.10.2",
+      "type": "interface"
+    },
+    "Next_Hop_IP": "10.2.10.2",
+    "Next_Hop_Interface": "Ethernet0/0",
+    "Protocol": "ospfIA",
+    "Metric": 25,
+    "Admin_Distance": 110,
+    "Tag": null
+  },
+  {
+    "Node": "r13",
+    "VRF": "default",
+    "Network": "0.0.0.0/0",
+    "Next_Hop": {
+      "interface": "Ethernet0/3",
+      "ip": "10.13.14.14",
+      "type": "interface"
+    },
+    "Next_Hop_IP": "10.13.14.14",
+    "Next_Hop_Interface": "Ethernet0/3",
+    "Protocol": "ospfIA",
+    "Metric": 10,
+    "Admin_Distance": 110,
+    "Tag": null
+  },
+  {
+    "Node": "r13",
+    "VRF": "default",
+    "Network": "10.0.0.2/32",
+    "Next_Hop": {
+      "interface": "Ethernet0/3",
+      "ip": "10.13.14.14",
+      "type": "interface"
+    },
+    "Next_Hop_IP": "10.13.14.14",
+    "Next_Hop_Interface": "Ethernet0/3",
+    "Protocol": "ospfIA",
+    "Metric": 16,
+    "Admin_Distance": 110,
+    "Tag": null
+  },
+  {
+    "Node": "r13",
+    "VRF": "default",
+    "Network": "10.0.0.13/32",
+    "Next_Hop": {
+      "interface": "Loopback0",
+      "ip": null,
+      "type": "interface"
+    },
+    "Next_Hop_IP": "AUTO/NONE(-1l)",
+    "Next_Hop_Interface": "Loopback0",
+    "Protocol": "connected",
+    "Metric": 0,
+    "Admin_Distance": 0,
+    "Tag": null
+  },
+  {
+    "Node": "r13",
+    "VRF": "default",
+    "Network": "10.0.0.14/32",
+    "Next_Hop": {
+      "interface": "Ethernet0/3",
+      "ip": "10.13.14.14",
+      "type": "interface"
+    },
+    "Next_Hop_IP": "10.13.14.14",
+    "Next_Hop_Interface": "Ethernet0/3",
+    "Protocol": "ospfIA",
+    "Metric": 11,
+    "Admin_Distance": 110,
+    "Tag": null
+  },
+  {
+    "Node": "r13",
+    "VRF": "default",
+    "Network": "10.2.10.0/24",
+    "Next_Hop": {
+      "interface": "Ethernet0/3",
+      "ip": "10.13.14.14",
+      "type": "interface"
+    },
+    "Next_Hop_IP": "10.13.14.14",
+    "Next_Hop_Interface": "Ethernet0/3",
+    "Protocol": "ospfIA",
+    "Metric": 25,
+    "Admin_Distance": 110,
+    "Tag": null
+  },
+  {
+    "Node": "r13",
+    "VRF": "default",
+    "Network": "10.2.14.0/24",
+    "Next_Hop": {
+      "interface": "Ethernet0/3",
+      "ip": "10.13.14.14",
+      "type": "interface"
+    },
+    "Next_Hop_IP": "10.13.14.14",
+    "Next_Hop_Interface": "Ethernet0/3",
+    "Protocol": "ospfIA",
+    "Metric": 15,
+    "Admin_Distance": 110,
+    "Tag": null
+  },
+  {
+    "Node": "r13",
+    "VRF": "default",
+    "Network": "10.13.14.0/24",
+    "Next_Hop": {
+      "interface": "Ethernet0/3",
+      "ip": null,
+      "type": "interface"
+    },
+    "Next_Hop_IP": "AUTO/NONE(-1l)",
+    "Next_Hop_Interface": "Ethernet0/3",
+    "Protocol": "connected",
+    "Metric": 0,
+    "Admin_Distance": 0,
+    "Tag": null
+  },
+  {
+    "Node": "r13",
+    "VRF": "default",
+    "Network": "10.13.14.13/32",
+    "Next_Hop": {
+      "interface": "Ethernet0/3",
+      "ip": null,
+      "type": "interface"
+    },
+    "Next_Hop_IP": "AUTO/NONE(-1l)",
+    "Next_Hop_Interface": "Ethernet0/3",
+    "Protocol": "local",
+    "Metric": 0,
+    "Admin_Distance": 0,
+    "Tag": null
+  },
+  {
+    "Node": "r14",
+    "VRF": "default",
+    "Network": "10.0.0.2/32",
+    "Next_Hop": {
+      "interface": "Ethernet0/2",
+      "ip": "10.2.14.2",
+      "type": "interface"
+    },
+    "Next_Hop_IP": "10.2.14.2",
+    "Next_Hop_Interface": "Ethernet0/2",
+    "Protocol": "ospfIA",
+    "Metric": 6,
+    "Admin_Distance": 110,
+    "Tag": null
+  },
+  {
+    "Node": "r14",
+    "VRF": "default",
+    "Network": "10.0.0.10/32",
+    "Next_Hop": {
+      "interface": "Ethernet0/2",
+      "ip": "10.2.14.2",
+      "type": "interface"
+    },
+    "Next_Hop_IP": "10.2.14.2",
+    "Next_Hop_Interface": "Ethernet0/2",
+    "Protocol": "ospfE2",
+    "Metric": 20,
+    "Admin_Distance": 110,
+    "Tag": null
+  },
+  {
+    "Node": "r14",
+    "VRF": "default",
+    "Network": "10.0.0.13/32",
+    "Next_Hop": {
+      "interface": "Ethernet0/3",
+      "ip": "10.13.14.13",
+      "type": "interface"
+    },
+    "Next_Hop_IP": "10.13.14.13",
+    "Next_Hop_Interface": "Ethernet0/3",
+    "Protocol": "ospf",
+    "Metric": 11,
+    "Admin_Distance": 110,
+    "Tag": null
+  },
+  {
+    "Node": "r14",
+    "VRF": "default",
+    "Network": "10.0.0.14/32",
+    "Next_Hop": {
+      "interface": "Loopback0",
+      "ip": null,
+      "type": "interface"
+    },
+    "Next_Hop_IP": "AUTO/NONE(-1l)",
+    "Next_Hop_Interface": "Loopback0",
+    "Protocol": "connected",
+    "Metric": 0,
+    "Admin_Distance": 0,
+    "Tag": null
+  },
+  {
+    "Node": "r14",
+    "VRF": "default",
+    "Network": "10.2.10.0/24",
+    "Next_Hop": {
+      "interface": "Ethernet0/2",
+      "ip": "10.2.14.2",
+      "type": "interface"
+    },
+    "Next_Hop_IP": "10.2.14.2",
+    "Next_Hop_Interface": "Ethernet0/2",
+    "Protocol": "ospfIA",
+    "Metric": 15,
+    "Admin_Distance": 110,
+    "Tag": null
+  },
+  {
+    "Node": "r14",
+    "VRF": "default",
+    "Network": "10.2.14.0/24",
+    "Next_Hop": {
+      "interface": "Ethernet0/2",
+      "ip": null,
+      "type": "interface"
+    },
+    "Next_Hop_IP": "AUTO/NONE(-1l)",
+    "Next_Hop_Interface": "Ethernet0/2",
+    "Protocol": "connected",
+    "Metric": 0,
+    "Admin_Distance": 0,
+    "Tag": null
+  },
+  {
+    "Node": "r14",
+    "VRF": "default",
+    "Network": "10.2.14.14/32",
+    "Next_Hop": {
+      "interface": "Ethernet0/2",
+      "ip": null,
+      "type": "interface"
+    },
+    "Next_Hop_IP": "AUTO/NONE(-1l)",
+    "Next_Hop_Interface": "Ethernet0/2",
+    "Protocol": "local",
+    "Metric": 0,
+    "Admin_Distance": 0,
+    "Tag": null
+  },
+  {
+    "Node": "r14",
+    "VRF": "default",
+    "Network": "10.13.14.0/24",
+    "Next_Hop": {
+      "interface": "Ethernet0/3",
+      "ip": null,
+      "type": "interface"
+    },
+    "Next_Hop_IP": "AUTO/NONE(-1l)",
+    "Next_Hop_Interface": "Ethernet0/3",
+    "Protocol": "connected",
+    "Metric": 0,
+    "Admin_Distance": 0,
+    "Tag": null
+  },
+  {
+    "Node": "r14",
+    "VRF": "default",
+    "Network": "10.13.14.14/32",
+    "Next_Hop": {
+      "interface": "Ethernet0/3",
+      "ip": null,
+      "type": "interface"
+    },
+    "Next_Hop_IP": "AUTO/NONE(-1l)",
+    "Next_Hop_Interface": "Ethernet0/3",
+    "Protocol": "local",
+    "Metric": 0,
+    "Admin_Distance": 0,
+    "Tag": null
+  },
+  {
+    "Node": "r2",
+    "VRF": "default",
+    "Network": "10.0.0.2/32",
+    "Next_Hop": {
+      "interface": "Loopback0",
+      "ip": null,
+      "type": "interface"
+    },
+    "Next_Hop_IP": "AUTO/NONE(-1l)",
+    "Next_Hop_Interface": "Loopback0",
+    "Protocol": "connected",
+    "Metric": 0,
+    "Admin_Distance": 0,
+    "Tag": null
+  },
+  {
+    "Node": "r2",
+    "VRF": "default",
+    "Network": "10.0.0.10/32",
+    "Next_Hop": {
+      "interface": "Ethernet0/0",
+      "ip": "10.2.10.10",
+      "type": "interface"
+    },
+    "Next_Hop_IP": "10.2.10.10",
+    "Next_Hop_Interface": "Ethernet0/0",
+    "Protocol": "ospfE2",
+    "Metric": 20,
+    "Admin_Distance": 110,
+    "Tag": null
+  },
+  {
+    "Node": "r2",
+    "VRF": "default",
+    "Network": "10.0.0.13/32",
+    "Next_Hop": {
+      "interface": "Ethernet0/2",
+      "ip": "10.2.14.14",
+      "type": "interface"
+    },
+    "Next_Hop_IP": "10.2.14.14",
+    "Next_Hop_Interface": "Ethernet0/2",
+    "Protocol": "ospfIA",
+    "Metric": 16,
+    "Admin_Distance": 110,
+    "Tag": null
+  },
+  {
+    "Node": "r2",
+    "VRF": "default",
+    "Network": "10.0.0.14/32",
+    "Next_Hop": {
+      "interface": "Ethernet0/2",
+      "ip": "10.2.14.14",
+      "type": "interface"
+    },
+    "Next_Hop_IP": "10.2.14.14",
+    "Next_Hop_Interface": "Ethernet0/2",
+    "Protocol": "ospf",
+    "Metric": 6,
+    "Admin_Distance": 110,
+    "Tag": null
+  },
+  {
+    "Node": "r2",
+    "VRF": "default",
+    "Network": "10.2.10.0/24",
+    "Next_Hop": {
+      "interface": "Ethernet0/0",
+      "ip": null,
+      "type": "interface"
+    },
+    "Next_Hop_IP": "AUTO/NONE(-1l)",
+    "Next_Hop_Interface": "Ethernet0/0",
+    "Protocol": "connected",
+    "Metric": 0,
+    "Admin_Distance": 0,
+    "Tag": null
+  },
+  {
+    "Node": "r2",
+    "VRF": "default",
+    "Network": "10.2.10.2/32",
+    "Next_Hop": {
+      "interface": "Ethernet0/0",
+      "ip": null,
+      "type": "interface"
+    },
+    "Next_Hop_IP": "AUTO/NONE(-1l)",
+    "Next_Hop_Interface": "Ethernet0/0",
+    "Protocol": "local",
+    "Metric": 0,
+    "Admin_Distance": 0,
+    "Tag": null
+  },
+  {
+    "Node": "r2",
+    "VRF": "default",
+    "Network": "10.2.14.0/24",
+    "Next_Hop": {
+      "interface": "Ethernet0/2",
+      "ip": null,
+      "type": "interface"
+    },
+    "Next_Hop_IP": "AUTO/NONE(-1l)",
+    "Next_Hop_Interface": "Ethernet0/2",
+    "Protocol": "connected",
+    "Metric": 0,
+    "Admin_Distance": 0,
+    "Tag": null
+  },
+  {
+    "Node": "r2",
+    "VRF": "default",
+    "Network": "10.2.14.2/32",
+    "Next_Hop": {
+      "interface": "Ethernet0/2",
+      "ip": null,
+      "type": "interface"
+    },
+    "Next_Hop_IP": "AUTO/NONE(-1l)",
+    "Next_Hop_Interface": "Ethernet0/2",
+    "Protocol": "local",
+    "Metric": 0,
+    "Admin_Distance": 0,
+    "Tag": null
+  },
+  {
+    "Node": "r2",
+    "VRF": "default",
+    "Network": "10.13.14.0/24",
+    "Next_Hop": {
+      "interface": "Ethernet0/2",
+      "ip": "10.2.14.14",
+      "type": "interface"
+    },
+    "Next_Hop_IP": "10.2.14.14",
+    "Next_Hop_Interface": "Ethernet0/2",
+    "Protocol": "ospfIA",
+    "Metric": 15,
+    "Admin_Distance": 110,
+    "Tag": null
+  }
+]

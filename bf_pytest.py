@@ -48,6 +48,20 @@ def rtes(bf):
     """
     return bf.q.routes().answer().frame()
 
+@pytest.fixture(scope="module")
+def nodes_with_externals(bf):
+
+    # Process tells us area assignments and ABR status
+    # Area tells us area types (STUB, NSSA, NONE)
+    procs = bf.q.ospfProcessConfiguration.answer().frame()
+    areas = bf.q.ospfAreaConfiguration.answer().frame()
+
+    # Map node name to true (has externals) or false (lacks externals)
+    node_dict = {}
+
+    for _, proc in procs.iterrows():
+        
+
 
 def test_no_duplicate_router_ids(bf):
     """

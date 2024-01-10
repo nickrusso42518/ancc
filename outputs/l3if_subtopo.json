@@ -1,0 +1,98 @@
+[
+  {
+    "Interface": {
+      "hostname": "r10",
+      "interface": "Ethernet0/0"
+    },
+    "IPs": [
+      "10.2.10.10"
+    ],
+    "Remote_Interface": {
+      "hostname": "r2",
+      "interface": "Ethernet0/0"
+    },
+    "Remote_IPs": [
+      "10.2.10.2"
+    ]
+  },
+  {
+    "Interface": {
+      "hostname": "r13",
+      "interface": "Ethernet0/3"
+    },
+    "IPs": [
+      "10.13.14.13"
+    ],
+    "Remote_Interface": {
+      "hostname": "r14",
+      "interface": "Ethernet0/3"
+    },
+    "Remote_IPs": [
+      "10.13.14.14"
+    ]
+  },
+  {
+    "Interface": {
+      "hostname": "r14",
+      "interface": "Ethernet0/2"
+    },
+    "IPs": [
+      "10.2.14.14"
+    ],
+    "Remote_Interface": {
+      "hostname": "r2",
+      "interface": "Ethernet0/2"
+    },
+    "Remote_IPs": [
+      "10.2.14.2"
+    ]
+  },
+  {
+    "Interface": {
+      "hostname": "r14",
+      "interface": "Ethernet0/3"
+    },
+    "IPs": [
+      "10.13.14.14"
+    ],
+    "Remote_Interface": {
+      "hostname": "r13",
+      "interface": "Ethernet0/3"
+    },
+    "Remote_IPs": [
+      "10.13.14.13"
+    ]
+  },
+  {
+    "Interface": {
+      "hostname": "r2",
+      "interface": "Ethernet0/0"
+    },
+    "IPs": [
+      "10.2.10.2"
+    ],
+    "Remote_Interface": {
+      "hostname": "r10",
+      "interface": "Ethernet0/0"
+    },
+    "Remote_IPs": [
+      "10.2.10.10"
+    ]
+  },
+  {
+    "Interface": {
+      "hostname": "r2",
+      "interface": "Ethernet0/2"
+    },
+    "IPs": [
+      "10.2.14.2"
+    ],
+    "Remote_Interface": {
+      "hostname": "r14",
+      "interface": "Ethernet0/2"
+    },
+    "Remote_IPs": [
+      "10.2.14.14"
+    ]
+  }
+]

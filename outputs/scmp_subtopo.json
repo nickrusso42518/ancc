@@ -1,0 +1,104 @@
+[
+  {
+    "Interface": {
+      "hostname": "r2",
+      "interface": "Ethernet0/2"
+    },
+    "VRF": "default",
+    "IP": "10.2.14.2",
+    "Area": 0,
+    "Remote_Interface": {
+      "hostname": "r14",
+      "interface": "Ethernet0/2"
+    },
+    "Remote_VRF": "default",
+    "Remote_IP": "10.2.14.14",
+    "Remote_Area": 0,
+    "Session_Status": "ESTABLISHED"
+  },
+  {
+    "Interface": {
+      "hostname": "r2",
+      "interface": "Ethernet0/0"
+    },
+    "VRF": "default",
+    "IP": "10.2.10.2",
+    "Area": 1,
+    "Remote_Interface": {
+      "hostname": "r10",
+      "interface": "Ethernet0/0"
+    },
+    "Remote_VRF": "default",
+    "Remote_IP": "10.2.10.10",
+    "Remote_Area": 1,
+    "Session_Status": "ESTABLISHED"
+  },
+  {
+    "Interface": {
+      "hostname": "r14",
+      "interface": "Ethernet0/2"
+    },
+    "VRF": "default",
+    "IP": "10.2.14.14",
+    "Area": 0,
+    "Remote_Interface": {
+      "hostname": "r2",
+      "interface": "Ethernet0/2"
+    },
+    "Remote_VRF": "default",
+    "Remote_IP": "10.2.14.2",
+    "Remote_Area": 0,
+    "Session_Status": "ESTABLISHED"
+  },
+  {
+    "Interface": {
+      "hostname": "r10",
+      "interface": "Ethernet0/0"
+    },
+    "VRF": "default",
+    "IP": "10.2.10.10",
+    "Area": 1,
+    "Remote_Interface": {
+      "hostname": "r2",
+      "interface": "Ethernet0/0"
+    },
+    "Remote_VRF": "default",
+    "Remote_IP": "10.2.10.2",
+    "Remote_Area": 1,
+    "Session_Status": "ESTABLISHED"
+  },
+  {
+    "Interface": {
+      "hostname": "r13",
+      "interface": "Ethernet0/3"
+    },
+    "VRF": "default",
+    "IP": "10.13.14.13",
+    "Area": 3,
+    "Remote_Interface": {
+      "hostname": "r14",
+      "interface": "Ethernet0/3"
+    },
+    "Remote_VRF": "default",
+    "Remote_IP": "10.13.14.14",
+    "Remote_Area": 3,
+    "Session_Status": "ESTABLISHED"
+  },
+  {
+    "Interface": {
+      "hostname": "r14",
+      "interface": "Ethernet0/3"
+    },
+    "VRF": "default",
+    "IP": "10.13.14.14",
+    "Area": 3,
+    "Remote_Interface": {
+      "hostname": "r13",
+      "interface": "Ethernet0/3"
+    },
+    "Remote_VRF": "default",
+    "Remote_IP": "10.13.14.13",
+    "Remote_Area": 3,
+    "Session_Status": "ESTABLISHED"
+  }
+]
