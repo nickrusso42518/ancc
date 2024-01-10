@@ -48,19 +48,42 @@ def rtes(bf):
     """
     return bf.q.routes().answer().frame()
 
+
 @pytest.fixture(scope="module")
-def nodes_with_externals(bf):
+def cle(bf):
+    """
+    Returns a string:bool mapping to determine whether a node can
+    learn OSPF external routes or not. Routers that cannot are non-ABRs
+    existing only within stub/NSSA areas.
+    """
 
     # Process tells us area assignments and ABR status
     # Area tells us area types (STUB, NSSA, NONE)
-    procs = bf.q.ospfProcessConfiguration.answer().frame()
-    areas = bf.q.ospfAreaConfiguration.answer().frame()
+    procs = bf.q.ospfProcessConfiguration().answer().frame()
+    areas = bf.q.ospfAreaConfiguration().answer().frame()
 
     # Map node name to true (has externals) or false (lacks externals)
     node_dict = {}
-
     for _, proc in procs.iterrows():
-        
+        # If node is an ABR, it can definitely learn external routes
+        if proc["Area_Border_Router"]:
+            node_dict[proc["Node"]] = True
+            continue
+
+        # Node is not an ABR. Need to examine individual area assignments,
+        # assume can-learn-externals (cle) is False to begin
+        cle = False
+        for check in proc["Areas"]:
+            for _, area in areas.iterrows():
+                # If we found the matching node/area pair, check the area type.
+                # If a non-ABR exists only in stub areas, it cannot learn
+                # externals, but we must check *all* areas to be certain
+                if proc["Node"] == area["Node"] and check == area["Area"]:
+                    node_dict[proc["Node"]] = cle or area["Area_Type"] != "STUB"
+
+    # Sanity check; ensure node counts are equal between data structures
+    assert len(node_dict) == len(procs)
+    return node_dict
 
 
 def test_no_duplicate_router_ids(bf):
@@ -124,29 +147,20 @@ def test_complementary_descriptions(bf, nbrs, intfs):
         assert desc.lower().endswith(nbr.hostname)
 
 
-def test_nonstubs_have_externals(rtes):
-    """
-    Ensure backbone/NSSA nodes have the external routes redistributed by R10.
-    """
-    for node in ["r01", "r02", "r14"]:
-        oe2 = rtes.loc[(rtes["Protocol"] == "ospfE2") & (rtes["Node"] == node)]
-        assert len(oe2) > 0
-
-
-def test_stubs_lack_externals(rtes):
+def test_stubs_lack_externals(rtes, cle):
     """
     Ensure stub nodes lack the external routes redistributed by R10.
     """
-    for node in ["r12", "r13"]:
+    for node in [k for k, v in cle.items() if not v]:
         oe2 = rtes.loc[(rtes["Protocol"] == "ospfE2") & (rtes["Node"] == node)]
         assert len(oe2) == 0
 
 
-def test_stubs_have_default(rtes):
+def test_stubs_have_default(rtes, cle):
     """
     Ensure stub nodes have exactly one default route via R01.
     """
-    for node in ["r12", "r13"]:
+    for node in [k for k, v in cle.items() if not v]:
         defrte = rtes.loc[
             (rtes["Protocol"] == "ospfIA")
             & (rtes["Network"] == "0.0.0.0/0")
@@ -158,13 +172,13 @@ def test_stubs_have_default(rtes):
         assert defrte.values[0].endswith(".1")
 
 
-def test_stubs_have_interareas(rtes):
+def test_stubs_have_interareas(rtes, cle):
     """
     Ensure stub nodes have at least one non-default inter-area route
     via R14. Also, these nodes must have an equal number of such routes.
     """
     other_set = set()
-    for node in ["r12", "r13"]:
+    for node in [k for k, v in cle.items() if not v]:
         others = rtes.loc[
             (rtes["Protocol"] == "ospfIA")
             & (rtes["Network"] != "0.0.0.0/0")
@@ -181,12 +195,38 @@ def test_stubs_have_interareas(rtes):
     assert len(other_set) == 1
 
 
-def test_traceroute_stub_to_nssa_interarea(bf):
+def test_nonstubs_have_externals(rtes, cle):
+    """
+    Ensure backbone/NSSA nodes have the external routes redistributed by R10.
+    Note that the ASBR itself will not have these external routes, but should
+    have corresponding connected routes instead.
+    """
+
+    # Gather all OE2 routes in the network
+    all_oe2 = rtes.loc[(rtes["Protocol"] == "ospfE2")]
+    for node in [k for k, v in cle.items() if v]:
+        # Get the node-specific OE2 routes and ensure more than zero exist
+        oe2 = all_oe2.loc[(rtes["Node"] == node)]
+        try:
+            assert len(oe2) > 0
+
+        except AssertionError:
+            # This code runs for the ASBRs. Check the node's connected routes, then
+            # for each unique OE2 route (using a set), ensure there is
+            # exactly one corresponding connected route
+            conn = rtes.loc[
+                (rtes["Protocol"] == "connected") & (rtes["Node"] == node)
+            ]
+            for unique_oe2 in set(all_oe2.Network.values):
+                assert len(conn.loc[conn["Network"] == unique_oe2]) == 1
+
+
+def test_traceroute_stub_to_nssa_interarea(bf, cle):
     """
     Run unidirectional traceroute from stub nodes to an NSSA inter-area
     destination, which must follow longer matches via R14.
     """
-    for node in ["r12", "r13"]:
+    for node in [k for k, v in cle.items() if not v]:
         params = {
             "src": f"{node}[Loopback0]",
             "dest": "r10[Loopback0]",
@@ -202,12 +242,12 @@ def test_traceroute_stub_to_nssa_interarea(bf):
                 break
 
 
-def test_traceroute_stub_to_nssa_external(bf):
+def test_traceroute_stub_to_nssa_external(bf, cle):
     """
     Run unidirectional traceroute from stub nodes to an NSSA external
     destination, which must follow the default route via R01.
     """
-    for node in ["r12", "r13"]:
+    for node in [k for k, v in cle.items() if not v]:
         params = {
             "src": f"{node}[Loopback0]",
             "dest": "r10[Loopback1]",
