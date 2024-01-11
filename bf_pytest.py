@@ -333,12 +333,13 @@ def test_generate_topology(bf):
             # If we haven't processed that duplicate, overwrite the
             # remote hostname and interface accordingly, remove the host
             # from the set because it's just been processed, then increment
-            # the switch interface counter
+            # the switch interface counter in the format of "0/intf#"
             if link["Interface"]["hostname"] in remaining_hosts:
                 link["Remote_Interface"]["hostname"] = "sw"
-                link["Remote_Interface"]["interface"] = sw_intf
+                link["Remote_Interface"]["interface"] = f"0/{sw_intf}"
                 remaining_hosts.remove(link["Interface"]["hostname"])
                 sw_intf += 1
+                # TODO add reverse link from SW to router for symmetry
 
             # Host was already processed; mark duplicate element for removal
             else:

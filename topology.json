@@ -15,8 +15,8 @@
       "interface": "Ethernet0/2"
     },
     "Remote_Interface": {
-      "hostname": "SW",
-      "interface": 0
+      "hostname": "sw",
+      "interface": "0/0"
     }
   },
   {
@@ -45,8 +45,8 @@
       "interface": "Ethernet0/2"
     },
     "Remote_Interface": {
-      "hostname": "SW",
-      "interface": 1
+      "hostname": "sw",
+      "interface": "0/1"
     }
   },
   {
@@ -115,8 +115,8 @@
       "interface": "Ethernet0/2"
     },
     "Remote_Interface": {
-      "hostname": "SW",
-      "interface": 2
+      "hostname": "sw",
+      "interface": "0/2"
     }
   },
   {

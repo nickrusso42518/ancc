@@ -7,6 +7,7 @@ on the OSPF routing protocol using archived configurations.
 """
 
 import json
+import re
 import httpx
 
 
@@ -91,27 +92,45 @@ def main(base_url):
 
         # Now, make the API calls to create the links between node pairs
         for link in unique_links:
-            # TODO
+            # TODO how do we figure out the OS? can batfish tell us?
+            # TODO same issue for etherswitch
+            a_data = _parse_ios(link[0])
+            b_data = _parse_ios(link[1])
+
+            # Construct the HTTP body for the API call, specifying the
+            # node ID (response from node creation), plus the adapter/port
+            # number to be connected
             link_body = {
                 "nodes": [
                     {
-                        "node_id": "4db44a5d-ffb6-4806-9c14-27bbf2b18d0e",
-                        "adapter_number": 0,
-                        "port_number": 2,
+                        "node_id": node_dict[a_data["node"]]["node_id"],
+                        "adapter_number": a_data["adapter"],
+                        "port_number": a_data["port"],
                     },
                     {
-                        "node_id": "ce08a502-eb22-421b-9aca-39e133c49aee",
-                        "adapter_number": 0,
-                        "port_number": 2,
+                        "node_id": node_dict[b_data["node"]]["node_id"],
+                        "adapter_number": b_data["adapter"],
+                        "port_number": b_data["port"],
                     },
                 ]
             }
+
+            # Send a POST request to connect the A and B nodes
             conn = _req(
                 client=client,
                 url=f"{base_url}/projects/{proj_id}/links",
                 method="post",
                 jsonbody=node_body,
             )
+
+
+def _parse_ios(intf_str):
+    # TODO or, don't track OS, just make regex smarter
+    regex = re.compile(
+        r"^\[(?P<node>\S+)\][A-Za-z]*(?P<adapter>\d+)/(?P<port>\d+)$"
+    )
+    result = re.search(regex, intf_str)
+    return result.groupdict()
 
 
 def _req(client, url, method="get", jsonbody=None):
