@@ -335,7 +335,7 @@ def test_generate_topology(bf):
             # from the set because it's just been processed, then increment
             # the switch interface counter
             if link["Interface"]["hostname"] in remaining_hosts:
-                link["Remote_Interface"]["hostname"] = "SW"
+                link["Remote_Interface"]["hostname"] = "sw"
                 link["Remote_Interface"]["interface"] = sw_intf
                 remaining_hosts.remove(link["Interface"]["hostname"])
                 sw_intf += 1

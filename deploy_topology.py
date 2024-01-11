@@ -46,7 +46,8 @@ def main(base_url):
 
         # Iterate over the unique nodes, deploying each based on the
         # template. Certain parameters can be overridden/customized.
-        for i, node in enumerate(["R01"]):
+        node_dict = {}
+        for i, node in enumerate(["r01"]):
             x, y = (i * 10 % 40, i // 4 * 10)
             node_body = {
                 "name": node,
@@ -61,14 +62,56 @@ def main(base_url):
                 method="post",
                 jsonbody=node_body,
             )
-            # print(f"Adding {node} at ({x},{y}) via {console?}")
 
-            # TODO record node UUIDs and ports?
+            print(
+                f"Adding {node} at ({x},{y}) via {depl['console']} with id {depl['node_id']}"
+            )
+            node_dict[node] = depl
+            """
+            node_dict[node] = {
+                "host": depl["console_host"],
+                "type": depl["console_type"],
+                "port": depl["console"],
+                "id": depl["node_id"],
+                "ports": depl["ports"],
+            }
+            """
 
-        for links in topology:
-            # since topo is sorted, after all R01 is done, ignore all
-            # links with R01 as the remote, etc
-            pass
+        # Remove unidirectional links from the topology. eg: R01-R02 and
+        # R02-R01 may exist, but we only need one pair for GNS3 specifically.
+        # Use a set to filter out duplicate 2-tuples (immutable) after
+        # converting each hostname/interface pair to "batfish" string format.
+        unique_links = set()
+        for link in topology:
+            intfs = [
+                f"[{intf['hostname']}]{intf['interface']}"
+                for intf in link.values()
+            ]
+            unique_links.add(tuple(sorted(intfs)))
+
+        # Now, make the API calls to create the links between node pairs
+        for link in unique_links:
+            # TODO
+            link_body = {
+                "nodes": [
+                    {
+                        "node_id": "4db44a5d-ffb6-4806-9c14-27bbf2b18d0e",
+                        "adapter_number": 0,
+                        "port_number": 2,
+                    },
+                    {
+                        "node_id": "ce08a502-eb22-421b-9aca-39e133c49aee",
+                        "adapter_number": 0,
+                        "port_number": 2,
+                    },
+                ]
+            }
+            conn = _req(
+                client=client,
+                url=f"{base_url}/projects/{proj_id}/links",
+                method="post",
+                jsonbody=node_body,
+            )
 
 
 def _req(client, url, method="get", jsonbody=None):
