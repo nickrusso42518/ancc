@@ -7,64 +7,59 @@ routers in the topology using CLI commands and assertions.
 """
 
 import pytest
-import pytest_asyncio
-from scrapli import AsyncScrapli
+from scrapli import Scrapli
+import time
 
-# TODO delete?
-async def _set_term_length_0(ascrap):
-    breakpoint()
-    host = await ascrap.send_command("show running-config | include hostname")
-    ascrap.comms_prompt_pattern = fr"^{host.result.split(' ')[1]}#\s*$"
-
-@pytest_asyncio.fixture(scope="module")
-async def conn():
+def _close_channel(ascrap):
     """
-    Fixture to provide access to the devices using asyncio with
+    Close the channel but don't send "exit"; behavior appears inconsistent
+    on GNS3 terminal server.
+    """
+    # ascrap.channel.transport.socket.close()
+    ascrap.channel.close()
+
+@pytest.fixture(scope="module")
+def conn():
+    """
+    Fixture to provide access to the devices with
     telnet transport to the device consoles.
     """
 
-    # default does not include A-Z "^[a-z0-9.\-@()/:]{1,48}[#>$]\s*$"
     params = {
        "host": "192.168.120.128",  # GNS3 VM, not client
        "platform": "cisco_iosxe",
-       "transport": "asynctelnet",
+       "transport": "telnet",
        "auth_bypass": True,
-       "on_open": _set_term_length_0,
-       "comms_return_char": "\r\n",
-       # "comms_prompt_pattern": r"^[A-Za-z0-9.@()/:-]{1,48}[#>$]\s*$"
+       "on_close": _close_channel,
     }
 
     # Setup: define and open all connections
     conn = {
-        "r01": AsyncScrapli(**{"port": 5000} | params),
-        "r02": AsyncScrapli(**{"port": 5001} | params),
+        "r01": Scrapli(**{"port": 5000} | params),
+        "r02": Scrapli(**{"port": 5001} | params),
     }
     for ascrap in conn.values():
-        await ascrap.open()
+        ascrap.open()
 
     # Return the connection map to test functions
     yield conn
 
     # Teardown: close all connections
     for ascrap in conn.values():
-        await ascrap.close()
+        ascrap.close()
 
-@pytest.mark.asyncio
-async def test_prompt(conn):
+def test_prompt(conn):
     """
     Ensure the device's prompt is accessible and contains the
     case-insensitive hostname.
     """
     for hostname, ascrap in conn.items():
         assert ascrap.isalive()
-        prompt = await ascrap.get_prompt()
-        #assert hostname.lower() in prompt.lower()
+        prompt = ascrap.get_prompt()
+        assert hostname.lower() in prompt.lower()
 
-@pytest.mark.asyncio
-async def test_ospf_neighbors(conn):
-    """
-    resp = await conn["r1"].send_command("whatever")
-    resp_d = resp.genie_parse_output()
-    assert resp_d["something"] == 42
-    """
-    assert conn
+def test_ospf_neighbors(conn):
+    for hostname, ascrap in conn.items():
+        nbrs = ascrap.send_command("show ip ospf neighbor")
+        nbrs_d = nbrs.genie_parse_output()
+        assert nbrs_d
