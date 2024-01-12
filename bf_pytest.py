@@ -7,6 +7,7 @@ on the OSPF routing protocol using archived configurations.
 """
 
 import json
+import os
 import pytest
 from pybatfish.client import asserts
 from pybatfish.client.session import Session
@@ -16,37 +17,42 @@ from pybatfish.datamodel.flow import HeaderConstraints, RoutingStepDetail
 @pytest.fixture(scope="module")
 def bf():
     """
-    Perform basic initialization per documentation and return "bf" object
-    so tests can interface with batfish.
+    Perform basic initialization per documentation and return "bf" dict
+    so tests can interface with batfish. This includes the bf session
+    plus the batfish answers to all required questions at once.
+    This centralizes access to basic data for the tests and also
+    stores it on disk for troubleshooting or access by another script.
     """
-    bf = Session(host="localhost")
-    bf.set_network("pre")
-    bf.init_snapshot("snapshots/pre", name="pre", overwrite=True)
-    return bf
 
+    # Initialize the BF session and snapshot
+    bf_session = Session(host="localhost")
+    bf_session.set_network("pre")
+    bf_session.init_snapshot("snapshots/pre", name="pre", overwrite=True)
 
-@pytest.fixture(scope="module")
-def nbrs(bf):
-    """
-    Return the batfish-discovered OSPF neighbors.
-    """
-    return bf.q.ospfEdges().answer().frame()
+    # Collect all of the answers needed about the topology
+    bf = {
+        "nbrs": bf_session.q.ospfEdges().answer().frame(),
+        "intfs": bf_session.q.ospfInterfaceConfiguration().answer().frame(),
+        "procs": bf_session.q.ospfProcessConfiguration().answer().frame(),
+        "areas": bf_session.q.ospfAreaConfiguration().answer().frame(),
+        "compat": bf_session.q.ospfSessionCompatibility().answer().frame(),
+        "iprops": bf_session.q.interfaceProperties().answer().frame(),
+        "links": bf_session.q.layer3Edges().answer().frame(),
+        "rtes": bf_session.q.routes().answer().frame(),
+    }
 
+    # Ensure the output directory exists for BF answer/topology data
+    if not os.path.exists("outputs"):
+        os.makedirs("outputs")
 
-@pytest.fixture(scope="module")
-def intfs(bf):
-    """
-    Return the batfish-discovered OSPF interfaces.
-    """
-    return bf.q.ospfInterfaceConfiguration().answer().frame()
+    # Write each answer to disk in JSON format
+    for name, df in bf.items():
+        json_data = json.loads(df.to_json(orient="records"))
+        with open(f"outputs/bf_{name}.json", "w", encoding="utf-8") as handle:
+            json.dump(json_data, handle, indent=2)
 
-
-@pytest.fixture(scope="module")
-def rtes(bf):
-    """
-    Return the batfish-discovered IP routes.
-    """
-    return bf.q.routes().answer().frame()
+    # Merge dict into bf containing the raw BF session for customization
+    return bf | {"bf": bf_session}
 
 
 @pytest.fixture(scope="module")
@@ -57,14 +63,11 @@ def cle(bf):
     existing only within stub/NSSA areas.
     """
 
-    # Process tells us area assignments and ABR status
-    # Area tells us area types (STUB, NSSA, NONE)
-    procs = bf.q.ospfProcessConfiguration().answer().frame()
-    areas = bf.q.ospfAreaConfiguration().answer().frame()
-
     # Map node name to true (has externals) or false (lacks externals)
     node_dict = {}
-    for _, proc in procs.iterrows():
+
+    # Process data tells us area assignments and ABR status
+    for _, proc in bf["procs"].iterrows():
         # If node is an ABR, it can definitely learn external routes
         if proc["Area_Border_Router"]:
             node_dict[proc["Node"]] = True
@@ -73,8 +76,10 @@ def cle(bf):
         # Node is not an ABR. Need to examine individual area assignments,
         # assume can-learn-externals (cle) is False to begin
         cle = False
+
+        # Area tells us area types (STUB, NSSA, NONE)
         for check in proc["Areas"]:
-            for _, area in areas.iterrows():
+            for _, area in bf["areas"].iterrows():
                 # If we found the matching node/area pair, check the area type.
                 # If a non-ABR exists only in stub areas, it cannot learn
                 # externals, but we must check *all* areas to be certain
@@ -82,7 +87,7 @@ def cle(bf):
                     node_dict[proc["Node"]] = cle or area["Area_Type"] != "STUB"
 
     # Sanity check; ensure node counts are equal between data structures
-    assert len(node_dict) == len(procs)
+    assert len(node_dict) == len(bf["procs"])
     return node_dict
 
 
@@ -90,21 +95,21 @@ def test_no_duplicate_router_ids(bf):
     """
     Use the built-in batfish function to ensure OSPF RIDs are unique.
     """
-    asserts.assert_no_duplicate_router_ids(session=bf)
+    asserts.assert_no_duplicate_router_ids(session=bf["bf"])
 
 
 def test_no_incompatible_ospf_sessions(bf):
     """
     Use the built-in batfish function to ensure OSPF neighbors are compatible.
     """
-    asserts.assert_no_incompatible_ospf_sessions(session=bf)
+    asserts.assert_no_incompatible_ospf_sessions(session=bf["bf"])
 
 
 def test_no_forwarding_loops(bf):
     """
     Use the built-in batfish function to ensure there are no L3 loops.
     """
-    asserts.assert_no_forwarding_loops(session=bf)
+    asserts.assert_no_forwarding_loops(session=bf["bf"])
 
 
 def test_compatible_neighbors_up(bf):
@@ -112,32 +117,31 @@ def test_compatible_neighbors_up(bf):
     Ensure the number of compatible and established neighbors are the same.
     This is more of a sanity check and will seldom fail.
     """
-    compat = bf.q.ospfSessionCompatibility().answer().frame()
-    nbrs = bf.q.ospfEdges().answer().frame()
-    assert len(compat) == len(nbrs)
+    assert len(bf["compat"]) == len(bf["nbrs"])
 
 
-def test_symmetric_costs(bf, intfs):
+def test_symmetric_costs(bf):
     """
     Since the target network uses equal costs on all ends of a link/segment,
     ensure that those costs are the same. This prevents asymmetric routing.
     """
-    nbrs = bf.q.ospfEdges().answer().frame()
-    for _, nbr in nbrs.iterrows():
+    intfs = bf["intfs"]
+    for _, nbr in bf["nbrs"].iterrows():
         li, ri = nbr["Interface"], nbr["Remote_Interface"]
         lc = intfs.loc[intfs["Interface"] == li, "OSPF_Cost"].values[0]
         rc = intfs.loc[intfs["Interface"] == ri, "OSPF_Cost"].values[0]
         assert lc == rc
 
 
-def test_complementary_descriptions(bf, nbrs, intfs):
+def test_complementary_descriptions(bf):
     """
     Routers on P2P links should have descriptions ending with the peer's
     hostname, such as "TO R01" from the perspective of R12/R13.
     """
-    iprops = bf.q.interfaceProperties().answer().frame()
-    p2ps = intfs.loc[
-        intfs["OSPF_Network_Type"] == "POINT_TO_POINT", "Interface"
+    iprops = bf["iprops"]
+    nbrs = bf["nbrs"]
+    p2ps = bf["intfs"].loc[
+        bf["intfs"]["OSPF_Network_Type"] == "POINT_TO_POINT", "Interface"
     ]
 
     # Loop over P2P interface ... a Series, not a DataFrame, so no iterrows()
@@ -147,19 +151,21 @@ def test_complementary_descriptions(bf, nbrs, intfs):
         assert desc.lower().endswith(nbr.hostname)
 
 
-def test_stubs_lack_externals(rtes, cle):
+def test_stubs_lack_externals(bf, cle):
     """
     Ensure stub nodes lack the external routes redistributed by R10.
     """
+    rtes = bf["rtes"]
     for node in [k for k, v in cle.items() if not v]:
         oe2 = rtes.loc[(rtes["Protocol"] == "ospfE2") & (rtes["Node"] == node)]
         assert len(oe2) == 0
 
 
-def test_stubs_have_default(rtes, cle):
+def test_stubs_have_default(bf, cle):
     """
     Ensure stub nodes have exactly one default route via R01.
     """
+    rtes = bf["rtes"]
     for node in [k for k, v in cle.items() if not v]:
         defrte = rtes.loc[
             (rtes["Protocol"] == "ospfIA")
@@ -172,11 +178,12 @@ def test_stubs_have_default(rtes, cle):
         assert defrte.values[0].endswith(".1")
 
 
-def test_stubs_have_interareas(rtes, cle):
+def test_stubs_have_interareas(bf, cle):
     """
     Ensure stub nodes have at least one non-default inter-area route
     via R14. Also, these nodes must have an equal number of such routes.
     """
+    rtes = bf["rtes"]
     other_set = set()
     for node in [k for k, v in cle.items() if not v]:
         others = rtes.loc[
@@ -195,7 +202,7 @@ def test_stubs_have_interareas(rtes, cle):
     assert len(other_set) == 1
 
 
-def test_nonstubs_have_externals(rtes, cle):
+def test_nonstubs_have_externals(bf, cle):
     """
     Ensure backbone/NSSA nodes have the external routes redistributed by R10.
     Note that the ASBR itself will not have these external routes, but should
@@ -203,7 +210,9 @@ def test_nonstubs_have_externals(rtes, cle):
     """
 
     # Gather all OE2 routes in the network
+    rtes = bf["rtes"]
     all_oe2 = rtes.loc[(rtes["Protocol"] == "ospfE2")]
+
     for node in [k for k, v in cle.items() if v]:
         # Get the node-specific OE2 routes and ensure more than zero exist
         oe2 = all_oe2.loc[(rtes["Node"] == node)]
@@ -231,7 +240,7 @@ def test_traceroute_stub_to_nssa_interarea(bf, cle):
             "src": f"{node}[Loopback0]",
             "dest": "r10[Loopback0]",
         }
-        tracert = _run_traceroute(bf, params)
+        tracert = _run_traceroute(bf["bf"], params)
 
         for tstep in tracert.Traces[0][0][0].steps:
             if isinstance(tstep.detail, RoutingStepDetail):
@@ -252,7 +261,7 @@ def test_traceroute_stub_to_nssa_external(bf, cle):
             "src": f"{node}[Loopback0]",
             "dest": "r10[Loopback1]",
         }
-        tracert = _run_traceroute(bf, params)
+        tracert = _run_traceroute(bf["bf"], params)
 
         for tstep in tracert.Traces[0][0][0].steps:
             if isinstance(tstep.detail, RoutingStepDetail):
@@ -288,8 +297,7 @@ def test_generate_topology(bf):
     """
 
     # Get the layer-3 edges (links) and load them as JSON data
-    links = bf.q.layer3Edges().answer().frame()
-    json_data = json.loads(links.to_json(orient="records"))
+    json_data = json.loads(bf["links"].to_json(orient="records"))
 
     # For each link, ensure each interface has exactly one IP address,
     # then remove them. They are extraneous and GNS3 doesn't need them.
@@ -325,29 +333,47 @@ def test_generate_topology(bf):
     remaining_hosts = {dict(dupe)["hostname"] for dupe in dupes}
 
     # Increment counter for the GNS3 "etherswitch" interface numbering
+    # and initialize an empty list to track those "reverse" links
     sw_intf = 0
+    sw_to_node_links = []
 
     # Check entire topology for those duplicate interfaces
     for link in json_data:
         if frozenset(link["Interface"].items()) in dupes:
-            # If we haven't processed that duplicate, overwrite the
-            # remote hostname and interface accordingly, remove the host
-            # from the set because it's just been processed, then increment
-            # the switch interface counter in the format of "0/intf#"
+            # If we haven't processed that duplicate, process the swap
             if link["Interface"]["hostname"] in remaining_hosts:
+                # Overwrite the remote hostname and interface accordingly,
+                # and remove the host from the set because it's just been processed
                 link["Remote_Interface"]["hostname"] = "sw"
                 link["Remote_Interface"]["interface"] = f"0/{sw_intf}"
                 remaining_hosts.remove(link["Interface"]["hostname"])
+
+                # Generate the "reverse" link from etherswitch to node
+                sw_to_node_links.append(
+                    {
+                        "Interface": {
+                            "hostname": "sw",
+                            "interface": f"0/{sw_intf}",
+                        },
+                        "Remote_Interface": {
+                            "hostname": link["Interface"]["hostname"],
+                            "interface": link["Interface"]["interface"],
+                        },
+                    }
+                )
+
+                # Increment the switch interface counter
                 sw_intf += 1
-                # TODO add reverse link from SW to router for symmetry
 
             # Host was already processed; mark duplicate element for removal
             else:
                 link["remove"] = True
 
-    # Rebuild topology list by excluding items marked as "remove"
+    # Rebuild the topology list by excluding items marked as "remove",
+    # then extend the etherswitch "reverse" links to the end
     topology = [link for link in json_data if not link.get("remove")]
+    topology.extend(sw_to_node_links)
 
     # Write resulting topology to disk in pretty format
-    with open("topology.json", "w", encoding="utf-8") as handle:
+    with open("outputs/bf_topology.json", "w", encoding="utf-8") as handle:
         json.dump(topology, handle, indent=2)

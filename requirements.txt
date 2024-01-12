@@ -4,6 +4,5 @@ httpx
 black
 pylint
 pytest
-pytest-asyncio
 scrapli
 scrapli[genie]

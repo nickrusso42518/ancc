@@ -128,5 +128,35 @@
       "hostname": "r13",
       "interface": "Ethernet0/3"
     }
+  },
+  {
+    "Interface": {
+      "hostname": "sw",
+      "interface": "0/0"
+    },
+    "Remote_Interface": {
+      "hostname": "r01",
+      "interface": "Ethernet0/2"
+    }
+  },
+  {
+    "Interface": {
+      "hostname": "sw",
+      "interface": "0/1"
+    },
+    "Remote_Interface": {
+      "hostname": "r02",
+      "interface": "Ethernet0/2"
+    }
+  },
+  {
+    "Interface": {
+      "hostname": "sw",
+      "interface": "0/2"
+    },
+    "Remote_Interface": {
+      "hostname": "r14",
+      "interface": "Ethernet0/2"
+    }
   }
 ]
