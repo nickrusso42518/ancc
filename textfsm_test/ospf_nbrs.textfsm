@@ -1,0 +1,18 @@
+# Example text
+# R01#show ip ospf neighbor
+# Neighbor ID  Pri   State           Dead Time   Address      Interface
+# 10.0.0.2       1   FULL/DR         00:00:37    10.0.99.2    Ethernet0/2
+# 10.0.0.14      0   2WAY/DROTHER    00:00:35    10.0.99.14   Ethernet0/2
+# 10.0.0.12      0   FULL/  -        00:00:34    10.1.12.12   Vlan3
+# 10.0.0.13    255   FULL/BDR        00:00:34    10.1.13.13   Serial6.101
+#
+Value Key rid ([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)
+Value dr_pri ([0-9]+)
+Value state ([A-Z2]+)
+Value role ([A-Z-]+)
+Value dead_time ([0-9]+:[0-9]+:[0-9]+)
+Value ip_addr ([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)
+Value intf ([A-Za-z0-9/.]+)
+
+Start
+  ^${rid} +${dr_pri} +${state}/ *${role} +${dead_time} +${ip_addr} +${intf} -> Record

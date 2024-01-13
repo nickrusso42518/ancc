@@ -5,4 +5,4 @@ black
 pylint
 pytest
 scrapli
-scrapli[genie]
+textfsm

@@ -37,7 +37,6 @@ def bf():
         "areas": bf_session.q.ospfAreaConfiguration().answer().frame(),
         "compat": bf_session.q.ospfSessionCompatibility().answer().frame(),
         "iprops": bf_session.q.interfaceProperties().answer().frame(),
-        #"links": bf_session.q.layer3Edges().answer().frame(),
         "rtes": bf_session.q.routes().answer().frame(),
     }
 
