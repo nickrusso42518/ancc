@@ -1,0 +1,72 @@
+{
+  "r01": {
+    "interfaces": {
+      "Ethernet0/2": {
+        "neighbors": {
+          "10.0.0.2": {
+            "priority": 1,
+            "state": "FULL/DR",
+            "dead_time": "00:00:35",
+            "address": "10.0.99.2"
+          },
+          "10.0.0.14": {
+            "priority": 0,
+            "state": "2WAY/DROTHER",
+            "dead_time": "00:00:35",
+            "address": "10.0.99.14"
+          }
+        }
+      },
+      "Ethernet0/3": {
+        "neighbors": {
+          "10.0.0.12": {
+            "priority": 0,
+            "state": "FULL/  -",
+            "dead_time": "00:00:39",
+            "address": "10.1.12.12"
+          }
+        }
+      },
+      "Ethernet0/1": {
+        "neighbors": {
+          "10.0.0.13": {
+            "priority": 0,
+            "state": "FULL/  -",
+            "dead_time": "00:00:33",
+            "address": "10.1.13.13"
+          }
+        }
+      }
+    }
+  },
+  "r02": {
+    "interfaces": {
+      "Ethernet0/2": {
+        "neighbors": {
+          "10.0.0.1": {
+            "priority": 0,
+            "state": "FULL/DROTHER",
+            "dead_time": "00:00:32",
+            "address": "10.0.99.1"
+          },
+          "10.0.0.14": {
+            "priority": 0,
+            "state": "FULL/DROTHER",
+            "dead_time": "00:00:33",
+            "address": "10.0.99.14"
+          }
+        }
+      },
+      "Ethernet0/0": {
+        "neighbors": {
+          "10.0.0.10": {
+            "priority": 0,
+            "state": "FULL/  -",
+            "dead_time": "00:00:36",
+            "address": "10.2.10.10"
+          }
+        }
+      }
+    }
+  }
+}

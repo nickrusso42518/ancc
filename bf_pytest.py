@@ -37,7 +37,7 @@ def bf():
         "areas": bf_session.q.ospfAreaConfiguration().answer().frame(),
         "compat": bf_session.q.ospfSessionCompatibility().answer().frame(),
         "iprops": bf_session.q.interfaceProperties().answer().frame(),
-        "links": bf_session.q.layer3Edges().answer().frame(),
+        #"links": bf_session.q.layer3Edges().answer().frame(),
         "rtes": bf_session.q.routes().answer().frame(),
     }
 
@@ -290,30 +290,14 @@ def _run_traceroute(bf, params):
 
 def test_generate_topology(bf):
     """
-    Collects the layer-3 interfaces and writes them to disk in JSON format.
+    Collects the OSPF edges and writes them to disk in JSON format.
     It also reforms the topology to dynamically discover multi-access networks
     so that GNS3 can add an "etherswitch" to the topology.
     This can be consumed by the lab simulation topology builder script.
     """
 
-    # Get the layer-3 edges (links) and load them as JSON data
-    json_data = json.loads(bf["links"].to_json(orient="records"))
-
-    # For each link, ensure each interface has exactly one IP address,
-    # then remove them. They are extraneous and GNS3 doesn't need them.
-    for link in json_data:
-        assert len(link["IPs"]) + len(link["Remote_IPs"]) == 2
-        link.pop("IPs")
-        link.pop("Remote_IPs")
-
-        # To protect against Batfish dataframe schema changes, check for
-        # the specific interface keys in each sub-dictionary
-        for subdict in ["Interface", "Remote_Interface"]:
-            assert subdict in link.keys()
-
-            # Further ensure the presence of the attribute keys
-            for attr in ["hostname", "interface"]:
-                assert attr in link[subdict]
+    # Get the unidirectional OSPF neighbors (links) and load them as JSON data
+    json_data = json.loads(bf["nbrs"].to_json(orient="records"))
 
     # Find links that have a duplicate "Interface" dict, indicating a
     # multi-access network. Use an anomymous lambda function to create a
