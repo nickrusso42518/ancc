@@ -1,0 +1,38 @@
+[
+  {
+    "rid": "10.0.0.2",
+    "dr_pri": 1,
+    "state": "FULL",
+    "role": "DR",
+    "dead_time": "00:00:37",
+    "ip_addr": "10.0.99.2",
+    "intf": "Ethernet0/2"
+  },
+  {
+    "rid": "10.0.0.14",
+    "dr_pri": 0,
+    "state": "2WAY",
+    "role": "DROTHER",
+    "dead_time": "00:00:35",
+    "ip_addr": "10.0.99.14",
+    "intf": "Ethernet0/2"
+  },
+  {
+    "rid": "10.0.0.12",
+    "dr_pri": 0,
+    "state": "FULL",
+    "role": "-",
+    "dead_time": "00:00:34",
+    "ip_addr": "10.1.12.12",
+    "intf": "Vlan3"
+  },
+  {
+    "rid": "10.0.0.13",
+    "dr_pri": 255,
+    "state": "FULL",
+    "role": "BDR",
+    "dead_time": "00:00:34",
+    "ip_addr": "10.1.13.13",
+    "intf": "Serial6.101"
+  }
+]

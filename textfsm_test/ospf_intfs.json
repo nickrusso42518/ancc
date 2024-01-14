@@ -1,0 +1,46 @@
+[
+  {
+    "intf": "Lo0",
+    "pid": 1,
+    "area": 0,
+    "ip_addr": "10.0.0.1",
+    "pref_len": 32,
+    "cost": 1,
+    "state": "LOOP",
+    "nbr_full": 0,
+    "nbr_seen": 0
+  },
+  {
+    "intf": "Et0/2",
+    "pid": 1,
+    "area": 0,
+    "ip_addr": "10.0.99.1",
+    "pref_len": 24,
+    "cost": 5,
+    "state": "DROTH",
+    "nbr_full": 1,
+    "nbr_seen": 2
+  },
+  {
+    "intf": "Vl3",
+    "pid": 1,
+    "area": 3,
+    "ip_addr": "10.1.12.1",
+    "pref_len": 24,
+    "cost": 7,
+    "state": "P2P",
+    "nbr_full": 1,
+    "nbr_seen": 1
+  },
+  {
+    "intf": "Se6.101",
+    "pid": 1,
+    "area": 3,
+    "ip_addr": "10.1.13.1",
+    "pref_len": 24,
+    "cost": 7,
+    "state": "P2P",
+    "nbr_full": 1,
+    "nbr_seen": 1
+  }
+]

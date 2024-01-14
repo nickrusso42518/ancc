@@ -10,11 +10,11 @@ Value Key intf ([A-Za-z0-9/.]+)
 Value pid ([0-9]+)
 Value area ([0-9]+)
 Value ip_addr ([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)
-Value ip_mask ([0-9]+)
+Value pref_len ([0-9]+)
 Value cost ([0-9]+)
 Value state ([A-Z2]+)
 Value nbr_full ([0-9]+)
 Value nbr_seen ([0-9]+)
 
 Start
-  ^${intf} +${pid} +${area} +${ip_addr}/${ip_mask} +${cost} +${state} +${nbr_full}/${nbr_seen} -> Record
+  ^${intf}\s+${pid}\s+${area}\s+${ip_addr}/${pref_len}\s+${cost}\s+${state}\s+${nbr_full}/${nbr_seen} -> Record
