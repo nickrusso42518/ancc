@@ -7,14 +7,14 @@
 # Et0/1        1     3               10.1.13.1/24       7     P2P   1/1
 #
 Value Key intf ([A-Za-z0-9/.]+)
-Value pid ([0-9]+)
-Value area ([0-9]+)
-Value ip_addr ([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)
-Value pref_len ([0-9]+)
-Value cost ([0-9]+)
+Value pid (\d+)
+Value area (\d+)
+Value ip_addr (\d+\.\d+\.\d+\.\d+)
+Value pref_len (\d+)
+Value cost (\d+)
 Value state ([A-Z2]+)
-Value nbr_full ([0-9]+)
-Value nbr_seen ([0-9]+)
+Value nbr_full (\d+)
+Value nbr_seen (\d+)
 
 Start
   ^${intf}\s+${pid}\s+${area}\s+${ip_addr}/${pref_len}\s+${cost}\s+${state}\s+${nbr_full}/${nbr_seen} -> Record

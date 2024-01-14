@@ -6,12 +6,12 @@
 # 10.0.0.12      0   FULL/  -        00:00:34    10.1.12.12   Vlan3
 # 10.0.0.13    255   FULL/BDR        00:00:34    10.1.13.13   Serial6.101
 #
-Value Key rid ([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)
-Value dr_pri ([0-9]+)
+Value rid (\d+\.\d+\.\d+\.\d+)
+Value dr_pri (\d+)
 Value state ([A-Z2]+)
 Value role ([A-Z-]+)
-Value dead_time ([0-9]+:[0-9]+:[0-9]+)
-Value ip_addr ([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)
+Value dead_time (\d+:\d+:\d+)
+Value ip_addr (\d+\.\d+\.\d+\.\d+)
 Value intf ([A-Za-z0-9/.]+)
 
 Start
