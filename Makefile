@@ -33,11 +33,11 @@ lint:
 	black --line-length 80 --check bf_pytest.py
 	@echo "Completed lint"
 
-.PHONY: bfq
-bfq:
-	@echo "Starting  batfish questions"
-	pytest --verbose bf_pytest.py
-	@echo "Completed batfish questions"
+.PHONY: bf
+bf:
+	@echo "Starting  batfish tests"
+	pytest --verbose bf_pytest.py --snapshot_name pre
+	@echo "Completed batfish tests"
 
 .PHONY: clean
 clean:

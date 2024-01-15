@@ -1,0 +1,61 @@
+version 15.6
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname R10
+!
+boot-start-marker
+boot-end-marker
+!
+!
+no aaa new-model
+!
+!
+!
+no ip domain lookup
+ip cef
+!
+username labadmin privilege 15 password 0 labadmin
+!
+!
+!
+!
+interface Loopback0
+ ip address 10.0.0.10 255.255.255.255
+ ip ospf 1 area 1
+!
+interface Loopback1
+ description EXTRANET LAN SIMULATION
+ ip address 192.168.0.10 255.255.240.0
+!
+interface Ethernet0/0
+ description TO R02
+ ip address 10.2.10.10 255.255.255.0
+ ip ospf network point-to-point
+ ip ospf 1 area 1
+ ip ospf cost 10
+!
+router ospf 1
+ router-id 10.0.0.10
+ area 1 nssa
+ redistribute connected subnets
+!
+!
+!
+!
+line con 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+ history size 256
+line aux 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+line vty 0 4
+ login local
+ transport input telnet ssh
+!
+!
+end

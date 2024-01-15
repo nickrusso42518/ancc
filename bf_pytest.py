@@ -15,7 +15,7 @@ from pybatfish.datamodel.flow import HeaderConstraints, RoutingStepDetail
 
 
 @pytest.fixture(scope="module")
-def bf():
+def bf(snapshot_name):
     """
     Perform basic initialization per documentation and return "bf" dict
     so tests can interface with batfish. This includes the bf session
@@ -24,13 +24,15 @@ def bf():
     stores it on disk for troubleshooting or access by another script.
     """
 
-    # Initialize the BF session and snapshot
+    # Initialize the BF session and snapshot from CLI argument
+    snap_dir = f"snapshots/{snapshot_name}"
     bf_session = Session(host="localhost")
-    bf_session.set_network("pre")
-    bf_session.init_snapshot("snapshots/pre", name="pre", overwrite=True)
+    bf_session.set_network(snapshot_name)
+    bf_session.init_snapshot(snap_dir, name=snapshot_name, overwrite=True)
 
     # Collect all of the answers needed about the topology
     bf = {
+        "nodes": bf_session.q.nodeProperties().answer().frame(),
         "nbrs": bf_session.q.ospfEdges().answer().frame(),
         "intfs": bf_session.q.ospfInterfaceConfiguration().answer().frame(),
         "procs": bf_session.q.ospfProcessConfiguration().answer().frame(),
@@ -41,13 +43,14 @@ def bf():
     }
 
     # Ensure the output directory exists for BF answer/topology data
-    if not os.path.exists("outputs"):
-        os.makedirs("outputs")
+    out_dir = f"outputs/{snapshot_name}"
+    if not os.path.exists(out_dir):
+        os.makedirs(out_dir)
 
     # Write each answer to disk in JSON format
     for name, df in bf.items():
         json_data = json.loads(df.to_json(orient="records"))
-        with open(f"outputs/bf_{name}.json", "w", encoding="utf-8") as handle:
+        with open(f"{out_dir}/bf_{name}.json", "w", encoding="utf-8") as handle:
             json.dump(json_data, handle, indent=2)
 
     # Merge dict into bf containing the raw BF session for customization
@@ -287,7 +290,7 @@ def _run_traceroute(bf, params):
     return tracert
 
 
-def test_generate_topology(bf):
+def test_generate_topology(bf, snapshot_name):
     """
     Collects the OSPF edges and writes them to disk in JSON format.
     It also reforms the topology to dynamically discover multi-access networks
@@ -354,9 +357,15 @@ def test_generate_topology(bf):
 
     # Rebuild the topology list by excluding items marked as "remove",
     # then extend the etherswitch "reverse" links to the end
-    topology = [link for link in json_data if not link.get("remove")]
-    topology.extend(sw_to_node_links)
+    all_links = [link for link in json_data if not link.get("remove")]
+    all_links.extend(sw_to_node_links)
+
+    # Augment the topological links with node information
+    topology = {"all_links": all_links, "nodes": {}}
+    for _, node in bf["nodes"].iterrows():
+        topology["nodes"][node["Node"]]= {key: node[key] for key in ('Hostname', 'Configuration_Format')}
 
     # Write resulting topology to disk in pretty format
-    with open("outputs/bf_topology.json", "w", encoding="utf-8") as handle:
+    out_dir = f"outputs/{snapshot_name}"
+    with open(f"{out_dir}/bf_topology.json", "w", encoding="utf-8") as handle:
         json.dump(topology, handle, indent=2)

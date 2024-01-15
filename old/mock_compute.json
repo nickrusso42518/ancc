@@ -1,0 +1,64 @@
+[
+    {
+        "capabilities": {
+            "node_types": [
+                "cloud",
+                "ethernet_hub",
+                "ethernet_switch",
+                "nat",
+                "vpcs",
+                "virtualbox",
+                "dynamips",
+                "frame_relay_switch",
+                "atm_switch",
+                "qemu",
+                "vmware",
+                "traceng"
+            ],
+            "platform": "win32",
+            "version": "2.2.44.1"
+        },
+        "compute_id": "local",
+        "connected": true,
+        "cpu_usage_percent": 7,
+        "host": "localhost",
+        "last_error": null,
+        "memory_usage_percent": 60.7,
+        "name": "CSCO-W-PW0437NB",
+        "port": 3080,
+        "protocol": "http",
+        "user": "admin"
+    },
+    {
+        "capabilities": {
+            "node_types": [
+                "cloud",
+                "ethernet_hub",
+                "ethernet_switch",
+                "nat",
+                "vpcs",
+                "virtualbox",
+                "dynamips",
+                "frame_relay_switch",
+                "atm_switch",
+                "qemu",
+                "vmware",
+                "traceng",
+                "docker",
+                "iou"
+            ],
+            "platform": "linux",
+            "version": "2.2.44.1"
+        },
+        "compute_id": "vm",
+        "connected": true,
+        "cpu_usage_percent": 60.8,
+        "host": "192.168.120.128",
+        "last_error": null,
+        "memory_usage_percent": 9.3,
+        "name": "GNS3 VM (GNS3_2244)",
+        "port": 80,
+        "protocol": "http",
+        "user": null
+    }
+]
