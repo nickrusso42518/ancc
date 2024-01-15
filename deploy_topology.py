@@ -13,7 +13,7 @@ import httpx
 # TODO junos?
 OS_TATTR_MAP = {
     "CISCO_IOS": {"tmpl_name": "L3IOU"},
-    "JUNOS": {"tmpl_name": "VMX"}
+    #"JUNOS": {"tmpl_name": "VMX"}
 }
 
 
@@ -42,7 +42,6 @@ def main(base_url, snapshot_name):
     # Sanity check; unique links must be half as big as the full topology
     assert len(topology["all_links"]) == len(unique_links) * 2
 
-
     with httpx.Client() as client:
         # Get compute nodes and find the GNS3 VM
         for comp in _req(client, f"{base_url}/computes"):
@@ -53,9 +52,10 @@ def main(base_url, snapshot_name):
             raise ValueError("GNS3 VM compute not found")
 
         # Loop over all templates and expected OS attrs, then populate those
-        # OS attrs with the template ID
+        # OS attrs with the template ID as they are discovered
+        templates = _req(client, "{base_url}/templates")
         for tattr in OS_TATTR_MAP.values():
-            for tmpl in _req(client, "{base_url}/templates"):
+            for tmpl in templates:
                 if tmpl["name"] == tattr["tmpl_name"]:
                     tattr["tmpl_id"] = tmpl["template_id"]
                     print(f"{tmpl['name']} tmpl_id: {tattr['tmpl_id']}")
@@ -63,25 +63,23 @@ def main(base_url, snapshot_name):
             else:
                 raise ValueError(f"{tattr['tmpl_name']} template not found")
 
-        # Update each node dict with the desired GNS3 template name (by OS)
-        # TODO not needed, just do OS[...] in the L85 loop to get the template
-        for attr in topology["nodes"].values():
-            attr |= {"tmpl_name": OS_TATTR_MAP[attr["Configuration_Format"]]}
-
-        breakpoint()
 
         # Create a new project and store the UUID
         proj_id = _req(
             client=client,
             url=f"{base_url}/projects",
             method="post",
-            jsonbody={"name": "ancc_pre"},
+            jsonbody={"name": f"ancc_{snapshot_name}"},
         )["project_id"]
 
         # Iterate over the unique nodes, deploying each based on the
         # template. Certain parameters can be overridden/customized.
+        # Update each node dict with the desired GNS3 template name (by OS)
         node_dict = {}
         for node, attrs in topology["nodes"].items():
+
+            attrs |= {"tmpl_name": OS_TATTR_MAP[attr["Configuration_Format"]]}
+            breakpoint()
 
             # Compute (x,y) coordations for node, creating horizonal rows of 4
             # Example placement whereby 1 is at (0,0):
@@ -111,16 +109,6 @@ def main(base_url, snapshot_name):
                 f"with id {depl['node_id']}"
             )
             node_dict[node] = depl
-            """
-            node_dict[node] = {
-                "host": depl["console_host"],
-                "type": depl["console_type"],
-                "port": depl["console"],
-                "id": depl["node_id"],
-                "ports": depl["ports"],
-            }
-            """
-
 
         # Now, make the API calls to create the links between node pairs
         for link in unique_links:
@@ -165,7 +153,7 @@ def _parse_ios(intf_str):
     return result.groupdict()
 
 
-def _req(client, url, method="get", jsonbody=None):
+def _req2(client, url, method="get", jsonbody=None):
     if "compute" in url:
         with open("old/mock_compute.json", "r", encoding="utf-8") as handle:
             return json.load(handle)
@@ -174,7 +162,7 @@ def _req(client, url, method="get", jsonbody=None):
         with open("old/mock_template.json", "r", encoding="utf-8") as handle:
             return json.load(handle)
 
-def _req2(client, url, method="get", jsonbody=None):
+def _req(client, url, method="get", jsonbody=None):
     """
     Issue an HTTP request using the supplied parameters, perform
     error checking to ensure status code is less than 400, then
@@ -187,4 +175,4 @@ def _req2(client, url, method="get", jsonbody=None):
 
 if __name__ == "__main__":
     # Can target GNS3 http://local:3080 or http://VM:80
-    main("http://192.168.120.128/v2", "pre")
+    # main("http://192.168.120.128/v2", "pre")
