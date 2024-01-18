@@ -1,18 +1,14 @@
+#!/usr/bin/env python
+
+"""
+Author: Nick Russo
+Purpose: Uses scrapli and asyncio to validate the live topology,
+similar to Batfish, except using simulated devices and "show" commands.
+"""
+
 import asyncio
 from scrapli import AsyncScrapli
 
-
-AREA_LSA = {
-    0:
-        1: 4,
-        2: 1,
-    1:
-        1: 2,
-        2: 0,
-    3:
-        1: 4,
-        2: 0,
-}
 
 # TODO Different coroutine per platform?
 async def validate_node(hostname, conn_params):
