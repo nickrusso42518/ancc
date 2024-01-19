@@ -162,29 +162,12 @@
     }
   ],
   "nodes": {
-    "r10": {
-      "Hostname": "r10",
-      "Configuration_Format": "CISCO_IOS"
-    },
-    "r14": {
-      "Hostname": "r14",
-      "Configuration_Format": "CISCO_IOS"
-    },
-    "r12": {
-      "Hostname": "r12",
-      "Configuration_Format": "CISCO_IOS"
-    },
-    "r13": {
-      "Hostname": "r13",
-      "Configuration_Format": "CISCO_IOS"
-    },
-    "r01": {
-      "Hostname": "r01",
-      "Configuration_Format": "CISCO_IOS"
-    },
-    "r02": {
-      "Hostname": "r02",
-      "Configuration_Format": "CISCO_IOS"
-    }
+    "r01": "CISCO_IOS",
+    "r02": "CISCO_IOS",
+    "r10": "CISCO_IOS",
+    "r12": "CISCO_IOS",
+    "r13": "CISCO_IOS",
+    "r14": "CISCO_IOS",
+    "sw": "nonbf-gns3-ethsw"
   }
 }

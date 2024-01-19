@@ -2,17 +2,21 @@
 
 """
 Author: Nick Russo
-Purpose: Tests Batfish on sample Cisco Live sessions focused
-on the OSPF routing protocol using archived configurations.
+Purpose: Deploys a GNS3 topology based on the Batfish-inferred,
+pytest-generated topology.
 """
 
 import json
+import sys
 import re
 import httpx
 
 # TODO junos?
 OS_TATTR_MAP = {
-    "CISCO_IOS": {"tmpl_name": "L3IOU-15.6.3"},
+    "CISCO_IOS": {
+        "tmpl_name": "L3IOU-15.6.3",
+        "scrapli_platform": "cisco_iosxe",
+    },
     # "JUNOS": {"tmpl_name": "VMX"}
     "nonbf-gns3-ethsw": {"tmpl_name": "Ethernet switch"},
 }
@@ -43,19 +47,11 @@ def main(base_url, snapshot_name):
     assert len(topology["all_links"]) == len(unique_links) * 2
 
     with httpx.Client() as client:
-        # Get compute nodes and find the GNS3 VM
-        """
-        for comp in _req(client, method="get", url=f"{base_url}/computes").json():
-            if comp["name"].startswith("GNS3 VM"):
-                print("GNS3 VM comp_id:", comp_id := comp["compute_id"])
-                break
-        else:
-            raise ValueError("GNS3 VM compute not found")
-        """
-
         # Loop over all templates and expected OS attrs, then populate those
         # OS attrs with the template ID as they are discovered
-        templates = _req(client, method="get", url=f"{base_url}/templates").json()
+        templates = _req(
+            client, method="get", url=f"{base_url}/templates"
+        ).json()
         for tattr in OS_TATTR_MAP.values():
             for tmpl in templates:
                 if tmpl["name"] == tattr["tmpl_name"]:
@@ -65,7 +61,7 @@ def main(base_url, snapshot_name):
             else:
                 raise ValueError(f"{tattr['tmpl_name']} template not found")
 
-        # Create a new project and store the UUID
+        # Create a new project and store the project ID for reference
         proj_id = _req(
             client=client,
             method="post",
@@ -76,27 +72,25 @@ def main(base_url, snapshot_name):
         # Iterate over the unique nodes, deploying each based on the
         # template. Certain parameters can be overridden/customized.
         # Update each node dict with the desired GNS3 template name (by OS)
-        node_ids = {}
-        for i, (node, attr) in enumerate(topology["nodes"].items()):
-            attr |= {"tmpl_name": OS_TATTR_MAP[attr["Configuration_Format"]]}
-
-            # Compute (x,y) coordinates for node, creating horizonal rows of 4
-            # Example placement whereby 1 is at (0,0):
-            # 5 6 7 8
+        node_ids, scrapli_params = {}, {}
+        for i, (node, os_type) in enumerate(topology["nodes"].items()):
+            # Compute (x,y) coordinates for node, creating horizonal rows of 4.
+            # Example placement whereby 1 is at (0,0) in upper left corner:
             # 1 2 3 4
+            # 5 6 7 8
             x, y = (i * 100 % 400, i // 4 * 100)
 
             # Generate the GNS3 POST payload to add a node from a template.
-            # Not that some fields cannot be specified, such as "console" port
+            # Not that some fields cannot be specified, such as "console" port.
+            # "compute_id" is used to select the server to run the node.
             node_body = {
                 "name": node,
                 "x": x,
                 "y": y,
-                # "compute_id": comp_id,
+                "compute_id": "local",
             }
 
             # Based on the config format, get the template ID
-            os_type = attr["Configuration_Format"]
             tmpl_id = OS_TATTR_MAP[os_type]["tmpl_id"]
 
             # Deploy the node from the proper template, which varies by OS
@@ -107,17 +101,28 @@ def main(base_url, snapshot_name):
                 json=node_body,
             ).json()
 
+            # Retain deployment response IDs to add links later
+            node_ids[node] = depl["node_id"]
+
+            # Build connectivity parameter dictionaries that are compatible
+            # with Scrapli drivers (same key names) for use later.
+            # The conditional ensures non-scrapli devices (gns3-sw) are omitted
+            if sc_plat := OS_TATTR_MAP[os_type].get("scrapli_platform"):
+                scrapli_params[node] = {}
+                scrapli_params[node]["platform"] = sc_plat
+                scrapli_params[node]["port"] = depl["console"]
+
             # Print the node's location and access information
             print(
                 f"Adding {node} at ({x},{y}) on port {depl['console']}"
-                f"with id {depl['node_id']}"
+                f" with id {depl['node_id']}"
             )
 
             # TODO different method per device type
             if os_type == "CISCO_IOS":
                 # Upload the startup configs from the Batfish snapshot
                 with open(
-                    f"snapshots/pre/configs/{node.upper()}.txt",
+                    f"snapshots/{snapshot_name}/configs/{node.upper()}.txt",
                     "r",
                     encoding="utf-8",
                 ) as handle:
@@ -133,9 +138,6 @@ def main(base_url, snapshot_name):
                 print(f"Uploaded startup-cfg for {os_type} node: {node}")
             else:
                 print(f"No startup-cfg method for {os_type} node: {node}")
-
-            # Retain deployment response IDs to add links later
-            node_ids[node] = depl["node_id"]
 
         # Now, make the API calls to create the links between node pairs
         for link in unique_links:
@@ -159,18 +161,17 @@ def main(base_url, snapshot_name):
                 ]
             }
 
-            # Send a POST request to connect the A and B nodes, response
-            # is JSON and contains a link_id, but we don't care
-            conn = _req(
+            # Send a POST request to connect the A and B nodes
+            link_id = _req(
                 client=client,
                 method="post",
                 url=f"{base_url}/projects/{proj_id}/links",
                 json=link_body,
-            ).json()
+            ).json()["link_id"]
 
             # Print the link's interconnected members and ID
             print(
-                f"Connected {a_data['node']}-{a_data['node']} with id {conn['link_id']}"
+                f"Connected {a_data['node']}-{a_data['node']} with id {link_id}"
             )
 
         # Nodes and links done; start all nodes (no response)
@@ -181,8 +182,22 @@ def main(base_url, snapshot_name):
             json={},
         )
 
+        # With the topology deployed, write the scrapli connection
+        # parameters to disk so scrapli can consume them
+        with open(
+            f"outputs/{snapshot_name}/scrapli_params.json",
+            "w",
+            encoding="utf-8",
+        ) as handle:
+            json.dump(scrapli_params, handle, indent=4)
+
 
 def _parse_intf(intf_str):
+    """
+    Parse the data required to add a GNS3 link from a Batfish-formatted
+    interface, such as "[r12]Ethernet0/3". Return a dictionary containing
+    the parsed matches.
+    """
     regex = re.compile(
         r"^\[(?P<node>\S+)\][A-Za-z]*(?P<adapter>\d+)/(?P<port>\d+)$"
     )
@@ -201,5 +216,10 @@ def _req(client, method, **kwargs):
 
 
 if __name__ == "__main__":
-    # Can target GNS3 http://local:3080 or http://VM:80
-    main("http://192.168.120.128/v2", "pre")
+    # Ensure user supplied the required parameters; fail if not
+    if len(sys.argv) != 3:
+        print(f"usage: python {sys.argv[0]} <gns3_url> <bf_snapshot_name>")
+        sys.exit(1)
+
+    # Can target http://client:3080 or http://VM:80 by default (no auth)
+    main(*sys.argv[1:])

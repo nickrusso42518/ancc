@@ -29,8 +29,9 @@ lint:
 	@echo "Starting  lint"
 	# find . -name "*.py" | xargs pylint
 	# find . -name "*.py" | xargs black -l 80 --check
-	pylint bf_pytest.py
-	black --line-length 80 --check bf_pytest.py
+	# pylint bf_pytest.py
+	# black --line-length 80 --check *.py
+	black --line-length 80 *.py
 	@echo "Completed lint"
 
 .PHONY: bf
@@ -38,6 +39,12 @@ bf:
 	@echo "Starting  batfish tests"
 	pytest --verbose bf_pytest.py --snapshot_name pre
 	@echo "Completed batfish tests"
+
+.PHONY: gns3
+gns3:
+	@echo "Starting  gns3 deployment"
+	python deploy_topology.py http://192.168.120.128:80/v2 pre
+	@echo "Completed gns3 deployment"
 
 .PHONY: clean
 clean:
