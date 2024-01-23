@@ -1,0 +1,44 @@
+root> show configuration | display set 
+set version 12.1R1.9
+set system root-authentication encrypted-password "$1$rWtgWPmW$2SjlHozVGVK/hOeED/OuW0"
+set system login password minimum-length 6
+set system login password change-type character-sets
+set system syslog user * any emergency
+set system syslog file messages any notice
+set system syslog file messages authorization info
+set system syslog file interactive-commands interactive-commands any
+set interfaces em0 unit 0 family inet address 10.0.0.2/24
+set interfaces em1 unit 0 family inet address 192.168.1.1/24
+set routing-options router-id 10.0.0.2
+set protocols ospf area 0.0.0.0 interface em0.0 interface-type p2p
+set protocols ospf area 0.0.0.1 interface em1.0 interface-type p2p
+
+
+
+root> show version 
+Model: olive
+JUNOS Base OS boot [12.1R1.9]
+JUNOS Base OS Software Suite [12.1R1.9]
+JUNOS Kernel Software Suite [12.1R1.9]
+JUNOS Crypto Software Suite [12.1R1.9]
+JUNOS Packet Forwarding Engine Support (M/T Common) [12.1R1.9]
+JUNOS Packet Forwarding Engine Support (M20/M40) [12.1R1.9]
+JUNOS Online Documentation [12.1R1.9]
+JUNOS Voice Services Container package [12.1R1.9]
+JUNOS Border Gateway Function package [12.1R1.9]
+JUNOS Services AACL Container package [12.1R1.9]
+JUNOS Services LL-PDF Container package [12.1R1.9]
+JUNOS Services PTSP Container package [12.1R1.9]
+JUNOS Services Stateful Firewall [12.1R1.9]
+JUNOS Services NAT [12.1R1.9]
+JUNOS Services Application Level Gateways [12.1R1.9]
+JUNOS Services Captive Portal and Content Delivery Container package [12.1R1.9]
+JUNOS Services RPM [12.1R1.9]
+JUNOS Services HTTP Content Management package [12.1R1.9]
+JUNOS AppId Services [12.1R1.9]
+JUNOS IDP Services [12.1R1.9]
+JUNOS Services Crypto [12.1R1.9]
+JUNOS Services SSL [12.1R1.9]
+JUNOS Services IPSec [12.1R1.9]         
+JUNOS Runtime Software Suite [12.1R1.9]
+JUNOS Routing Software Suite [12.1R1.9]
