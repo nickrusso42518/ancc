@@ -11,7 +11,17 @@ from scrapli import AsyncScrapli
 
 
 # TODO Different coroutine per platform?
-async def validate_node(hostname, conn_params):
+async def juniper_junos(hostname, conn_params):
+    print("JUNOS")
+
+    # Open async connection to the node and auto-close when context ends
+    async with AsyncScrapli(**conn_params) as conn:
+        # Get the prompt and ensure the supplied hostname matches
+        prompt = await conn.get_prompt()
+        # assert prompt.lower().startswith(hostname.lower())
+    return prompt
+
+async def cisco_iosxe(hostname, conn_params):
     """
     Coroutine that includes all validate steps to be conducted on a node.
     These run in parallel so that a certain type of test (eg checking
@@ -20,17 +30,16 @@ async def validate_node(hostname, conn_params):
     of string containing the faults.
     """
 
-    # TODO delete
-    return f"{hostname} complete"
-
     data = {}
+    print("IOSXE")
 
     # Open async connection to the node and auto-close when context ends
     async with AsyncScrapli(**conn_params) as conn:
         # Get the prompt and ensure the supplied hostname matches
         prompt = await conn.get_prompt()
-        assert prompt.lower().startswith(hostname.lower())
+        # assert prompt.lower().startswith(hostname.lower())
 
+        """
         # Collect the OSPF neighbors/interfaces, then parse with custom template
         nbrs = await conn.send_command("show ip ospf neighbor")
         data["nbrs"] = nbrs.textfsm_parse_output("textfsm/ospf_nbrs.textfsm")
@@ -53,7 +62,9 @@ async def validate_node(hostname, conn_params):
         # what about areas? which area is the router in?
         assert len(data["lsa1"] == 6)
         assert len(data["lsa2"] == 1)
+        """
 
+    return prompt
 
 async def main():
     """
@@ -63,9 +74,12 @@ async def main():
     # Basic parameters common to all nodes in the topology
     base_params = {
         "host": "192.168.120.128",  # GNS3 VM, not client
-        "transport": "telnet",
-        "auth_bypass": True,
-        "on_close": _close_channel,
+        "transport": "asynctelnet",
+        #"auth_bypass": True,
+        "auth_username": "root",
+        "auth_password": "labadmin123",
+        #"on_close": _close_channel,
+        "on_open": _send_cli,
         "comms_return_char": "\r\n",  # Need for "Press RETURN to get started."
     }
 
@@ -82,7 +96,7 @@ async def main():
     }
 
     tasks = [
-        validate_node(device, base_params | params)
+        globals()[params["platform"]](device, base_params | params)
         for device, params in device_map.items()
     ]
 
@@ -94,13 +108,20 @@ async def main():
     for result in task_future.result():
         print(result)
 
-
-def _close_channel(conn):
+async def _send_cli(conn):
     """
     Close the channel but don't send "exit"; behavior appears inconsistent
     on GNS3 terminal server.
     """
-    conn.channel.transport.close()
+    await conn.send_command("\r\n")
+    return conn.send_command("cli")
+
+async def _close_channel(conn):
+    """
+    Close the channel but don't send "exit"; behavior appears inconsistent
+    on GNS3 terminal server.
+    """
+    return conn.channel.transport.close()
 
 
 if __name__ == "__main__":

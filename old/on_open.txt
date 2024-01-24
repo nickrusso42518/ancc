@@ -1,0 +1,18 @@
+R1#terminal length 0
+R1#
+R1#terminal width 512
+
+
+set cli screen-length 0root> set cli screen-length 0
+Screen length set to 0
+
+root>
+
+root> set cli screen-width 511
+Screen width set to 511
+
+root>
+
+root> set cli complete-on-space off
+Disabling complete-on-space
+
