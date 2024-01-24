@@ -16,3 +16,6 @@ root>
 root> set cli complete-on-space off
 Disabling complete-on-space
 
+set cli screen-length 0
+set cli screen-width 511
+set cli complete-on-space off

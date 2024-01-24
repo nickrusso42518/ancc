@@ -10,16 +10,21 @@ import asyncio
 from scrapli import AsyncScrapli
 
 
-# TODO Different coroutine per platform?
 async def juniper_junos(hostname, conn_params):
-    print("JUNOS")
+    # Update the dict to set custom open/close actions
+    conn_params |= {"on_open": _open_junos, "on_close": _close_junos}
 
     # Open async connection to the node and auto-close when context ends
     async with AsyncScrapli(**conn_params) as conn:
         # Get the prompt and ensure the supplied hostname matches
         prompt = await conn.get_prompt()
-        # assert prompt.lower().startswith(hostname.lower())
+        assert prompt.strip() == "root>"
+
+        # Load the initial config (cannot be done via GNS3 API)
+        filepath = f"snapshots/post/configs/{hostname.upper()}.txt"
+        await conn.send_configs_from_file(filepath, stop_on_failed=True)
     return prompt
+
 
 async def cisco_iosxe(hostname, conn_params):
     """
@@ -30,14 +35,15 @@ async def cisco_iosxe(hostname, conn_params):
     of string containing the faults.
     """
 
+    # Update the dict to set a custom close
+    conn_params["on_close"] = _close_iosxe
     data = {}
-    print("IOSXE")
 
     # Open async connection to the node and auto-close when context ends
     async with AsyncScrapli(**conn_params) as conn:
         # Get the prompt and ensure the supplied hostname matches
         prompt = await conn.get_prompt()
-        # assert prompt.lower().startswith(hostname.lower())
+        assert prompt.lower().startswith(hostname.lower())
 
         """
         # Collect the OSPF neighbors/interfaces, then parse with custom template
@@ -66,6 +72,7 @@ async def cisco_iosxe(hostname, conn_params):
 
     return prompt
 
+
 async def main():
     """
     Execution starts here (coroutine).
@@ -75,26 +82,23 @@ async def main():
     base_params = {
         "host": "192.168.120.128",  # GNS3 VM, not client
         "transport": "asynctelnet",
-        #"auth_bypass": True,
-        "auth_username": "root",
-        "auth_password": "labadmin123",
-        #"on_close": _close_channel,
-        "on_open": _send_cli,
-        "comms_return_char": "\r\n",  # Need for "Press RETURN to get started."
+        "auth_bypass": True,
     }
 
-    # Dynamically build from batfish (hostnames/platforms) and GNS3 (ports)
+    # TODO Dynamically build from batfish (hostnames/platforms) and GNS3 (ports)
     device_map = {
         "r01": {
-            "platform": "cisco_iosxe",
-            "port": 5000,
-        },
-        "r14": {
             "platform": "juniper_junos",
-            "port": 5001,
+            "port": 5004,
+        },
+        "r02": {
+            "platform": "cisco_iosxe",
+            "port": 5006,
         },
     }
 
+    # Instantiate coroutines into tasks, assemble into list for
+    # all devices. Regardless of OS, they can all run together
     tasks = [
         globals()[params["platform"]](device, base_params | params)
         for device, params in device_map.items()
@@ -108,18 +112,54 @@ async def main():
     for result in task_future.result():
         print(result)
 
-async def _send_cli(conn):
-    """
-    Close the channel but don't send "exit"; behavior appears inconsistent
-    on GNS3 terminal server.
-    """
-    await conn.send_command("\r\n")
-    return conn.send_command("cli")
 
-async def _close_channel(conn):
+async def _open_junos(conn):
+    """
+    Perform initial console login and enter the CLI, then apply the standard
+    terminal settings.
+    """
+
+    # Low-level interactions to enter the CLI
+    login_interactions = [
+        ("\n", "Amnesiac (ttyd0)\n\nlogin:"),
+        ("root", "root@%"),
+        ("cli", "root>"),
+    ]
+
+    # Standard Scrapli terminal settings; must repeat since we defined on_open
+    setup_cmds = [
+        "set cli screen-length 0",
+        "set cli screen-width 511",
+        "set cli complete-on-space off",
+    ]
+
+    # Perform the login interactions, being graceful on timeouts
+    for cmd, resp in login_interactions:
+        resp = await conn.send_and_read(
+            channel_input=cmd,
+            expected_outputs=[resp],
+            read_duration=5,
+            timeout_ops=5,
+        )
+
+    # Send terminal settings, don't care about result
+    await conn.send_commands(setup_cmds)
+
+
+async def _close_junos(conn):
+    """
+    First exit the CLI and wait for the FreeBSD shell, then
+    close the channel normally.
+    """
+    for resp in ["root@%", "Amnesiac (ttyd0)\n\nlogin:"]:
+        await conn.send_and_read(channel_input="exit", expected_outputs=[resp])
+    return conn.channel.transport.close()
+
+
+async def _close_iosxe(conn):
     """
     Close the channel but don't send "exit"; behavior appears inconsistent
-    on GNS3 terminal server.
+    on GNS3 terminal server. Just leave the console line open.
     """
     return conn.channel.transport.close()
 
