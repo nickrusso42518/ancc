@@ -29,9 +29,9 @@ lint:
 	@echo "Starting  lint"
 	# find . -name "*.py" | xargs pylint
 	# find . -name "*.py" | xargs black -l 80 --check
-	# pylint bf_pytest.py
 	# black --line-length 82 --check *.py
 	black --line-length 82 *.py
+	pylint bf_pytest.py textfsm/parse_all.py
 	@echo "Completed lint"
 
 .PHONY: bf
@@ -47,6 +47,13 @@ gns3:
 	# python deploy_topology.py http://192.168.120.128:80/v2 pre
 	python deploy_topology.py http://192.168.120.128:80/v2 post
 	@echo "Completed gns3 deployment"
+
+.PHONY: txt
+txt:
+	@echo "Starting  textfsm parsing"
+	cd textfsm && python parse_all.py
+	cd textfsm && ./tabulate.sh
+	@echo "Completed textfsm parsing"
 
 .PHONY: aio
 aio:

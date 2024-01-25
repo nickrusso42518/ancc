@@ -363,7 +363,6 @@ def test_generate_topology(bf, snapshot_name):
     # Augment the topological links with node information
     topology = {"all_links": all_links, "nodes": {}}
     for _, node in bf["nodes"].iterrows():
-        # topology["nodes"][node["Node"]] = {key: node[key] for key in ('Hostname', 'Configuration_Format')}
         topology["nodes"][node["Node"]] = node["Configuration_Format"]
 
     # Add the Ethernet switch as a node, despite Batfish not seeing it
