@@ -23,6 +23,9 @@ async def juniper_junos(hostname, conn_params):
         # Load the initial config (cannot be done via GNS3 API)
         filepath = f"snapshots/post/configs/{hostname.upper()}.txt"
         await conn.send_configs_from_file(filepath, stop_on_failed=True)
+
+        # TODO collect neighbors, interfaces, and LSDB
+        # TODO custom textfsm for interfaces
     return prompt
 
 

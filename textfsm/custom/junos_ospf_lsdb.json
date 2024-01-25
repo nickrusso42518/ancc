@@ -1,0 +1,189 @@
+[
+  {
+    "AREA": "0.0.0.1",
+    "TYPE": "Router",
+    "LSA_ID": "10.255.70.103",
+    "ADV_RTR": "10.255.70.103",
+    "SEQ_NUM": "0x80000002",
+    "AGE_SEC": 215,
+    "OPTIONS": "0x20",
+    "CHKSUM": "0x4112",
+    "LENGTH": 48
+  },
+  {
+    "AREA": "0.0.0.1",
+    "TYPE": "Router",
+    "LSA_ID": "10.255.71.242",
+    "ADV_RTR": "10.255.71.242",
+    "SEQ_NUM": "0x80000002",
+    "AGE_SEC": 214,
+    "OPTIONS": "0x20",
+    "CHKSUM": "0x11b1",
+    "LENGTH": 48
+  },
+  {
+    "AREA": "0.0.0.1",
+    "TYPE": "Summary",
+    "LSA_ID": "23.1.1.0",
+    "ADV_RTR": "10.255.71.242",
+    "SEQ_NUM": "0x80000002",
+    "AGE_SEC": 172,
+    "OPTIONS": "0x20",
+    "CHKSUM": "0x6d72",
+    "LENGTH": 28
+  },
+  {
+    "AREA": "0.0.0.1",
+    "TYPE": "Summary",
+    "LSA_ID": "24.1.1.0",
+    "ADV_RTR": "10.255.71.242",
+    "SEQ_NUM": "0x80000002",
+    "AGE_SEC": 177,
+    "OPTIONS": "0x20",
+    "CHKSUM": "0x607e",
+    "LENGTH": 28
+  },
+  {
+    "AREA": "0.0.0.1",
+    "TYPE": "NSSA",
+    "LSA_ID": "33.1.1.1",
+    "ADV_RTR": "10.255.71.242",
+    "SEQ_NUM": "0x80000002",
+    "AGE_SEC": 217,
+    "OPTIONS": "0x20",
+    "CHKSUM": "0x73bd",
+    "LENGTH": 36
+  },
+  {
+    "AREA": "0.0.0.2",
+    "TYPE": "Router",
+    "LSA_ID": "10.255.71.52",
+    "ADV_RTR": "10.255.71.52",
+    "SEQ_NUM": "0x80000004",
+    "AGE_SEC": 174,
+    "OPTIONS": "0x20",
+    "CHKSUM": "0xd021",
+    "LENGTH": 36
+  },
+  {
+    "AREA": "0.0.0.2",
+    "TYPE": "Router",
+    "LSA_ID": "10.255.71.242",
+    "ADV_RTR": "10.255.71.242",
+    "SEQ_NUM": "0x80000003",
+    "AGE_SEC": 173,
+    "OPTIONS": "0x20",
+    "CHKSUM": "0xe191",
+    "LENGTH": 36
+  },
+  {
+    "AREA": "0.0.0.2",
+    "TYPE": "Network",
+    "LSA_ID": "23.1.1.1",
+    "ADV_RTR": "10.255.71.242",
+    "SEQ_NUM": "0x80000002",
+    "AGE_SEC": 173,
+    "OPTIONS": "0x20",
+    "CHKSUM": "0x9c76",
+    "LENGTH": 32
+  },
+  {
+    "AREA": "0.0.0.2",
+    "TYPE": "Summary",
+    "LSA_ID": "12.1.1.0",
+    "ADV_RTR": "10.255.71.242",
+    "SEQ_NUM": "0x80000001",
+    "AGE_SEC": 217,
+    "OPTIONS": "0x20",
+    "CHKSUM": "0xfeec",
+    "LENGTH": 28
+  },
+  {
+    "AREA": "0.0.0.2",
+    "TYPE": "Summary",
+    "LSA_ID": "24.1.1.0",
+    "ADV_RTR": "10.255.71.242",
+    "SEQ_NUM": "0x80000002",
+    "AGE_SEC": 177,
+    "OPTIONS": "0x20",
+    "CHKSUM": "0x607e",
+    "LENGTH": 28
+  },
+  {
+    "AREA": "0.0.0.2",
+    "TYPE": "NSSA",
+    "LSA_ID": "33.1.1.1",
+    "ADV_RTR": "10.255.71.242",
+    "SEQ_NUM": "0x80000001",
+    "AGE_SEC": 222,
+    "OPTIONS": "0x28",
+    "CHKSUM": "0xe047",
+    "LENGTH": 36
+  },
+  {
+    "AREA": "0.0.0.3",
+    "TYPE": "Router",
+    "LSA_ID": "10.255.71.238",
+    "ADV_RTR": "10.255.71.238",
+    "SEQ_NUM": "0x80000003",
+    "AGE_SEC": 179,
+    "OPTIONS": "0x20",
+    "CHKSUM": "0x3942",
+    "LENGTH": 36
+  },
+  {
+    "AREA": "0.0.0.3",
+    "TYPE": "Router",
+    "LSA_ID": "10.255.71.242",
+    "ADV_RTR": "10.255.71.242",
+    "SEQ_NUM": "0x80000003",
+    "AGE_SEC": 177,
+    "OPTIONS": "0x20",
+    "CHKSUM": "0xf37d",
+    "LENGTH": 36
+  },
+  {
+    "AREA": "0.0.0.3",
+    "TYPE": "Network",
+    "LSA_ID": "24.1.1.1",
+    "ADV_RTR": "10.255.71.242",
+    "SEQ_NUM": "0x80000002",
+    "AGE_SEC": 177,
+    "OPTIONS": "0x20",
+    "CHKSUM": "0xc591",
+    "LENGTH": 32
+  },
+  {
+    "AREA": "0.0.0.3",
+    "TYPE": "Summary",
+    "LSA_ID": "12.1.1.0",
+    "ADV_RTR": "10.255.71.242",
+    "SEQ_NUM": "0x80000001",
+    "AGE_SEC": 217,
+    "OPTIONS": "0x20",
+    "CHKSUM": "0xfeec",
+    "LENGTH": 28
+  },
+  {
+    "AREA": "0.0.0.3",
+    "TYPE": "Summary",
+    "LSA_ID": "23.1.1.0",
+    "ADV_RTR": "10.255.71.242",
+    "SEQ_NUM": "0x80000002",
+    "AGE_SEC": 172,
+    "OPTIONS": "0x20",
+    "CHKSUM": "0x6d72",
+    "LENGTH": 28
+  },
+  {
+    "AREA": "0.0.0.3",
+    "TYPE": "NSSA",
+    "LSA_ID": "33.1.1.1",
+    "ADV_RTR": "10.255.71.242",
+    "SEQ_NUM": "0x80000001",
+    "AGE_SEC": 222,
+    "OPTIONS": "0x20",
+    "CHKSUM": "0xeb3b",
+    "LENGTH": 36
+  }
+]

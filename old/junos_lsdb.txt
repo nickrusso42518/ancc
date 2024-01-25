@@ -1,0 +1,30 @@
+user@host> show ospf database summary 
+Area 0.0.0.1:
+   2 Router LSAs
+   2 Summary LSAs
+   1 NSSA LSAs
+Area 0.0.0.2:
+   2 Router LSAs
+   1 Network LSAs
+   2 Summary LSAs
+   1 NSSA LSAs
+Area 0.0.0.3:
+   2 Router LSAs
+   1 Network LSAs
+   2 Summary LSAs
+   1 NSSA LSAs
+Externals:
+Interface fe-2/2/1.0:
+Interface ge-0/3/2.0:
+Interface so-0/1/2.0:
+Interface so-0/1/2.0:
+
+user@host> show ospf interface
+Intf                State     Area            DR ID           BDR ID       Nbrs
+at-5/1/0.0          PtToPt   0.0.0.0         0.0.0.0         0.0.0.0         1
+ge-2/3/0.0          DR       0.0.0.0         192.168.4.16    192.168.4.15    1
+lo0.0               DR       0.0.0.0         192.168.4.16    0.0.0.0         0
+so-0/0/0.0          Down     0.0.0.0         0.0.0.0         0.0.0.0         0
+so-6/0/1.0          PtToPt   0.0.0.0         0.0.0.0         0.0.0.0         1
+so-6/0/2.0          Down     0.0.0.0         0.0.0.0         0.0.0.0         0
+so-6/0/3.0          PtToPt   0.0.0.0         0.0.0.0         0.0.0.0         1

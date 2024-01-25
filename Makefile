@@ -34,17 +34,29 @@ lint:
 	black --line-length 80 *.py
 	@echo "Completed lint"
 
-.PHONY: bf
-bf:
-	@echo "Starting  batfish tests"
+.PHONY: bfe
+bfe:
+	@echo "Starting  batfish pre tests"
 	pytest --verbose bf_pytest.py --snapshot_name pre
-	@echo "Completed batfish tests"
+	@echo "Completed batfish pre tests"
+
+.PHONY: bfo
+bfo:
+	@echo "Starting  batfish post tests"
+	pytest --verbose bf_pytest.py --snapshot_name post
+	@echo "Completed batfish post tests"
 
 .PHONY: gns3
 gns3:
 	@echo "Starting  gns3 deployment"
 	python deploy_topology.py http://192.168.120.128:80/v2 pre
 	@echo "Completed gns3 deployment"
+
+.PHONY: aio
+aio:
+	@echo "Starting  asyncio/scrapli tests"
+	python vt_asyncio.py
+	@echo "Completed asyncio/scrapli tests"
 
 .PHONY: clean
 clean:
