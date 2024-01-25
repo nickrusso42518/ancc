@@ -26,18 +26,18 @@
 # Summary *23.1.1.0         10.255.71.242    0x80000002   172  0x20 0x6d72  28
 # NSSA    *33.1.1.1         10.255.71.242    0x80000001   222  0x20 0xeb3b  36
 #
-Value Filldown AREA (\d+\.\d+\.\d+\.\d+)
-Value TYPE (\w+)
-Value LSA_ID (\d+\.\d+\.\d+\.\d+)
-Value ADV_RTR (\d+\.\d+\.\d+\.\d+)
-Value SEQ_NUM ([0-9abcdefx]+)
-Value AGE_SEC (\d+)
-Value OPTIONS ([0-9abcdefx]+)
-Value CHKSUM ([0-9abcdefx]+)
-Value LENGTH (\d+)
+Value Filldown area (\d+\.\d+\.\d+\.\d+)
+Value type (\w+)
+Value lsa_id (\d+\.\d+\.\d+\.\d+)
+Value adv_rtr (\d+\.\d+\.\d+\.\d+)
+Value seq_num ([0-9abcdefx]+)
+Value age_sec (\d+)
+Value options ([0-9abcdefx]+)
+Value chksum ([0-9abcdefx]+)
+Value length (\d+)
 
 Start
-  ^\s*OSPF\s+link\s+state\s+database,\s+Area\s+${AREA}
-  ^${TYPE}\s+\*?${LSA_ID}\s+${ADV_RTR}\s+${SEQ_NUM}\s+${AGE_SEC}\s+${OPTIONS}\s+${CHKSUM}\s+${LENGTH} -> Record
+  ^\s*OSPF\s+link\s+state\s+database,\s+Area\s+${area}
+  ^${type}\s+\*?${lsa_id}\s+${adv_rtr}\s+${seq_num}\s+${age_sec}\s+${options}\s+${chksum}\s+${length} -> Record
 
 EOF

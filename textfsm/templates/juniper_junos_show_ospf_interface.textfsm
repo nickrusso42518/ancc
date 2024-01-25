@@ -7,12 +7,12 @@
 # so-0/0/0.0          Down     0.0.0.0         0.0.0.0         0.0.0.0         0
 # so-6/0/1.0          PtToPt   0.0.0.0         0.0.0.0         0.0.0.0         1
 #
-Value Key INTF ([A-Za-z0-9/.-]+)
-Value STATE (\w+)
-Value AREA (\d+\.\d+\.\d+\.\d+)
-Value DR_ID (\d+\.\d+\.\d+\.\d+)
-Value BDR_ID (\d+\.\d+\.\d+\.\d+)
-Value NBRS (\d+)
+Value Key intf ([A-Za-z0-9/.-]+)
+Value state (\w+)
+Value area (\d+\.\d+\.\d+\.\d+)
+Value dr_id (\d+\.\d+\.\d+\.\d+)
+Value bdr_id (\d+\.\d+\.\d+\.\d+)
+Value nbrs (\d+)
 
 Start
-  ^${INTF}\s+${STATE}\s+${AREA}\s+${DR_ID}\s+${BDR_ID}\s+${NBRS} -> Record
+  ^${intf}\s+${state}\s+${area}\s+${dr_id}\s+${bdr_id}\s+${nbrs} -> Record

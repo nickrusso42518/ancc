@@ -1,4 +1,3 @@
-user@host> show ospf database
     OSPF link state database, Area 0.0.0.1
  Type       ID               Adv Rtr           Seq      Age  Opt  Cksum  Len
 Router   10.255.70.103    10.255.70.103    0x80000002   215  0x20 0x4112  48
