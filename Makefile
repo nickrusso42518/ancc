@@ -30,33 +30,29 @@ lint:
 	# find . -name "*.py" | xargs pylint
 	# find . -name "*.py" | xargs black -l 80 --check
 	# pylint bf_pytest.py
-	# black --line-length 80 --check *.py
-	black --line-length 80 *.py
+	# black --line-length 82 --check *.py
+	black --line-length 82 *.py
 	@echo "Completed lint"
 
-.PHONY: bfe
-bfe:
-	@echo "Starting  batfish pre tests"
-	pytest --verbose bf_pytest.py --snapshot_name pre
-	@echo "Completed batfish pre tests"
-
-.PHONY: bfo
-bfo:
-	@echo "Starting  batfish post tests"
+.PHONY: bf
+bf:
+	@echo "Starting  batfish pytest"
+	# pytest --verbose bf_pytest.py --snapshot_name pre
 	pytest --verbose bf_pytest.py --snapshot_name post
-	@echo "Completed batfish post tests"
+	@echo "Completed batfish pytest"
 
 .PHONY: gns3
 gns3:
 	@echo "Starting  gns3 deployment"
-	python deploy_topology.py http://192.168.120.128:80/v2 pre
+	# python deploy_topology.py http://192.168.120.128:80/v2 pre
+	python deploy_topology.py http://192.168.120.128:80/v2 post
 	@echo "Completed gns3 deployment"
 
 .PHONY: aio
 aio:
-	@echo "Starting  asyncio/scrapli tests"
+	@echo "Starting  aio/scrapli tests"
 	python vt_asyncio.py
-	@echo "Completed asyncio/scrapli tests"
+	@echo "Completed aio/scrapli tests"
 
 .PHONY: clean
 clean:

@@ -11,7 +11,8 @@ import sys
 import re
 import httpx
 
-OS_TATTR_MAP = {
+# Map the network OS names (from Batfish) to their relevant attributes
+OS_ATTR_MAP = {
     "CISCO_IOS": {
         "tmpl_name": "L3IOU-15.6.3",
         "scrapli_platform": "cisco_iosxe",
@@ -52,14 +53,14 @@ def main(base_url, snapshot_name):
         # Loop over all templates and expected OS attrs, then populate those
         # OS attrs with the template ID as they are discovered
         templates = _req(client, method="get", url=f"{base_url}/templates").json()
-        for tattr in OS_TATTR_MAP.values():
+        for attr in OS_ATTR_MAP.values():
             for tmpl in templates:
-                if tmpl["name"] == tattr["tmpl_name"]:
-                    tattr["tmpl_id"] = tmpl["template_id"]
-                    print(f"{tmpl['name']} tmpl_id: {tattr['tmpl_id']}")
+                if tmpl["name"] == attr["tmpl_name"]:
+                    attr["tmpl_id"] = tmpl["template_id"]
+                    print(f"{tmpl['name']} tmpl_id: {attr['tmpl_id']}")
                     break
             else:
-                raise ValueError(f"{tattr['tmpl_name']} template not found")
+                raise ValueError(f"{attr['tmpl_name']} template not found")
 
         # Create a new project and store the project ID for reference
         proj_id = _req(
@@ -91,7 +92,7 @@ def main(base_url, snapshot_name):
             }
 
             # Based on the config format, get the template ID
-            tmpl_id = OS_TATTR_MAP[os_type]["tmpl_id"]
+            tmpl_id = OS_ATTR_MAP[os_type]["tmpl_id"]
 
             # Deploy the node from the proper template, which varies by OS
             depl = _req(
@@ -106,8 +107,9 @@ def main(base_url, snapshot_name):
 
             # Build connectivity parameter dictionaries that are compatible
             # with Scrapli drivers (same key names) for use later.
-            # The conditional ensures non-scrapli devices (gns3-sw) are omitted
-            if sc_plat := OS_TATTR_MAP[os_type].get("scrapli_platform"):
+            # The conditional ensures non-scrapli nodes (gns3-sw) are omitted.
+            # The walrus operator := allows concurrent assignment and checking
+            if sc_plat := OS_ATTR_MAP[os_type].get("scrapli_platform"):
                 scrapli_params[node] = {}
                 scrapli_params[node]["platform"] = sc_plat
                 scrapli_params[node]["port"] = depl["console"]
@@ -197,10 +199,11 @@ def _parse_intf(intf_str):
     Parse the data required to add a GNS3 link from a Batfish-formatted
     interface, such as "[r12]Ethernet0/3" in IOS or "[r01]em2.0" in JunOS.
     Return a dictionary containing the parsed matches. Use www.regex101.com
-    for quick testing.
+    for quick testing. Note that the trailing digit in JunOS is the unit
+    (logical subinterface), not an actual port, but we'll oversimplify here.
     """
     regex = re.compile(
-        r"^\[(?P<node>\S+)\][A-Za-z]*(?P<adapter>\d+)/(?P<port>\d+)$"
+        r"^\[(?P<node>\S+)\][A-Za-z]*(?P<adapter>\d+)(?:/|\.)(?P<port>\d+)$"
     )
     return re.search(regex, intf_str).groupdict()
 
