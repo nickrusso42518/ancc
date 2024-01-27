@@ -8,27 +8,24 @@ consumption of Cisco Enterprise ChatGPT API service.
 """
 
 import json
+from argparse import ArgumentParser
 from cisco_ai import get_client_and_user
 
 
-def tabulate_intf_map(src_opt, dst_opt, intf_map):
+def _make_intf_map(src_plat, dst_plat):
 
     text = ""
-    for speed, src_intf in intf_map[src_opt].items():
-        dst_intf = intf_map[dst_opt].get(speed, f"src_{src_intf}")
+    for speed, src_intf in src_plat["intf"].items():
+        dst_intf = dst_plat["intf"].get(speed, f"src_{src_intf}")
         text += f"{src_intf},{dst_intf}\n"
     return text.strip()
 
 
-def main():
+def main(args):
     """ """
 
-    src_opt = "cisco_iosxe"
-    dst_opt = "juniper_junos"
-
-    with open("nuances.json", "r", encoding="utf-8") as handle:
-        nuances = json.load(handle)
-
+    with open("platforms.json", "r", encoding="utf-8") as handle:
+        platforms = json.load(handle)
 
     with open("prompt.txt", "r", encoding="utf-8") as handle:
         prompt = handle.read()
@@ -37,11 +34,11 @@ def main():
         config_text = handle.read()
 
     question = prompt.format(
-        src_type=nuances["pretty"][src_opt],
-        dst_type=nuances["pretty"][dst_opt],
+        src_type=platforms[args.src]["type"],
+        dst_type=platforms[args.dst]["type"],
         config_text=config_text,
-        intf_map=tabulate_intf_map(src_opt, dst_opt, nuances["intf"]),
-        default_secret=nuances["default_secret"],
+        intf_map=_make_intf_map(platforms[args.src], platforms[args.dst]),
+        include="\n".join(platforms[args.dst]["include"]),
     )
 
     print(question)
@@ -66,4 +63,24 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    supported_platforms = [
+        "arista_eos",
+        "cisco_iosxe",
+        "cisco_iosxr",
+        "cisco_nxos",
+        "juniper_junos",
+    ]
+    parser = ArgumentParser()
+    parser.add_argument(
+        "--src",
+        help="source/original configuration style",
+        choices=supported_platforms,
+        required=True,
+    )
+    parser.add_argument(
+        "--dst",
+        help="destination/target configuration style",
+        choices=supported_platforms,
+        required=True,
+    )
+    main(parser.parse_args())

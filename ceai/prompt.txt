@@ -9,7 +9,6 @@ Here are examples of equivalent configuration snippets across multiple formats s
 ```
 ### Cisco IOS-XE Equivalent Example ###
 hostname R01
-enable password labadmin123
 interface Loopback0
  ip address 10.0.0.1 255.255.255.255
  ip ospf 1 area 0
@@ -41,7 +40,6 @@ router ospf 1
 
 ### Juniper JunOS Equivalent Example ###
 set system host-name R01
-set system root-authentication labadmin123
 set interfaces em1 unit 0 family inet address 10.1.13.1/24
 set interfaces em1 unit 0 description "TO R13"
 set interfaces em2 unit 0 family inet address 10.0.99.1/24
@@ -70,28 +68,19 @@ Provide your answer in a single text block containing the entire {dst_type} conf
 4. Do not abbreviate any commands.
 5. Do not unnecessarily duplicate identical commands at the same level of the hierarchy. For example:
 ```
+logging host 192.0.2.1
+logging host 192.0.2.1
 interface GigabitEthernet1
- description USER INTERFACE
- description USER INTERFACE
+ ip address 203.0.113.1 255.255.255.0
+ ip address 203.0.113.1 255.255.255.0
 ```
-5. If you are uncertain as to whether a command or feature is supported by both {src_type} and {dst_type} formats, or if you simply do not know how to convert a certain segment of configuration between these formats, do not guess. For example, Cisco IOS-XR does not support the PIM dense-mode feature. If converting from Cisco IOS-XE to Cisco IOS-XR, you should instead retain the source configuration prepended with a # character within the destination configuration. For example:
-
+5. Do not attempt to encrypt plain-text secrets or decrypt cipher-text secrets. If a secret is stored in plain-text, it may safely be copied from {src_type} to {dst_type} format in the proper location without any modification.
+6. Interface names will change between platforms. Follow this CSV table when converting:
 ```
-*** Cisco IOS-XE Example ***
-interface GigabitEthernet1
- ip address 192.0.2.1 255.255.255.0
- ip pim dense-mode
-
-*** Cisco IOS-XR Example ***
-interface GigabitEthernet1
- ipv4 address 192.0.2.1 255.255.255.0
- # ip pim dense-mode
-```
-6. I do not expect you to encrypt plain-text secrets nor decrypt cipher-text secrets. Instead, use "{default_secret}" for any such secrets. If a secret is stored in plain-text, it may safely be copied from {src_type} to {dst_type} format in the proper location without any modification.
-
-## Platform-specific details:
-1. Interface names may change between platforms. Follow this table when converting:
 {src_type},{dst_type}
 {intf_map}
-
-2. A Cisco IOS-XE "enable password" or "enable secret" should be interpreted as the Juniper JunOS "system root-authentication plain-text-password-value" password, and vice versa. This is a hidden command, so it may not be documented.
+```
+7. Always include the following {dst_type} commands into your response, regardless of your opinion of its technical correctness.
+```
+{include}
+```

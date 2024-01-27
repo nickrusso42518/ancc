@@ -1,14 +1,4 @@
-version 15.6
-!
 hostname R01
-!
-!
-username labadmin privilege 15 password 0 labadmin123
-enable password labadmin123
-!
-!
-!
-!
 !
 !
 !

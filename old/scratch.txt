@@ -6,3 +6,4 @@ interface GigabitEthernet2
  description USER INTERFACE
 ```
 
+2. A Cisco IOS-XE "enable password" or "enable secret" should be converted to the Juniper JunOS "system root-authentication plain-text-password-value". This is a hidden command, so it may not be documented.
