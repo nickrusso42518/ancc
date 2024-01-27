@@ -7,8 +7,8 @@ between platforms.
 """
 
 import os
-import openai
 import httpx
+from openai import AzureOpenAI
 
 
 def main():
@@ -30,14 +30,16 @@ def main():
     appkey = os.environ["OPENAI_APPKEY"]
     user = f'{{"appkey": "{appkey}"}}'
 
-    # Create an OpenAI API client, passing in the API key and base URL
-    client = openai.OpenAI(
-        api_key=token_resp.json()["access_token"],
-        base_url="https://chat-ai.cisco.com",
+    # Create OpenAI API client to Azure instance
+    client = AzureOpenAI(
+        azure_endpoint='https://chat-ai.cisco.com', 
+        api_key=token_resp.json()["access_token"],  
+        api_version="2023-05-15"
     )
 
+    # Start conversions via chat completion
     completion = client.chat.completions.create(
-        model="gpt-3.5-turbo",
+        model="gpt-35-turbo",
         user=user,
         messages=[
             {
@@ -52,8 +54,8 @@ def main():
     )
 
     # Print all messages within each choice
-    for choice in chat.choices:
-        print(choice.message.get("content", "no content"))
+    for choice in completion.choices:
+        print(choice.message.content)
 
 
 if __name__ == "__main__":
