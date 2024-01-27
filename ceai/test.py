@@ -10,29 +10,25 @@ consumption of Cisco Enterprise ChatGPT API service.
 import json
 from cisco_ai import get_client_and_user
 
-def intf_map():
-    src_type = "cisco_iosxe"
-    dst_type = "juniper_junos"
-    with open("intf_names/big.json", "r", encoding="utf-8") as handle:
-        val_map = json.load(handle)
 
-    src_name = val_map["pretty"][src_type]
-    dst_name = val_map["pretty"][dst_type]
+def tabulate_intf_map(src_opt, dst_opt, intf_map):
 
-    text = f"{src_name},{dst_name}"
-    for speed, src_intf in val_map["intf"][src_type].items():
-        dst_intf = val_map["intf"][dst_type].get(speed, f"src_{src_intf}")
-        text += f"\n{src_intf},{dst_intf}"
-    return text
-    
-    
+    text = ""
+    for speed, src_intf in intf_map[src_opt].items():
+        dst_intf = intf_map[dst_opt].get(speed, f"src_{src_intf}")
+        text += f"{src_intf},{dst_intf}\n"
+    return text.strip()
+
 
 def main():
-    """
-    """
+    """ """
 
-    src_type = "Cisco IOS-XE"
-    dst_type = "Juniper JunOS"
+    src_opt = "cisco_iosxe"
+    dst_opt = "juniper_junos"
+
+    with open("nuances.json", "r", encoding="utf-8") as handle:
+        nuances = json.load(handle)
+
 
     with open("prompt.txt", "r", encoding="utf-8") as handle:
         prompt = handle.read()
@@ -40,7 +36,14 @@ def main():
     with open("config.txt", "r", encoding="utf-8") as handle:
         config_text = handle.read()
 
-    question = prompt.format(src_type=src_type, dst_type=dst_type, config_text=config_text, intf_map=intf_map())
+    question = prompt.format(
+        src_type=nuances["pretty"][src_opt],
+        dst_type=nuances["pretty"][dst_opt],
+        config_text=config_text,
+        intf_map=tabulate_intf_map(src_opt, dst_opt, nuances["intf"]),
+        default_secret=nuances["default_secret"],
+    )
+
     print(question)
 
     client, user = get_client_and_user()
@@ -60,6 +63,7 @@ def main():
     )
 
     print(f"\nAnswer:\n{completion.choices[0].message.content}")
+
 
 if __name__ == "__main__":
     main()

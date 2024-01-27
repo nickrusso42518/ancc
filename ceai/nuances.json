@@ -1,4 +1,5 @@
 {
+    "default_secret": "secret123",
     "pretty": {
         "arista_eos": "Arista EOS",
         "cisco_iosxe": "Cisco IOS-XE",

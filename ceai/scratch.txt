@@ -1,0 +1,8 @@
+It is acceptable to duplicate a command at a different level of the hierarchy (ie, with a different parent). For example:
+```
+interface GigabitEthernet1
+ description USER INTERFACE
+interface GigabitEthernet2
+ description USER INTERFACE
+```
+
