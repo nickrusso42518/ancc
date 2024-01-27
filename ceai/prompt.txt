@@ -97,10 +97,7 @@ interface GigabitEthernet1
 6. Pay extra attention to interface conversions. Ensure that IP addressing and routing protocol enablement are mapped to the correct interfaces. Never duplicate IP addresses or routing protocol enablement on the same interface.
 
 ## Platform-specific details:
-1. Interface names may change between platforms. Follow these guidelines when converting:
-  a. Cisco IOS-XE "Ethernet" interfaces turn into Juniper Junos "em" interfaces, and vice versa.
-  b. Cisco IOS-XE "GigabitEthernet" interfaces turn into Juniper Junos "ge" interfaces, and vice versa.
-  c. Cisco IOS-XE "TenGigabitEthernet" interfaces turn into Juniper Junos "xe" interfaces, and vice versa.
-  d. Cisco IOS-XE "HundredGigabitEthernet" interfaces turn into Juniper Junos "et" interfaces, and vice versa.
+1. Interface names may change between platforms. Follow this table when converting:
+{intf_map}
 
 2. A Cisco IOS-XE "enable password" or "enable secret" should be interpreted as the Juniper JunOS "system root-authentication" password, and vice versa.

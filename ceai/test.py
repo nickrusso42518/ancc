@@ -7,7 +7,25 @@ sync or async clients, and the proper user strings, for easier
 consumption of Cisco Enterprise ChatGPT API service.
 """
 
+import json
 from cisco_ai import get_client_and_user
+
+def intf_map():
+    src_type = "cisco_iosxe"
+    dst_type = "juniper_junos"
+    with open("intf_names/big.json", "r", encoding="utf-8") as handle:
+        val_map = json.load(handle)
+
+    src_name = val_map["pretty"][src_type]
+    dst_name = val_map["pretty"][dst_type]
+
+    text = f"{src_name},{dst_name}"
+    for speed, src_intf in val_map["intf"][src_type].items():
+        dst_intf = val_map["intf"][dst_type].get(speed, f"src_{src_intf}")
+        text += f"\n{src_intf},{dst_intf}"
+    return text
+    
+    
 
 def main():
     """
@@ -22,7 +40,8 @@ def main():
     with open("config.txt", "r", encoding="utf-8") as handle:
         config_text = handle.read()
 
-    question = prompt.format(src_type=src_type, dst_type=dst_type, config_text=config_text)
+    question = prompt.format(src_type=src_type, dst_type=dst_type, config_text=config_text, intf_map=intf_map())
+    print(question)
 
     client, user = get_client_and_user()
     completion = client.chat.completions.create(
@@ -40,7 +59,7 @@ def main():
         ],
     )
 
-    print(f"{completion.choices[0].message.content}")
+    print(f"\nAnswer:\n{completion.choices[0].message.content}")
 
 if __name__ == "__main__":
     main()
