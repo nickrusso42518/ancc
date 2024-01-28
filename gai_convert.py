@@ -9,8 +9,7 @@ consumption of Cisco Enterprise ChatGPT API service.
 
 import json
 from argparse import ArgumentParser
-from timeit import default_timer as timer
-from ai_inputs.cisco_ai import get_client_and_user
+from ai_inputs.cisco_ai import get_client_and_user, account_for_costs
 
 
 def _make_intf_map(src_plat, dst_plat):
@@ -79,7 +78,6 @@ def main(args):
     # and temperature generates more deterministic, less creative responses.
     # presence_penalty applies a flat penalty for repetition, while
     # frequency_penalty becomes stricter as repetition increases.
-    start = timer()
     client, user = get_client_and_user()
     completion = client.chat.completions.create(
         model="gpt-35-turbo",
@@ -100,10 +98,7 @@ def main(args):
         ],
     )
 
-    # Stop timer, print elapsed time and token usage
-    end = timer()
-    tokens = completion.usage.total_tokens
-    print(f"Consumed {round(end - start, 2)} seconds and {tokens} tokens")
+    print(account_for_costs(completion))
 
     # Store the answer and write to disk after removing whitespace
     # and code-denoting backticks, but add a final newline

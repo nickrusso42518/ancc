@@ -13,6 +13,7 @@ import asyncio
 import httpx
 from openai import AzureOpenAI, AsyncAzureOpenAI
 
+
 def account_for_costs(completion):
     """
     Given a completion response object, this approximates the
@@ -70,6 +71,7 @@ def account_for_costs(completion):
     # Return data in CSV format to include all variables.
     # Costs are shown to 8 decimal places of precision
     return f"{dtg},{pt},{pr},{pc:.8f},{ct},{cr},{cc:.8f},{tt},{tc:.8f}"
+
 
 def _get_token_and_user(
     cisco_client_id=None, cisco_client_secret=None, openai_appkey=None
@@ -186,8 +188,7 @@ def _sync_test():
     assert len(completion.choices) > 0
     print(f"\n\nSync question: {sample_question}")
     print(f"Answer: {completion.choices[0].message.content}")
-    print(f"\nCost accounting:")
-    print(account_for_costs(completion))
+    print(f"\nCost log: {account_for_costs(completion)}")
 
 
 async def _async_test():
@@ -215,8 +216,7 @@ async def _async_test():
     assert len(completion.choices) > 0
     print(f"\n\nAsync question: {sample_question}")
     print(f"Answer: {completion.choices[0].message.content}")
-    print(f"\nCost accounting:")
-    print(account_for_costs(completion))
+    print(f"\nCost log: {account_for_costs(completion)}")
 
 
 if __name__ == "__main__":
