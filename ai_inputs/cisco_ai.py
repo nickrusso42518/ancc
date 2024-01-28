@@ -7,11 +7,69 @@ sync or async clients, and the proper user strings, for easier
 consumption of Cisco Enterprise ChatGPT API service.
 """
 
+from datetime import datetime
 import os
 import asyncio
 import httpx
 from openai import AzureOpenAI, AsyncAzureOpenAI
 
+def account_for_costs(completion):
+    """
+    Given a completion response object, this approximates the
+    monetary cost in US dollars required to build the completion.
+    Returns a comma-separated string designed for writing to a log
+    file detailing the relevant tokens, rates, and costs. Format:
+      datetime,prompt_tokens,prompt_rate,prompt_cost,
+        completion_tokens,completion_rate,completion_cost,
+        total_tokens,total_cost
+    """
+
+    # Define the token billing rates per 1000 tokens for the model.
+    # Values may change. Check here: https://openai.com/pricing
+    cost_map = {
+        "gpt-35-turbo": {
+            "prompt_rate": 0.001,
+            "completion_rate": 0.002,
+        },
+        "gpt-4": {
+            "prompt_rate": 0.03,
+            "completion_rate": 0.06,
+        },
+        "gpt-4-turbo": {
+            "prompt_rate": 0.01,
+            "completion_rate": 0.03,
+        },
+    }
+
+    # Simplify the model name so it has an associated dict key.
+    # Let the KeyError break the process if model is unsupported.
+    if completion.model.startswith("gpt-35-turbo"):
+        model = "gpt-35-turbo"
+    elif completion.model.startswith("gpt-4-turbo"):
+        model = "gpt-4-turbo"  # not really correct
+    elif completion.model.startswith("gpt-4"):
+        model = "gpt-4"
+    else:
+        model = completion.model
+
+    # Assign prompt tokens, rate, and cost values
+    pt = completion.usage.prompt_tokens
+    pr = cost_map[model]["prompt_rate"]
+    pc = (pt / 1000) * pr
+
+    # Assign completion tokens, rate, and cost values
+    ct = completion.usage.completion_tokens
+    cr = cost_map[model]["completion_rate"]
+    cc = (ct / 1000) * cr
+
+    # Assign total tokens, cost values, and date/time group
+    tt = completion.usage.total_tokens
+    tc = pc + cc
+    dtg = datetime.fromtimestamp(completion.created)
+
+    # Return data in CSV format to include all variables.
+    # Costs are shown to 8 decimal places of precision
+    return f"{dtg},{pt},{pr},{pc:.8f},{ct},{cr},{cc:.8f},{tt},{tc:.8f}"
 
 def _get_token_and_user(
     cisco_client_id=None, cisco_client_secret=None, openai_appkey=None
@@ -126,8 +184,10 @@ def _sync_test():
     )
 
     assert len(completion.choices) > 0
-    print(f"\nSync question: {sample_question}")
+    print(f"\n\nSync question: {sample_question}")
     print(f"Answer: {completion.choices[0].message.content}")
+    print(f"\nCost accounting:")
+    print(account_for_costs(completion))
 
 
 async def _async_test():
@@ -153,8 +213,10 @@ async def _async_test():
     )
 
     assert len(completion.choices) > 0
-    print(f"\nAsync question: {sample_question}")
+    print(f"\n\nAsync question: {sample_question}")
     print(f"Answer: {completion.choices[0].message.content}")
+    print(f"\nCost accounting:")
+    print(account_for_costs(completion))
 
 
 if __name__ == "__main__":
