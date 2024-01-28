@@ -120,7 +120,8 @@ def main(base_url, snapshot_name):
                 f" with id {depl['node_id']}"
             )
 
-            # TODO different method per device type
+            # Implement a different technique per device type. Today,
+            # only (some) IOS devices can use the elegant file upload process
             if os_type == "CISCO_IOS":
                 # Upload the startup configs from the Batfish snapshot
                 with open(
@@ -131,10 +132,11 @@ def main(base_url, snapshot_name):
                     config_text = handle.read()
 
                 # Upload startup config; reponse has no body, ignore it
+                node_config = f"nodes/{depl['node_id']}/files/startup-config.cfg"
                 _req(
                     client=client,
                     method="post",
-                    url=f"{base_url}/projects/{proj_id}/nodes/{depl['node_id']}/files/startup-config.cfg",
+                    url=f"{base_url}/projects/{proj_id}/{node_config}",
                     data=config_text,
                 )
                 print(f"Uploaded startup-cfg for {os_type} node: {node}")

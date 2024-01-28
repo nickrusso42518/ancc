@@ -13,6 +13,11 @@ from ai_inputs.cisco_ai import get_client_and_user
 
 
 def _make_intf_map(src_plat, dst_plat):
+    """
+    Given source and destination subdictionaries, map interfaces between
+    the configuration styles. Returns a two-column CSV with one row for
+    each source interface to be mapped.
+    """
 
     text = ""
     for speed, src_intf in src_plat["intf"].items():
@@ -22,8 +27,11 @@ def _make_intf_map(src_plat, dst_plat):
 
 
 def main(args):
-    """ """
+    """
+    Execution starts here.
+    """
 
+    # Open
     with open("ai_inputs/platforms.json", "r", encoding="utf-8") as handle:
         platforms = json.load(handle)
 
@@ -33,6 +41,13 @@ def main(args):
     with open("ai_inputs/config.txt", "r", encoding="utf-8") as handle:
         config_text = handle.read()
 
+    # Provide context for how the AI system should behave
+    context = (
+        "You are a senior network engineer with extensive experience in"
+        " planning, implementing, and validating network migrations."
+    )
+
+    # Render the prompt template by providing the required inputs
     question = prompt.format(
         src_type=platforms[args.src]["type"],
         dst_type=platforms[args.dst]["type"],
@@ -40,9 +55,9 @@ def main(args):
         intf_map=_make_intf_map(platforms[args.src], platforms[args.dst]),
         include="\n".join(platforms[args.dst]["include"]),
     )
-
     print(question)
 
+    # Create an API client and perform the config conversion
     client, user = get_client_and_user()
     completion = client.chat.completions.create(
         model="gpt-35-turbo",
@@ -50,7 +65,7 @@ def main(args):
         messages=[
             {
                 "role": "system",
-                "content": "You are a senior network engineer with extensive experience in planning, implementing, and validating network migrations.",
+                "content": context,
             },
             {
                 "role": "user",

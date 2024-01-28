@@ -1,15 +1,9 @@
-# File:    Makefile
 # Version: GNU Make 3.81
-# Author:  Nicholas Russo (njrusmc@gmail.com)
-# Purpose: Phony targets used for linting (YAML/Python) and running
-#          the script for some quick testing. The 'test' target runs
-#          the lint, unit testing, and playbook testing in series.
-#          Individual targets can be run as well, typically for CI.
-#          See .travis.yml for the individual target invocations.
+# Author:  Nick Russo (njrusmc@gmail.com)
 
 .DEFAULT_GOAL := test
 .PHONY: test
-test:	lint bfq
+test:	lint bf gai
 
 .PHONY: cont
 cont:
@@ -27,12 +21,16 @@ cont:
 .PHONY: lint
 lint:
 	@echo "Starting  lint"
-	# find . -name "*.py" | xargs pylint
-	# find . -name "*.py" | xargs black -l 80 --check
-	# black --line-length 82 --check *.py
-	black --line-length 82 *.py
-	pylint bf_pytest.py textfsm/parse_all.py
+	# find . -name "*.py" -not -path "./old/*" | xargs black -l 82 --checkk
+	find . -name "*.py" -not -path "./old/*" | xargs black -l 82
+	find . -name "*.py" -not -path "./old/*" | xargs pylint
 	@echo "Completed lint"
+
+.PHONY: gai
+gai:
+	@echo "Starting  GAI conversion"
+	python gai_convert.py --src cisco_iosxe --dst juniper_junos
+	@echo "Completed GAI conversion"
 
 .PHONY: bf
 bf:
@@ -60,12 +58,6 @@ aio:
 	@echo "Starting  asyncio/scrapli tests"
 	python vt_asyncio.py
 	@echo "Completed asyncio/scrapli tests"
-
-.PHONY: gai
-gai:
-	@echo "Starting  GAI conversion"
-	python gai_convert.py --src cisco_iosxe --dst juniper_junos
-	@echo "Completed GAI conversion"
 
 .PHONY: clean
 clean:

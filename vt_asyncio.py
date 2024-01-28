@@ -11,6 +11,11 @@ from scrapli import AsyncScrapli
 
 
 async def juniper_junos(hostname, conn_params):
+    """
+    Coroutine to collect information from Juniper JunOS devices. The
+    only assertions performed are procedural/technical sanity checks.
+    """
+
     # Update the dict to set custom open/close actions
     conn_params |= {"on_open": _open_junos, "on_close": _close_junos}
 
@@ -31,16 +36,13 @@ async def juniper_junos(hostname, conn_params):
 
 async def cisco_iosxe(hostname, conn_params):
     """
-    Coroutine that includes all validate steps to be conducted on a node.
-    These run in parallel so that a certain type of test (eg checking
-    OSPF neighbors) does not have to finish on all nodes before any
-    node can continue. Returns None if there are no errors, or a list
-    of string containing the faults.
+    Coroutine to collect information from Cisco IOS-XE devices. The
+    only assertions performed are procedural/technical sanity checks.
     """
 
     # Update the dict to set a custom close
     conn_params["on_close"] = _close_iosxe
-    data = {}
+    # TODO data = {}
 
     # Open async connection to the node and auto-close when context ends
     async with AsyncScrapli(**conn_params) as conn:
@@ -48,7 +50,7 @@ async def cisco_iosxe(hostname, conn_params):
         prompt = await conn.get_prompt()
         assert prompt.lower().startswith(hostname.lower())
 
-        """
+        _ = """
         # Collect the OSPF neighbors/interfaces, then parse with custom template
         nbrs = await conn.send_command("show ip ospf neighbor")
         data["nbrs"] = nbrs.textfsm_parse_output("textfsm/ospf_nbrs.textfsm")

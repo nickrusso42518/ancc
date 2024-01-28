@@ -48,7 +48,7 @@ def parse_custom(prefix, data):
 
     # Ensure that the number of column headers equals the number
     # of fields in each record, or else tabular format is ruined
-    assert all([len(fsm.header) == len(record) for record in records])
+    assert all(len(fsm.header) == len(record) for record in records)
     return (fsm, records)
 
 
@@ -119,7 +119,7 @@ def main():
             # list of dictionaries with at least one element
             assert isinstance(new_records, list)
             assert len(new_records) > 0
-            assert all([isinstance(d, dict) for d in new_records])
+            assert all(isinstance(d, dict) for d in new_records)
 
         # Print the output using a variety of outputs
         for output_function in [to_csv_file, to_json_file]:
