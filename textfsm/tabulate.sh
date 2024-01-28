@@ -5,5 +5,5 @@ for file in outputs/*.csv
 do
   echo ""
   echo $file
-  column --separator "," --table $file
+  column -s, -t $file
 done

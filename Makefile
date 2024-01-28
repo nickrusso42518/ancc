@@ -3,7 +3,7 @@
 
 .DEFAULT_GOAL := test
 .PHONY: test
-test:	lint bf gai
+test:	lint bf gai txt
 
 .PHONY: cont
 cont:
@@ -29,7 +29,10 @@ lint:
 .PHONY: gai
 gai:
 	@echo "Starting  GAI conversion"
-	python gai_convert.py --src cisco_iosxe --dst juniper_junos
+	python gai_convert.py \
+		--src_os cisco_iosxe --src_cfg ai_inputs/config.txt \
+		--dst_os juniper_junos --dst_cfg ai_inputs/j.txt
+	cat ai_inputs/j.txt
 	@echo "Completed GAI conversion"
 
 .PHONY: bf

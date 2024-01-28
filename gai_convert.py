@@ -31,14 +31,14 @@ def main(args):
     Execution starts here.
     """
 
-    # Open
+    # Open the platform map, prompt template, and source config file
     with open("ai_inputs/platforms.json", "r", encoding="utf-8") as handle:
         platforms = json.load(handle)
 
     with open("ai_inputs/prompt.txt", "r", encoding="utf-8") as handle:
         prompt = handle.read()
 
-    with open("ai_inputs/config.txt", "r", encoding="utf-8") as handle:
+    with open(args.src_cfg, "r", encoding="utf-8") as handle:
         config_text = handle.read()
 
     # Provide context for how the AI system should behave
@@ -49,13 +49,13 @@ def main(args):
 
     # Render the prompt template by providing the required inputs
     question = prompt.format(
-        src_type=platforms[args.src]["type"],
-        dst_type=platforms[args.dst]["type"],
+        src_type=platforms[args.src_os]["type"],
+        dst_type=platforms[args.dst_os]["type"],
         config_text=config_text,
-        intf_map=_make_intf_map(platforms[args.src], platforms[args.dst]),
-        include="\n".join(platforms[args.dst]["include"]),
+        intf_map=_make_intf_map(platforms[args.src_os], platforms[args.dst_os]),
+        include="\n".join(platforms[args.dst_os]["include"]),
     )
-    print(question)
+    # print(question)
 
     # Create an API client and perform the config conversion
     client, user = get_client_and_user()
@@ -74,10 +74,16 @@ def main(args):
         ],
     )
 
-    print(f"\nAnswer:\n{completion.choices[0].message.content}")
+    # Store the answer and write to disk after removing whitespace
+    # and code-denoting backticks, but add a final newline
+    answer = completion.choices[0].message.content
+    # print(f"\nAnswer:\n{answer}")
+    with open(args.dst_cfg, "w", encoding="utf-8") as handle:
+        handle.write(answer.strip().strip("```") + "\n")
 
 
 if __name__ == "__main__":
+    # Define supported platforms
     supported_platforms = [
         "arista_eos",
         "cisco_iosxe",
@@ -85,17 +91,31 @@ if __name__ == "__main__":
         "cisco_nxos",
         "juniper_junos",
     ]
+
+    # Create parser and add src/dst OS and config arguments
     parser = ArgumentParser()
     parser.add_argument(
-        "--src",
-        help="source/original configuration style",
+        "--src_os",
+        help="source/original platform OS",
         choices=supported_platforms,
         required=True,
     )
     parser.add_argument(
-        "--dst",
-        help="destination/target configuration style",
+        "--src_cfg",
+        help="source/original configuration file",
+        required=True,
+    )
+    parser.add_argument(
+        "--dst_os",
+        help="destination/target platform OS",
         choices=supported_platforms,
         required=True,
     )
+    parser.add_argument(
+        "--dst_cfg",
+        help="destination/target configuration file",
+        required=True,
+    )
+
+    # Call main() and pass in parsed arg object to access values
     main(parser.parse_args())

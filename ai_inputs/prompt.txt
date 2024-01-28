@@ -59,7 +59,7 @@ set protocols ospf area 0.0.0.0 interface em2.0 authentication simple-password O
 set protocols ospf area 0.0.0.0 interface lo0.0 passive
 ```
 
-Provide your answer in a single text block containing the entire {dst_type} configuration. Here are the requirements for how the configuration should be converted:
+Provide your answer in a single text block containing the entire {dst_type} configuration.  Here are the requirements for how the configuration should be converted:
 
 ## Requirements:
 1. Pay extra attention to interface conversions. Ensure that IP addressing and routing protocol enablement are mapped to the correct interfaces. Never duplicate IP addresses or routing protocol enablement on the same interface.
