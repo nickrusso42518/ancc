@@ -57,9 +57,15 @@ txt:
 
 .PHONY: aio
 aio:
-	@echo "Starting  aio/scrapli tests"
+	@echo "Starting  asyncio/scrapli tests"
 	python vt_asyncio.py
-	@echo "Completed aio/scrapli tests"
+	@echo "Completed asyncio/scrapli tests"
+
+.PHONY: gai
+gai:
+	@echo "Starting  GAI conversion"
+	python gai_convert.py --src cisco_iosxe --dst juniper_junos
+	@echo "Completed GAI conversion"
 
 .PHONY: clean
 clean:

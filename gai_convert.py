@@ -9,7 +9,7 @@ consumption of Cisco Enterprise ChatGPT API service.
 
 import json
 from argparse import ArgumentParser
-from cisco_ai import get_client_and_user
+from ai_inputs.cisco_ai import get_client_and_user
 
 
 def _make_intf_map(src_plat, dst_plat):
@@ -24,13 +24,13 @@ def _make_intf_map(src_plat, dst_plat):
 def main(args):
     """ """
 
-    with open("platforms.json", "r", encoding="utf-8") as handle:
+    with open("ai_inputs/platforms.json", "r", encoding="utf-8") as handle:
         platforms = json.load(handle)
 
-    with open("prompt.txt", "r", encoding="utf-8") as handle:
+    with open("ai_inputs/prompt.txt", "r", encoding="utf-8") as handle:
         prompt = handle.read()
 
-    with open("config.txt", "r", encoding="utf-8") as handle:
+    with open("ai_inputs/config.txt", "r", encoding="utf-8") as handle:
         config_text = handle.read()
 
     question = prompt.format(
