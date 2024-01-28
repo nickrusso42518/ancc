@@ -36,9 +36,9 @@
       "username convert group admin"
     ],
     "intf": {
-      "10": "GigE",
-      "100": "GigE",
-      "1000": "GigE",
+      "10": "GigabitEthernet",
+      "100": "GigabitEthernet",
+      "1000": "GigabitEthernet",
       "10000": "TenGigE",
       "40000": "FortyGigE",
       "100000": "HundredGigE"

@@ -20,10 +20,15 @@ def _make_intf_map(src_plat, dst_plat):
     each source interface to be mapped.
     """
 
+    # Be sure to only add source interfaces if the are unique. Example:
+    # NX-OS/EOS only use "ethernet", so mapping from these types is difficult.
     text = ""
+    src_seen = set()
     for speed, src_intf in src_plat["intf"].items():
-        dst_intf = dst_plat["intf"].get(speed, f"src_{src_intf}")
-        text += f"{src_intf},{dst_intf}\n"
+        if src_intf not in src_seen:
+            dst_intf = dst_plat["intf"].get(speed, f"src_{src_intf}")
+            text += f"{src_intf},{dst_intf}\n"
+            src_seen.add(src_intf)
     return text.strip()
 
 
@@ -32,7 +37,7 @@ def main(args):
     Execution starts here.
     """
 
-    # Open the platform map, prompt template, and source config file
+    # Open the platform map, prompt template, source config, an example files
     with open("ai_inputs/platforms.json", "r", encoding="utf-8") as handle:
         platforms = json.load(handle)
 
@@ -41,6 +46,16 @@ def main(args):
 
     with open(args.src_cfg, "r", encoding="utf-8") as handle:
         config_text = handle.read()
+
+    with open(
+        f"ai_inputs/example_{args.src_os}.txt", "r", encoding="utf-8"
+    ) as handle:
+        src_ex = handle.read()
+
+    with open(
+        f"ai_inputs/example_{args.dst_os}.txt", "r", encoding="utf-8"
+    ) as handle:
+        dst_ex = handle.read()
 
     # Provide context for how the AI system should behave
     context = (
@@ -52,10 +67,13 @@ def main(args):
     question = prompt.format(
         src_type=platforms[args.src_os]["type"],
         dst_type=platforms[args.dst_os]["type"],
+        src_ex=src_ex,
+        dst_ex=dst_ex,
         config_text=config_text,
         intf_map=_make_intf_map(platforms[args.src_os], platforms[args.dst_os]),
         include="\n".join(platforms[args.dst_os]["include"]),
     )
+    # print(question); return
 
     # Create an API client and perform the config conversion. Reducing top_p
     # and temperature generates more deterministic, less creative responses.
