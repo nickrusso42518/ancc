@@ -8,6 +8,7 @@ consumption of Cisco Enterprise ChatGPT API service.
 """
 
 import json
+import os
 from argparse import ArgumentParser
 from ai_inputs.cisco_ai import get_client_and_user, account_for_costs
 
@@ -56,6 +57,11 @@ def main(args):
     ) as handle:
         dst_ex = handle.read()
 
+    # Ensure the choices directory exists for OpenAI answers
+    out_dir = "choices/"
+    if not os.path.exists(out_dir):
+        os.makedirs(out_dir)
+
     # Provide context for how the AI system should behave
     context = (
         "You are a senior network engineer with extensive experience in"
@@ -80,8 +86,9 @@ def main(args):
     # frequency_penalty becomes stricter as repetition increases.
     client, user = get_client_and_user()
     completion = client.chat.completions.create(
-        model="gpt-35-turbo",
+        model=args.model,
         user=user,
+        n=args.num_choices,
         # top_p=0.3,
         temperature=0.8,
         presence_penalty=1,
@@ -98,13 +105,13 @@ def main(args):
         ],
     )
 
-    print(account_for_costs(completion))
+    #print(account_for_costs(completion))
 
-    # Store the answer and write to disk after removing whitespace
+    # Write all answers to disk in proper directory after removing whitespace
     # and code-denoting backticks, but add a final newline
-    answer = completion.choices[0].message.content
-    with open(args.dst_cfg, "w", encoding="utf-8") as handle:
-        handle.write(answer.strip().strip("```") + "\n")
+    for i, choice in enumerate(completion.choices):
+        with open(f"{out_dir}/choice{i}.txt", "w", encoding="utf-8") as handle:
+            handle.write(choice.message.content.strip().strip("```") + "\n")
 
 
 if __name__ == "__main__":
@@ -115,6 +122,13 @@ if __name__ == "__main__":
         "cisco_iosxr",
         "cisco_nxos",
         "juniper_junos",
+    ]
+
+    # Define supported models (change 35 to 3.5 when not using azure)
+    supported_models = [
+        "gpt-35-turbo",
+        "gpt-4",
+        "gpt-4-turbo",
     ]
 
     # Create parser and add src/dst OS and config arguments
@@ -137,10 +151,21 @@ if __name__ == "__main__":
         required=True,
     )
     parser.add_argument(
-        "--dst_cfg",
-        help="destination/target configuration file",
-        required=True,
+        "--model",
+        help="OpenAI LLM to use",
+        choices=supported_models,
+    )
+    parser.add_argument(
+        "--num_choices",
+        help="number of choices to generate (iterations)",
+        type=int,
+        default=1,
     )
 
+    # Alternative method to handle defaults; re-assign with desired value
+    args = parser.parse_args()
+    if not args.model:
+        args.model = supported_models[0]
+
     # Call main() and pass in parsed arg object to access values
-    main(parser.parse_args())
+    main(args)

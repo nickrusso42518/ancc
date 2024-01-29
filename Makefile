@@ -31,8 +31,8 @@ gai:
 	@echo "Starting  GAI conversion"
 	python gai_convert.py \
 		--src_os cisco_iosxe --src_cfg ai_inputs/config.txt \
-		--dst_os juniper_junos --dst_cfg ai_inputs/j.txt
-	cat ai_inputs/j.txt
+		--dst_os juniper_junos --num_choices 2
+	head choices/*.txt
 	@echo "Completed GAI conversion"
 
 .PHONY: bf
