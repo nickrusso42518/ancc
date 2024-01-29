@@ -124,6 +124,7 @@ async def _open_junos(conn):
     terminal settings.
     """
 
+    # TODO use sync scrapli as standalone?
     # Low-level interactions to enter the CLI
     login_interactions = [
         ("\n", "Amnesiac (ttyd0)\n\nlogin:"),
