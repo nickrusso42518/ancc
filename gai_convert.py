@@ -37,7 +37,7 @@ def main(args):
     Execution starts here.
     """
 
-    # Open the platform map, prompt template, source config, an example files
+    # Open the platform map, prompt template, source config, and example files
     with open("ai_inputs/platforms.json", "r", encoding="utf-8") as handle:
         platforms = json.load(handle)
 
@@ -50,12 +50,12 @@ def main(args):
     with open(
         f"ai_inputs/example_{args.src_os}.txt", "r", encoding="utf-8"
     ) as handle:
-        src_ex = handle.read()
+        src_example = handle.read()
 
     with open(
         f"ai_inputs/example_{args.dst_os}.txt", "r", encoding="utf-8"
     ) as handle:
-        dst_ex = handle.read()
+        dst_example = handle.read()
 
     # Ensure the choices directory exists for OpenAI answers
     out_dir = "choices/"
@@ -72,8 +72,8 @@ def main(args):
     question = prompt.format(
         src_type=platforms[args.src_os]["type"],
         dst_type=platforms[args.dst_os]["type"],
-        src_ex=src_ex,
-        dst_ex=dst_ex,
+        src_example=src_example,
+        dst_example=dst_example,
         config_text=config_text,
         intf_map=_make_intf_map(platforms[args.src_os], platforms[args.dst_os]),
         include="\n".join(platforms[args.dst_os]["include"]),
@@ -90,6 +90,7 @@ def main(args):
         user=user,
         n=args.num_choices,
         # top_p=0.3,
+        max_tokens=1800,
         temperature=0.8,
         presence_penalty=1,
         # frequency_penalty=0.5,
