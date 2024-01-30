@@ -8,12 +8,14 @@ similar to Batfish, except using simulated devices and "show" commands.
 
 import asyncio
 import logging
+import json
 import operator
 import os
+import sys
 from scrapli import AsyncScrapli
 
 
-async def juniper_junos(hostname, conn_params):
+async def juniper_junos(hostname, snapshot_name, conn_params):
     """
     Coroutine to collect information from Juniper JunOS devices. The
     only assertions performed are procedural/technical sanity checks.
@@ -32,7 +34,7 @@ async def juniper_junos(hostname, conn_params):
         test(prompt.strip(), operator.eq, "root>", logger)
 
         # Load the initial config (cannot be done via GNS3 API)
-        filepath = f"snapshots/post/configs/{hostname.upper()}.txt"
+        filepath = f"snapshots/{snapshot_name}/configs/{hostname.upper()}.txt"
         await conn.send_configs_from_file(filepath, stop_on_failed=True)
 
         # TODO collect neighbors, interfaces, and LSDB
@@ -40,7 +42,7 @@ async def juniper_junos(hostname, conn_params):
     return prompt
 
 
-async def cisco_iosxe(hostname, conn_params):
+async def cisco_iosxe(hostname, snapshot_name, conn_params):
     """
     Coroutine to collect information from Cisco IOS-XE devices. The
     only assertions performed are procedural/technical sanity checks.
@@ -58,6 +60,11 @@ async def cisco_iosxe(hostname, conn_params):
         # Get the prompt and ensure the supplied hostname matches
         prompt = await conn.get_prompt()
         test(prompt.lower().strip(), operator.eq, hostname + "#", logger)
+
+        # NOT NEEDED FOR IOU, but you can perform IOS-XE initialization
+        # for a specified snapshot here, if necessary. Example:
+        # filepath = f"snapshots/{snapshot_name}/configs/{hostname.upper()}.txt"
+        # await conn.send_configs_from_file(filepath, stop_on_failed=True)
 
         _ = """
         # Collect the OSPF neighbors/interfaces, then parse with custom template
@@ -87,9 +94,10 @@ async def cisco_iosxe(hostname, conn_params):
     return prompt
 
 
-async def main():
+async def main(snapshot_name):
     """
-    Execution starts here (coroutine).
+    Execution starts here (coroutine). Targets a specific Batfish
+    snapshot, using those Scrapli parameters
     """
 
     # Ensure the vt_logs directory exists for virtual topology test results
@@ -99,27 +107,21 @@ async def main():
 
     # Basic parameters common to all nodes in the topology
     base_params = {
-        "host": "192.168.120.128",  # GNS3 VM, not client
-        "transport": "asynctelnet",
-        "auth_bypass": True,
+        "host": "192.168.120.128",  # Targetting GNS3 VM, not laptop client
+        "transport": "asynctelnet",  # or "asyncssh" if desired
+        "auth_bypass": True,  # don't perform telnet authentication
+        "comms_return_char": "\r\n",  # Cisco "Press RETURN to get started."
     }
 
-    # TODO Dynamically build from batfish (hostnames/platforms) and GNS3 (ports)
-    device_map = {
-        "r01": {
-            "platform": "juniper_junos",
-            "port": 5004,
-        },
-        "r02": {
-            "platform": "cisco_iosxe",
-            "port": 5006,
-        },
-    }
+    # Load device/console port mappings dynamically built from batfish
+    device_file = f"state/{snapshot_name}/scrapli_params.json"
+    with open(device_file, "r", encoding="utf-8") as handle:
+        device_map = json.load(handle)
 
     # Instantiate coroutines into tasks, assemble into list for
     # all devices. Regardless of OS, they can all run together
     tasks = [
-        globals()[params["platform"]](device, base_params | params)
+        globals()[params["platform"]](device, snapshot_name, base_params | params)
         for device, params in device_map.items()
     ]
 
@@ -173,7 +175,7 @@ async def _close_junos(conn):
     """
     for resp in ["root@%", "Amnesiac (ttyd0)\n\nlogin:"]:
         await conn.send_and_read(channel_input="exit", expected_outputs=[resp])
-    return conn.channel.transport.close()
+    conn.channel.transport.close()
 
 
 async def _close_iosxe(conn):
@@ -181,7 +183,7 @@ async def _close_iosxe(conn):
     Close the channel but don't send "exit"; behavior appears inconsistent
     on GNS3 terminal server. Just leave the console line open.
     """
-    return conn.channel.transport.close()
+    conn.channel.transport.close()
 
 
 def setup_logger(log_file):
@@ -191,7 +193,7 @@ def setup_logger(log_file):
     of "time,value1,operator,value2,result" without any formatting.
     """
 
-    handler = logging.FileHandler(log_file)
+    handler = logging.FileHandler(log_file, mode="w")
     logger = logging.getLogger(log_file)
     logger.setLevel(logging.INFO)
     logger.addHandler(handler)
@@ -227,4 +229,4 @@ def test(v1, op, v2, logger=None):
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    asyncio.run(main(sys.argv[1]))

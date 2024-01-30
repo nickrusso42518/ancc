@@ -1,7 +1,6 @@
 # prompt: root@R01#
 set system host-name R01
-# password: labadmin123
-set system root-authentication encrypted-password "$1$rWtgWPmW$2SjlHozVGVK/hOeED/OuW0"
+set system root-authentication plain-text-password-value convert123
 set interfaces em1 unit 0 family inet address 10.1.13.1/24
 set interfaces em1 unit 0 description "TO R13"
 set interfaces em2 unit 0 family inet address 10.0.99.1/24
@@ -17,8 +16,7 @@ set protocols ospf area 0.0.0.3 interface em3.0 interface-type p2p
 set protocols ospf area 0.0.0.3 interface em3.0 metric 7
 set protocols ospf area 0.0.0.0 interface em2.0 priority 0
 set protocols ospf area 0.0.0.0 interface em2.0 metric 5
-# password: OSPF1234
-set protocols ospf area 0.0.0.0 interface em2.0 authentication simple-password "$9$i.5z69tpOIre24JZjitu0OhS"
+set protocols ospf area 0.0.0.0 interface em2.0 authentication simple-password OSPF1234
 set protocols ospf area 0.0.0.0 interface lo0.0 passive
 exit configuration-mode
 # commit

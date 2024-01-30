@@ -5,22 +5,22 @@
     },
     "r14": {
         "platform": "cisco_iosxe",
-        "port": 5007
+        "port": 5004
     },
     "r12": {
         "platform": "cisco_iosxe",
-        "port": 5008
+        "port": 5005
     },
     "r13": {
         "platform": "cisco_iosxe",
-        "port": 5009
+        "port": 5006
     },
     "r01": {
         "platform": "juniper_junos",
-        "port": 5010
+        "port": 5007
     },
     "r02": {
         "platform": "cisco_iosxe",
-        "port": 5012
+        "port": 5009
     }
 }

@@ -59,7 +59,8 @@ txt:
 .PHONY: aio
 aio:
 	@echo "Starting  asyncio/scrapli tests"
-	python vt_asyncio.py
+	# python vt_asyncio.py pre
+	python vt_asyncio.py post
 	@echo "Completed asyncio/scrapli tests"
 
 .PHONY: clean
