@@ -46,7 +46,9 @@ def account_for_costs(completion):
     # Let the KeyError break the process if model is unsupported.
     if completion.model.startswith("gpt-35-turbo"):
         model = "gpt-35-turbo"
-    elif completion.model.startswith("gpt-4") and completion.model.endswith("preview"):
+    elif completion.model.startswith("gpt-4") and completion.model.endswith(
+        "preview"
+    ):
         model = "gpt-4-turbo-preview"
     elif completion.model.startswith("gpt-4"):
         model = "gpt-4"

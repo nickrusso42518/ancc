@@ -7,6 +7,9 @@ similar to Batfish, except using simulated devices and "show" commands.
 """
 
 import asyncio
+import logging
+import operator
+import os
 from scrapli import AsyncScrapli
 
 
@@ -16,6 +19,9 @@ async def juniper_junos(hostname, conn_params):
     only assertions performed are procedural/technical sanity checks.
     """
 
+    # Create a logger for this node in CSV format
+    logger = setup_logger(f"vt_logs/{hostname}_log.csv")
+
     # Update the dict to set custom open/close actions
     conn_params |= {"on_open": _open_junos, "on_close": _close_junos}
 
@@ -23,7 +29,7 @@ async def juniper_junos(hostname, conn_params):
     async with AsyncScrapli(**conn_params) as conn:
         # Get the prompt and ensure the supplied hostname matches
         prompt = await conn.get_prompt()
-        assert prompt.strip() == "root>"
+        test(prompt.strip(), operator.eq, "root>", logger)
 
         # Load the initial config (cannot be done via GNS3 API)
         filepath = f"snapshots/post/configs/{hostname.upper()}.txt"
@@ -40,6 +46,9 @@ async def cisco_iosxe(hostname, conn_params):
     only assertions performed are procedural/technical sanity checks.
     """
 
+    # Create a logger for this node in CSV format
+    logger = setup_logger(f"vt_logs/{hostname}_log.csv")
+
     # Update the dict to set a custom close
     conn_params["on_close"] = _close_iosxe
     # TODO data = {}
@@ -48,7 +57,7 @@ async def cisco_iosxe(hostname, conn_params):
     async with AsyncScrapli(**conn_params) as conn:
         # Get the prompt and ensure the supplied hostname matches
         prompt = await conn.get_prompt()
-        assert prompt.lower().startswith(hostname.lower())
+        test(prompt.lower().strip(), operator.eq, hostname + "#", logger)
 
         _ = """
         # Collect the OSPF neighbors/interfaces, then parse with custom template
@@ -82,6 +91,11 @@ async def main():
     """
     Execution starts here (coroutine).
     """
+
+    # Ensure the vt_logs directory exists for virtual topology test results
+    out_dir = "vt_logs"
+    if not os.path.exists(out_dir):
+        os.makedirs(out_dir)
 
     # Basic parameters common to all nodes in the topology
     base_params = {
@@ -168,6 +182,48 @@ async def _close_iosxe(conn):
     on GNS3 terminal server. Just leave the console line open.
     """
     return conn.channel.transport.close()
+
+
+def setup_logger(log_file):
+    """
+    Given a log file name (path), this function returns a new logger
+    object to write into the specified file. Also writes the column names
+    of "time,value1,operator,value2,result" without any formatting.
+    """
+
+    handler = logging.FileHandler(log_file)
+    logger = logging.getLogger(log_file)
+    logger.setLevel(logging.INFO)
+    logger.addHandler(handler)
+    logger.info("time,value1,operator,value2,result")
+    handler.setFormatter(
+        logging.Formatter(
+            fmt="%(asctime)s.%(msecs)03d,%(message)s",
+            datefmt="%Y-%m-%d %H:%M:%S",
+        )
+    )
+    return logger
+
+
+def test(v1, op, v2, logger=None):
+    """
+    Compare values v1 and v2 using the operator specified. Prints a
+    message in the format "v1,op,v2,result" separated by commas for
+    easy logging via the specified logger, or to to stdout if
+    no logger is specified.
+    """
+    sym = {
+        "eq": "==",
+        "ne": "!=",
+        "gt": ">",
+        "ge": ">=",
+        "lt": "<",
+        "le": "<=",
+        "contains": "in",
+    }
+    name = op.__name__
+    display_method = logger.info if logger else print
+    display_method(f"{v1},{sym.get(name, name)},{v2},{op(v1, v2)}")
 
 
 if __name__ == "__main__":

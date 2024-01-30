@@ -10,7 +10,7 @@ consumption of Cisco Enterprise ChatGPT API service.
 import json
 import os
 from argparse import ArgumentParser
-from ai_inputs.cisco_ai import get_client_and_user, account_for_costs
+from ai_inputs.cisco_ai import get_client_and_user
 
 
 def _make_intf_map(src_plat, dst_plat):
@@ -104,8 +104,6 @@ def main(args):
             },
         ],
     )
-
-    #print(account_for_costs(completion))
 
     # Write all answers to disk in proper directory after removing whitespace
     # and code-denoting backticks, but add a final newline
