@@ -13,9 +13,10 @@ cont:
 		--volume batfish-data:/data \
 		--publish 8888:8888 --publish 9997:9997 --publish 9996:9996 \
 		--detach batfish/allinone:2023.12.16.1270
-	nc -v -n -w 1 127.0.0.1 8888
-	nc -v -n -w 1 127.0.0.1 9997
-	nc -v -n -w 1 127.0.0.1 9996
+	# nc -v -n -w 1 127.0.0.1 8888
+	# nc -v -n -w 1 127.0.0.1 9997
+	# nc -v -n -w 1 127.0.0.1 9996
+	nmap localhost -p T:8888,9996,9997 | grep closed ; test $$? -eq 1
 	@echo "Completed batfish container"
 
 .PHONY: lint
