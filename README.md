@@ -3,8 +3,7 @@ This project uses [OpenAI (GPT)](https://openai.com/) to convert network device
 configurations between different operating systems and platforms. After the
 conversion, it uses [Batfish](https://www.batfish.org/) to perform a cursory
 validation of the converted configuration against the original. Last, it uses
-[Cisco Modeling Language (CML)](https://www.cisco.com/c/en/us/products/cloud-systems-management/modeling-labs/index.html)
-to simulate a network topology, furthering test the conversion result.
+[GNS3](https://www.gns3.com/) to simulate the network topology in real-time.
 
 __Warning: This project is still under construction and should NOT be used
 until this warning is rescinded.__
