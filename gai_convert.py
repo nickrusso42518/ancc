@@ -78,7 +78,7 @@ def main(args):
         intf_map=_make_intf_map(platforms[args.src_os], platforms[args.dst_os]),
         include="\n".join(platforms[args.dst_os]["include"]),
     )
-    # print(question); return
+    print(question); return
 
     # Create an API client and perform the config conversion. Reducing top_p
     # and temperature generates more deterministic, less creative responses.

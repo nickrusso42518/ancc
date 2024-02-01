@@ -1,5 +1,3 @@
-### Cisco NX-OS Equivalent Example using OSPF
-```
 feature ospf
 hostname R01
 interface Loopback
@@ -24,4 +22,3 @@ router ospf 1
  router-id 192.0.2.1
  area 0.0.0.3 stub no-summary
  passive-interface Loopback0
-```
