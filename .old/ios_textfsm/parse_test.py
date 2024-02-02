@@ -2,6 +2,7 @@ import json
 import textfsm
 import csv
 
+
 def to_csv_file(feature, fsm, records):
     with open(f"{feature}.csv", "w", encoding="utf-8") as handle:
         csv_file = csv.writer(handle)
@@ -9,8 +10,8 @@ def to_csv_file(feature, fsm, records):
         for record in records:
             csv_file.writerow(records)
 
-def to_json_file(feature, fsm, result):
 
+def to_json_file(feature, fsm, result):
     def _try_ints(record):
         new_record = []
         for value in record:
@@ -23,6 +24,7 @@ def to_json_file(feature, fsm, result):
     data = [dict(zip(fsm.header, _try_ints(record))) for record in records]
     with open(f"{feature}.json", "w", encoding="utf-8") as handle:
         json.dump(data, handle, indent=2)
+
 
 inputs = [
     """

@@ -10,10 +10,12 @@ import pytest
 import pytest_asyncio
 from scrapli import AsyncScrapli
 
+
 # TODO delete?
 async def _set_term_length_0(ascrap):
     host = await ascrap.send_command("show running-config | include hostname")
-    ascrap.comms_prompt_pattern = fr"^{host.result.split(' ')[1]}#\s*$"
+    ascrap.comms_prompt_pattern = rf"^{host.result.split(' ')[1]}#\s*$"
+
 
 @pytest_asyncio.fixture(scope="module")
 async def conn():
@@ -24,13 +26,13 @@ async def conn():
 
     # default does not include A-Z "^[a-z0-9.\-@()/:]{1,48}[#>$]\s*$"
     params = {
-       "host": "192.168.120.128",  # GNS3 VM, not client
-       "platform": "cisco_iosxe",
-       "transport": "asynctelnet",
-       "auth_bypass": True,
-       "on_open": _set_term_length_0,
-       "comms_return_char": "\r\n",
-       # "comms_prompt_pattern": r"^[A-Za-z0-9.@()/:-]{1,48}[#>$]\s*$"
+        "host": "192.168.120.128",  # GNS3 VM, not client
+        "platform": "cisco_iosxe",
+        "transport": "asynctelnet",
+        "auth_bypass": True,
+        "on_open": _set_term_length_0,
+        "comms_return_char": "\r\n",
+        # "comms_prompt_pattern": r"^[A-Za-z0-9.@()/:-]{1,48}[#>$]\s*$"
     }
 
     # Setup: define and open all connections
@@ -48,6 +50,7 @@ async def conn():
     for ascrap in conn.values():
         await ascrap.close()
 
+
 @pytest.mark.asyncio
 async def test_prompt(conn):
     """
@@ -56,8 +59,9 @@ async def test_prompt(conn):
     """
     for hostname, ascrap in conn.items():
         assert ascrap.isalive()
-        #prompt = await ascrap.get_prompt()
-        #assert hostname.lower() in prompt.lower()
+        # prompt = await ascrap.get_prompt()
+        # assert hostname.lower() in prompt.lower()
+
 
 @pytest.mark.asyncio
 async def test_ospf_neighbors(conn):

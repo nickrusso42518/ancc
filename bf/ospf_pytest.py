@@ -50,7 +50,7 @@ def bf(snapshot_name):
     # Write each answer to disk in JSON format
     for name, df in bf.items():
         json_data = json.loads(df.to_json(orient="records"))
-        with open(f"{out_dir}/{name}.json", "w", encoding="utf-8") as handle:
+        with open(f"{out_dir}/{name}.json", "w") as handle:
             json.dump(json_data, handle, indent=2)
 
     # Merge dict into bf containing the raw BF session for customization
@@ -371,5 +371,5 @@ def test_generate_topology(bf, snapshot_name):
 
     # Write resulting topology to disk in pretty format
     out_dir = f"bf/state/{snapshot_name}"
-    with open(f"{out_dir}/topology.json", "w", encoding="utf-8") as handle:
+    with open(f"{out_dir}/topology.json", "w") as handle:
         json.dump(topology, handle, indent=2)

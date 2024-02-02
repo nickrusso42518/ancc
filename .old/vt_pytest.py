@@ -11,6 +11,7 @@ import pytest
 from scrapli import Scrapli
 import time
 
+
 def _close_channel(ascrap):
     """
     Close the channel but don't send "exit"; behavior appears inconsistent
@@ -18,6 +19,7 @@ def _close_channel(ascrap):
     """
     # ascrap.channel.transport.socket.close()
     ascrap.channel.transport.close()
+
 
 @pytest.fixture(scope="module")
 def conn():
@@ -27,13 +29,13 @@ def conn():
     """
 
     params = {
-       "host": "192.168.120.128",  # GNS3 VM, not client
-       "platform": "cisco_iosxe",
-       "transport": "telnet",
-       "auth_bypass": True,
-       "on_close": _close_channel,
-       "comms_return_char": "\r\n", # Need for "Press RETURN to get started."
-       "genie_platform": "ios"
+        "host": "192.168.120.128",  # GNS3 VM, not client
+        "platform": "cisco_iosxe",
+        "transport": "telnet",
+        "auth_bypass": True,
+        "on_close": _close_channel,
+        "comms_return_char": "\r\n",  # Need for "Press RETURN to get started."
+        "genie_platform": "ios",
     }
 
     # Setup: define and open all connections
@@ -51,6 +53,7 @@ def conn():
     for ascrap in conn.values():
         ascrap.close()
 
+
 def test_prompt(conn):
     """
     Ensure the device's prompt is accessible and contains the
@@ -60,6 +63,7 @@ def test_prompt(conn):
         assert ascrap.isalive()
         prompt = ascrap.get_prompt()
         assert hostname.lower() in prompt.lower()
+
 
 def test_ospf_neighbors(conn):
     nbrs_dict = {}
@@ -73,6 +77,7 @@ def test_ospf_neighbors(conn):
     assert len(conn) == len(nbrs_dict)
     with open("outputs/vt_nbrs.json", "w", encoding="utf-8") as handle:
         json.dump(nbrs_dict, handle, indent=2)
+
 
 def test_ospf_interfaces(conn):
     intfs_dict = {}

@@ -3,7 +3,7 @@
 
 .DEFAULT_GOAL := test
 .PHONY: test
-test:	lint gai bf txt
+test:	lint gai gft bf txt
 
 .PHONY: cont
 cont:
@@ -22,19 +22,29 @@ cont:
 .PHONY: lint
 lint:
 	@echo "Starting  lint"
-	# find . -name "*.py" -not -path "./old/*" | xargs black -l 82 --check
-	find . -name "*.py" -not -path "./old/*" | xargs black -l 82
-	find . -name "*.py" -not -path "./old/*" | xargs pylint
+	# find . -name "*.py" -not -path "./.old/*" | xargs black -l 82 --check
+	find . -name "*.py" -not -path "./.old/*" | xargs black -l 82
+	find . -name "*.py" -not -path "./.old/*" | xargs pylint
 	@echo "Completed lint"
 
 .PHONY: gai
 gai:
 	@echo "Starting  GAI conversion"
-	python gai/fd_convert.py \
+	python gai/foundation_convert.py \
 		--src_os cisco_iosxe --dst_os juniper_junos \
 		--src_cfg bf/snapshots/pre/configs/R01.txt --num_choices 2
 	head gai/choices/*.txt
 	@echo "Completed GAI conversion"
+
+.PHONY: gft
+gft:
+	@echo "Starting  GAI fine-tune conversion"
+	python gai/finetune_convert.py \
+		--src_os cisco_iosxe --dst_os juniper_junos \
+		--src_cfg bf/snapshots/pre/configs/R01.txt --num_choices 2 \
+		--ft_model ft:gpt-3.5-turbo-0613:personal::8nu4Ddmi
+	head gai/choices/*.txt
+	@echo "Completed GAI fine-tune conversion"
 
 .PHONY: bf
 bf:

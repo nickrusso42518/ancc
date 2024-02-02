@@ -116,7 +116,7 @@ async def main(snapshot_name):
     # Load device/console port mappings dynamically built from GNS3
     in_dir = "gns3/params"
     device_file = f"{in_dir}/{snapshot_name}.json"
-    with open(device_file, "r", encoding="utf-8") as handle:
+    with open(device_file, "r") as handle:
         device_map = json.load(handle)
 
     # Instantiate coroutines into tasks, assemble into list for

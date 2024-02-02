@@ -62,7 +62,10 @@ def main(directory):
         desc = iprops.loc[iprops["Interface"] == p2p, "Description"].values[0]
         nbr = nbrs.loc[nbrs["Interface"] == p2p, "Remote_Interface"].values[0]
         logging.warning(
-            "Check complementary desc: %s / %s,%s", desc, nbr.hostname, nbr.interface
+            "Check complementary desc: %s / %s,%s",
+            desc,
+            nbr.hostname,
+            nbr.interface,
         )
         assert desc.lower().endswith(nbr.hostname)
 
@@ -75,7 +78,9 @@ def main(directory):
     # Ensure backbone/NSSA nodes have the external routes
     for node in ["r01", "r02", "r14"]:
         logging.warning("Check backbone/NSSA nodes for external routes: %s", node)
-        oe2 = routes.loc[(routes["Protocol"] == "ospfE2") & (routes["Node"] == node)]
+        oe2 = routes.loc[
+            (routes["Protocol"] == "ospfE2") & (routes["Node"] == node)
+        ]
         assert len(oe2) > 0
 
     # Ensure stub area non-ABRs do not have external routes, but have a default route.
@@ -83,7 +88,9 @@ def main(directory):
     other_set = set()
     for node in ["r12", "r13"]:
         logging.warning("Check stub nodes for lack of external routes: %s", node)
-        oe2 = routes.loc[(routes["Protocol"] == "ospfE2") & (routes["Node"] == node)]
+        oe2 = routes.loc[
+            (routes["Protocol"] == "ospfE2") & (routes["Node"] == node)
+        ]
         assert len(oe2) == 0
 
         logging.warning("Check stub nodes for default IA route via R01: %s", node)
@@ -97,7 +104,9 @@ def main(directory):
         assert defrte.values[0].startswith("10.1.")
         assert defrte.values[0].endswith(".1")
 
-        logging.warning("Check stub nodes for other IA routes IA via R14: %s", node)
+        logging.warning(
+            "Check stub nodes for other IA routes IA via R14: %s", node
+        )
         others = routes.loc[
             (routes["Protocol"] == "ospfIA")
             & (routes["Network"] != "0.0.0.0/0")

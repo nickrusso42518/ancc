@@ -10,8 +10,7 @@ consumption of Cisco Enterprise ChatGPT API service.
 import json
 import os
 from argparse import ArgumentParser
-from cisco_ai import get_client_and_user
-from utils import _make_intf_map
+from openai import OpenAI
 
 
 def main(args):
@@ -19,29 +18,19 @@ def main(args):
     Execution starts here.
     """
 
-    # Open the platform map, prompt template, source config, and example files
-    in_dir = "gai/inputs/"
-    with open(f"{in_dir}/platforms.json", "r", encoding="utf-8") as handle:
+    # Open the platform map, finetune prompt template, and source config
+    in_dir = "gai/inputs"
+    with open(f"{in_dir}/platforms.json", "r") as handle:
         platforms = json.load(handle)
 
-    with open(f"{in_dir}/fd_prompt.txt", "r", encoding="utf-8") as handle:
+    with open(f"{in_dir}/prompt_finetune.txt", "r") as handle:
         prompt = handle.read()
 
-    with open(
-        f"{in_dir}/example_{args.src_os}.txt", "r", encoding="utf-8"
-    ) as handle:
-        src_example = handle.read()
-
-    with open(
-        f"{in_dir}/example_{args.dst_os}.txt", "r", encoding="utf-8"
-    ) as handle:
-        dst_example = handle.read()
-
-    with open(args.src_cfg, "r", encoding="utf-8") as handle:
+    with open(args.src_cfg, "r") as handle:
         config_text = handle.read()
 
     # Ensure the choices directory exists to store OpenAI answers
-    out_dir = "gai/choices/"
+    out_dir = "gai/choices"
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
 
@@ -55,10 +44,7 @@ def main(args):
     question = prompt.format(
         src_type=platforms[args.src_os]["type"],
         dst_type=platforms[args.dst_os]["type"],
-        src_example=src_example,
-        dst_example=dst_example,
         config_text=config_text,
-        intf_map=_make_intf_map(platforms[args.src_os], platforms[args.dst_os]),
         include="\n".join(platforms[args.dst_os]["include"]),
     )
     # print(question); return
@@ -67,16 +53,10 @@ def main(args):
     # and temperature generates more deterministic, less creative responses.
     # presence_penalty applies a flat penalty for repetition, while
     # frequency_penalty becomes stricter as repetition increases.
-    client, user = get_client_and_user()
+    client = OpenAI()
     completion = client.chat.completions.create(
-        model=args.model,
-        user=user,
+        model=args.ft_model,
         n=args.num_choices,
-        # top_p=0.3,
-        max_tokens=1800,
-        temperature=0.8,
-        presence_penalty=1,
-        # frequency_penalty=0.5,
         messages=[
             {
                 "role": "system",
@@ -90,9 +70,10 @@ def main(args):
     )
 
     # Write all answers to disk in proper directory after removing whitespace
-    # and code-denoting backticks, but add a final newline
+    # and code-denoting backticks, but add a final newline. Use the model name
+    # to differentiate between outputs between different models
     for i, choice in enumerate(completion.choices):
-        with open(f"{out_dir}/choice{i}.txt", "w", encoding="utf-8") as handle:
+        with open(f"{out_dir}/{args.ft_model}_{i}.txt", "w") as handle:
             handle.write(choice.message.content.strip().strip("```") + "\n")
 
 
@@ -104,13 +85,6 @@ if __name__ == "__main__":
         "cisco_iosxr",
         "cisco_nxos",
         "juniper_junos",
-    ]
-
-    # Define supported models (change 35 to 3.5 when not using azure)
-    supported_models = [
-        "gpt-35-turbo",
-        "gpt-4",
-        "gpt-4-turbo",
     ]
 
     # Create parser and add src/dst OS and config arguments
@@ -133,9 +107,9 @@ if __name__ == "__main__":
         required=True,
     )
     parser.add_argument(
-        "--model",
-        help="OpenAI LLM to use",
-        choices=supported_models,
+        "--ft_model",
+        help="Fine-tune LLM to use",
+        required=True,
     )
     parser.add_argument(
         "--num_choices",
@@ -144,10 +118,5 @@ if __name__ == "__main__":
         default=1,
     )
 
-    # Alternative method to handle defaults; re-assign with desired value
-    args = parser.parse_args()
-    if not args.model:
-        args.model = supported_models[0]
-
     # Call main() and pass in parsed arg object to access values
-    main(args)
+    main(parser.parse_args())

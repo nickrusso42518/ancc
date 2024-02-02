@@ -7,6 +7,7 @@ Purpose:
 
 import json
 
+
 def main():
     with open("topology.json", "r", encoding="utf-8") as handle:
         json_data = json.load(handle)
@@ -14,7 +15,6 @@ def main():
     seen = set()
     dupes = []
     for intf in map(lambda d: frozenset(d["Interface"].items()), json_data):
-
         if not intf in seen:
             seen.add(intf)
         else:
@@ -30,11 +30,12 @@ def main():
                 remaining_hosts.remove(link["Interface"]["hostname"])
                 sw_intf += 1
             else:
-                 link["remove"] = True
-                 print(link)
+                link["remove"] = True
+                print(link)
 
     clean = [link for link in json_data if not link.get("remove")]
     print(json.dumps(clean, indent=2))
+
 
 if __name__ == "__main__":
     main()

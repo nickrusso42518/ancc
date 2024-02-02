@@ -2,6 +2,7 @@ import json
 import textfsm
 import csv
 
+
 def to_csv_file(feature, fsm, records):
     with open(f"{feature}.csv", "w", encoding="utf-8") as handle:
         csv_file = csv.writer(handle)
@@ -9,8 +10,8 @@ def to_csv_file(feature, fsm, records):
         for record in records:
             csv_file.writerow(record)
 
-def to_json_file(feature, fsm, records):
 
+def to_json_file(feature, fsm, records):
     def _try_ints(record):
         new_record = []
         for value in record:
@@ -23,6 +24,7 @@ def to_json_file(feature, fsm, records):
     data = [dict(zip(fsm.header, _try_ints(record))) for record in records]
     with open(f"{feature}.json", "w", encoding="utf-8") as handle:
         json.dump(data, handle, indent=2)
+
 
 inputs = [
     """
@@ -62,7 +64,7 @@ Network *24.1.1.1         10.255.71.242    0x80000002   177  0x20 0xc591  32
 Summary *12.1.1.0         10.255.71.242    0x80000001   217  0x20 0xfeec  28
 Summary *23.1.1.0         10.255.71.242    0x80000002   172  0x20 0x6d72  28
 NSSA    *33.1.1.1         10.255.71.242    0x80000001   222  0x20 0xeb3b  36
-    """
+    """,
 ]
 
 for feature, data in zip(["junos_ospf_intfs", "junos_ospf_lsdb"], inputs):
