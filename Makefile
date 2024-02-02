@@ -39,15 +39,15 @@ gai:
 .PHONY: bf
 bf:
 	@echo "Starting  batfish pytest"
-	pytest --verbose bf/ospf_pytest.py --snapshot_name pre
+	# pytest --verbose bf/ospf_pytest.py --snapshot_name pre
 	pytest --verbose bf/ospf_pytest.py --snapshot_name post
 	@echo "Completed batfish pytest"
 
 .PHONY: gns3
 gns3:
 	@echo "Starting  gns3 deployment"
-	# python deploy_topology.py http://192.168.120.128:80/v2 pre
-	python deploy_topology.py http://192.168.120.128:80/v2 post
+	# python gns3/deploy_topology.py http://192.168.120.128:80/v2 pre
+	python gns3/deploy_topology.py http://192.168.120.128:80/v2 post
 	@echo "Completed gns3 deployment"
 
 .PHONY: txt
@@ -60,13 +60,14 @@ txt:
 .PHONY: aio
 aio:
 	@echo "Starting  asyncio/scrapli tests"
-	# python vt_asyncio.py pre
-	python vt_asyncio.py post
+	# python gns3/ospf_asyncio.py pre
+	python gns3/ospf_asyncio.py post
 	@echo "Completed asyncio/scrapli tests"
 
 .PHONY: clean
 clean:
 	@echo "Starting  clean"
 	sudo docker container ls --all --quiet | sudo xargs docker stop | sudo xargs docker rm
+	sudo service docker restart
 	find . -name "*.pyc" | xargs -r rm
 	@echo "Completed clean"

@@ -125,8 +125,9 @@ def main(base_url, snapshot_name):
             # only (some) IOS devices can use the elegant file upload process
             if os_type == "CISCO_IOS":
                 # Upload the startup configs from the Batfish snapshot
+                cfg_dir = f"bf/snapshots/{snapshot_name}/configs"
                 with open(
-                    f"snapshots/{snapshot_name}/configs/{node.upper()}.txt",
+                    f"{cfg_dir}/{node.upper()}.txt",
                     "r",
                     encoding="utf-8",
                 ) as handle:

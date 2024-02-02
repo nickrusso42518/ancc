@@ -22,7 +22,7 @@ async def juniper_junos(hostname, snapshot_name, conn_params):
     """
 
     # Create a logger for this node in CSV format
-    logger = setup_logger(f"logs/{hostname}_log.csv")
+    logger = setup_logger(f"gns3/logs/{hostname}_log.csv")
 
     # Update the dict to set custom open/close actions
     conn_params |= {"on_open": _open_junos, "on_close": _close_junos}
@@ -34,7 +34,7 @@ async def juniper_junos(hostname, snapshot_name, conn_params):
         test(prompt.strip(), operator.eq, "root>", logger)
 
         # Load the initial config (cannot be done via GNS3 API)
-        filepath = f"snapshots/{snapshot_name}/configs/{hostname.upper()}.txt"
+        filepath = f"bf/snapshots/{snapshot_name}/configs/{hostname.upper()}.txt"
         await conn.send_configs_from_file(filepath, stop_on_failed=True)
 
         # TODO collect neighbors, interfaces, and LSDB
@@ -49,7 +49,7 @@ async def cisco_iosxe(hostname, snapshot_name, conn_params):
     """
 
     # Create a logger for this node in CSV format
-    logger = setup_logger(f"logs/{hostname}_log.csv")
+    logger = setup_logger(f"gns3/logs/{hostname}_log.csv")
 
     # Update the dict to set a custom close
     conn_params["on_close"] = _close_iosxe
@@ -161,8 +161,8 @@ async def _open_junos(conn):
         resp = await conn.send_and_read(
             channel_input=cmd,
             expected_outputs=[resp],
-            read_duration=5,
-            timeout_ops=5,
+            read_duration=10,
+            timeout_ops=10,
         )
 
     # Send terminal settings, don't care about result
