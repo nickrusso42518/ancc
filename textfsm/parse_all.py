@@ -14,21 +14,21 @@ from ntc_templates.parse import parse_output
 import textfsm
 
 
-def to_json_file(prefix, records):
+def to_json_file(out_dir, prefix, records):
     """
     Write the records to the output file named <prefix>.json on disk. The
     resulting JSON structure is always a single-depth list of dictionaries.
     """
-    with open(f"outputs/{prefix}.json", "w", encoding="utf-8") as handle:
+    with open(f"{out_dir}/{prefix}.json", "w", encoding="utf-8") as handle:
         json.dump(records, handle, indent=2)
 
 
-def to_csv_file(prefix, records):
+def to_csv_file(out_dir, prefix, records):
     """
     Write the records to the output file named <prefix>.json on disk. The
     resulting JSON structure is always a single-depth list of dictionaries.
     """
-    with open(f"outputs/{prefix}.csv", "w", encoding="utf-8") as handle:
+    with open(f"{out_dir}/{prefix}.csv", "w", encoding="utf-8") as handle:
         dict_writer = DictWriter(handle, records[0].keys())
         dict_writer.writeheader()
         dict_writer.writerows(records)
@@ -42,7 +42,8 @@ def parse_custom(prefix, data):
     """
 
     # Open the textfsm template, initialize the FSM, and parse the records
-    with open(f"templates/{prefix}.textfsm", "r", encoding="utf-8") as handle:
+    tmpl_dir = "textfsm/templates"
+    with open(f"{tmpl_dir}/{prefix}.textfsm", "r", encoding="utf-8") as handle:
         fsm = textfsm.TextFSM(handle)
         records = fsm.ParseText(data.strip())
 
@@ -58,14 +59,16 @@ def main():
     """
 
     # Create the outputs/ directory if it doesn't exist
-    if not os.path.exists("outputs"):
-        os.makedirs("outputs")
+    out_dir = "textfsm/outputs"
+    if not os.path.exists(out_dir):
+        os.makedirs(out_dir)
 
     # For each desired output in the global list
-    for input_file in os.listdir("input"):
+    in_dir = "textfsm/inputs"
+    for input_file in os.listdir(in_dir):
         # Load the input data from plain-text file
         print(f"Processing input: {input_file}")
-        with open(f"input/{input_file}", "r", encoding="utf-8") as handle:
+        with open(f"{in_dir}/{input_file}", "r", encoding="utf-8") as handle:
             data = handle.read()
 
         # Extract the platform name and command from the filename for NTC
@@ -123,7 +126,7 @@ def main():
 
         # Print the output using a variety of outputs
         for output_function in [to_csv_file, to_json_file]:
-            output_function(prefix, new_records)
+            output_function(out_dir, prefix, new_records)
 
 
 if __name__ == "__main__":

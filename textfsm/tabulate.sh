@@ -1,7 +1,7 @@
 #!/bin/bash
 # Quickly print the CSV files in tabular form
 
-for file in outputs/*.csv
+for file in textfsm/outputs/*.csv
 do
   echo ""
   echo $file

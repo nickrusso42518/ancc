@@ -1,14 +1,13 @@
 #!/usr/bin/env python
 
 """
-Author: Nick Russo (nickrus@cisco.com)
-Purpose: Defines two factory-style functions to return
-sync or async clients, and the proper user strings, for easier
-consumption of Cisco Enterprise ChatGPT API service.
+Author: Nick Russo
+Purpose: Generates/synthesizes training data for a fine-tune
+model which is specifically designed for config conversion.
 """
 
 import json
-from ai_inputs.cisco_ai import get_client_and_user
+from utils import _make_intf_map
 
 
 def main():
@@ -27,15 +26,16 @@ def main():
 
     # Initialize empty dict to map OS types to their example configs
     examples = {}
+    in_dir = f"gai/inputs"
     for plat in supported_platforms:
-        with open(f"ai_inputs/example_{plat}.txt") as handle:
+        with open(f"{in_dir}/example_{plat}.txt") as handle:
             examples[plat] = handle.read()
 
     # Open the platform map and fine-tune prompt template
-    with open("ai_inputs/platforms.json", "r", encoding="utf-8") as handle:
+    with open(f"{in_dir}/platforms.json", "r", encoding="utf-8") as handle:
         platforms = json.load(handle)
 
-    with open("ai_inputs/ft_prompt.txt", "r", encoding="utf-8") as handle:
+    with open(f"{in_dir}/ft_train_prompt.txt", "r", encoding="utf-8") as handle:
         prompt = handle.read()
 
     # Render the prompt template by providing the required inputs
@@ -58,18 +58,20 @@ def main():
                 src_type=platforms[src_os]["type"],
                 dst_type=platforms[dst_os]["type"],
                 config_text=src_example,
+                intf_map=_make_intf_map(platforms[src_os], platforms[dst_os]),
                 include="\n".join(platforms[dst_os]["include"]),
             )
             messages = [
                 {"role": "system", "content": context},
                 {"role": "user", "content": question},
-                {"role": "assistant", "content": f"```\n{dst_example}\n```"}
+                {"role": "assistant", "content": f"```\n{dst_example}\n```"},
             ]
             jsonl_msgs.append(json.dumps({"messages": messages}))
 
-    assert len(jsonl_msgs) == len(supported_platforms) * (len(supported_platforms)-1)
-    #print("\n".join(jsonl_msgs))
-    with open("training_data.jsonl", "w") as handle:
+    # Ensure we had the expect number of items (n * n-1) and write to file
+    num_plats = len(supported_platforms)
+    assert len(jsonl_msgs) == num_plats * (num_plats - 1)
+    with open(f"{in_dir}/ft_trng_data.jsonl", "w") as handle:
         handle.write("\n".join(jsonl_msgs) + "\n")
 
 

@@ -3,7 +3,7 @@
 
 .DEFAULT_GOAL := test
 .PHONY: test
-test:	lint bf gai txt
+test:	lint gai bf txt
 
 .PHONY: cont
 cont:
@@ -22,7 +22,7 @@ cont:
 .PHONY: lint
 lint:
 	@echo "Starting  lint"
-	# find . -name "*.py" -not -path "./old/*" | xargs black -l 82 --checkk
+	# find . -name "*.py" -not -path "./old/*" | xargs black -l 82 --check
 	find . -name "*.py" -not -path "./old/*" | xargs black -l 82
 	find . -name "*.py" -not -path "./old/*" | xargs pylint
 	@echo "Completed lint"
@@ -30,17 +30,17 @@ lint:
 .PHONY: gai
 gai:
 	@echo "Starting  GAI conversion"
-	python gai_convert.py \
-		--src_os cisco_iosxe --src_cfg ai_inputs/config.txt \
-		--dst_os juniper_junos --num_choices 2
-	head choices/*.txt
+	python gai/fd_convert.py \
+		--src_os cisco_iosxe --dst_os juniper_junos \
+		--src_cfg bf/snapshots/pre/configs/R01.txt --num_choices 2
+	head gai/choices/*.txt
 	@echo "Completed GAI conversion"
 
 .PHONY: bf
 bf:
 	@echo "Starting  batfish pytest"
-	# pytest --verbose bf_pytest.py --snapshot_name pre
-	pytest --verbose bf_pytest.py --snapshot_name post
+	pytest --verbose bf/ospf_pytest.py --snapshot_name pre
+	pytest --verbose bf/ospf_pytest.py --snapshot_name post
 	@echo "Completed batfish pytest"
 
 .PHONY: gns3
@@ -53,8 +53,8 @@ gns3:
 .PHONY: txt
 txt:
 	@echo "Starting  textfsm parsing"
-	cd textfsm && python parse_all.py
-	cd textfsm && ./tabulate.sh
+	python textfsm/parse_all.py
+	./textfsm/tabulate.sh
 	@echo "Completed textfsm parsing"
 
 .PHONY: aio

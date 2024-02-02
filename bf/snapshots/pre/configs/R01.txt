@@ -1,44 +1,13 @@
-version 15.6
-service timestamps debug datetime msec
-service timestamps log datetime msec
-no service password-encryption
-!
 hostname R01
-!
-boot-start-marker
-boot-end-marker
-!
-!
-no aaa new-model
-!
-!
-!
-!
-!
-no ip domain lookup
-ip cef
-!
-!
-!
-username labadmin privilege 15 password 0 labadmin
-!
-!
-!
-!
-!
-!
-!
 interface Loopback0
  ip address 10.0.0.1 255.255.255.255
  ip ospf 1 area 0
-!
 interface Ethernet0/1
  description TO R13
  ip address 10.1.13.1 255.255.255.0
  ip ospf network point-to-point
  ip ospf 1 area 3
  ip ospf cost 7
-!
 interface Ethernet0/2
  description TO BACKBONE LAN
  ip address 10.0.99.1 255.255.255.0
@@ -48,33 +17,14 @@ interface Ethernet0/2
  ip ospf priority 0
  ip ospf 1 area 0
  ip ospf cost 5
-!
 interface Ethernet0/3
  description TO R12
  ip address 10.1.12.1 255.255.255.0
  ip ospf network point-to-point
  ip ospf 1 area 3
  ip ospf cost 7
-!
 router ospf 1
  router-id 10.0.0.1
  area 3 stub no-summary
  passive-interface Loopback0
-!
-!
-!
-line con 0
- exec-timeout 0 0
- privilege level 15
- logging synchronous
- history size 256
-line aux 0
- exec-timeout 0 0
- privilege level 15
- logging synchronous
-line vty 0 4
- login local
- transport input telnet ssh
-!
-!
 end

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-Author: Nick Russo (nickrus@cisco.com)
+Author: Nick Russo
 Purpose: Defines two factory-style functions to return
 sync or async clients, and the proper user strings, for easier
 consumption of Cisco Enterprise ChatGPT API service.
@@ -10,26 +10,8 @@ consumption of Cisco Enterprise ChatGPT API service.
 import json
 import os
 from argparse import ArgumentParser
-from ai_inputs.cisco_ai import get_client_and_user
-
-
-def _make_intf_map(src_plat, dst_plat):
-    """
-    Given source and destination subdictionaries, map interfaces between
-    the configuration styles. Returns a two-column CSV with one row for
-    each source interface to be mapped.
-    """
-
-    # Be sure to only add source interfaces if the are unique. Example:
-    # NX-OS/EOS only use "ethernet", so mapping from these types is difficult.
-    text = ""
-    src_seen = set()
-    for speed, src_intf in src_plat["intf"].items():
-        if src_intf not in src_seen:
-            dst_intf = dst_plat["intf"].get(speed, f"src_{src_intf}")
-            text += f"{src_intf},{dst_intf}\n"
-            src_seen.add(src_intf)
-    return text.strip()
+from cisco_ai import get_client_and_user
+from utils import _make_intf_map
 
 
 def main(args):
@@ -38,27 +20,28 @@ def main(args):
     """
 
     # Open the platform map, prompt template, source config, and example files
-    with open("ai_inputs/platforms.json", "r", encoding="utf-8") as handle:
+    in_dir = "gai/inputs/"
+    with open(f"{in_dir}/platforms.json", "r", encoding="utf-8") as handle:
         platforms = json.load(handle)
 
-    with open("ai_inputs/prompt.txt", "r", encoding="utf-8") as handle:
+    with open(f"{in_dir}/fd_prompt.txt", "r", encoding="utf-8") as handle:
         prompt = handle.read()
 
-    with open(args.src_cfg, "r", encoding="utf-8") as handle:
-        config_text = handle.read()
-
     with open(
-        f"ai_inputs/example_{args.src_os}.txt", "r", encoding="utf-8"
+        f"{in_dir}/example_{args.src_os}.txt", "r", encoding="utf-8"
     ) as handle:
         src_example = handle.read()
 
     with open(
-        f"ai_inputs/example_{args.dst_os}.txt", "r", encoding="utf-8"
+        f"{in_dir}/example_{args.dst_os}.txt", "r", encoding="utf-8"
     ) as handle:
         dst_example = handle.read()
 
-    # Ensure the choices directory exists for OpenAI answers
-    out_dir = "choices/"
+    with open(args.src_cfg, "r", encoding="utf-8") as handle:
+        config_text = handle.read()
+
+    # Ensure the choices directory exists to store OpenAI answers
+    out_dir = "gai/choices/"
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
 
@@ -78,7 +61,7 @@ def main(args):
         intf_map=_make_intf_map(platforms[args.src_os], platforms[args.dst_os]),
         include="\n".join(platforms[args.dst_os]["include"]),
     )
-    print(question); return
+    # print(question); return
 
     # Create an API client and perform the config conversion. Reducing top_p
     # and temperature generates more deterministic, less creative responses.

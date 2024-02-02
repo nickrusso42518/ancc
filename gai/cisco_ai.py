@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-Author: Nick Russo (nickrus@cisco.com)
+Author: Nick Russo
 Purpose: Defines two factory-style functions to return
 sync or async clients, and the proper user strings, for easier
 consumption of Cisco Enterprise ChatGPT API service.

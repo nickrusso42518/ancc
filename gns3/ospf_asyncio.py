@@ -22,7 +22,7 @@ async def juniper_junos(hostname, snapshot_name, conn_params):
     """
 
     # Create a logger for this node in CSV format
-    logger = setup_logger(f"vt_logs/{hostname}_log.csv")
+    logger = setup_logger(f"logs/{hostname}_log.csv")
 
     # Update the dict to set custom open/close actions
     conn_params |= {"on_open": _open_junos, "on_close": _close_junos}
@@ -49,7 +49,7 @@ async def cisco_iosxe(hostname, snapshot_name, conn_params):
     """
 
     # Create a logger for this node in CSV format
-    logger = setup_logger(f"vt_logs/{hostname}_log.csv")
+    logger = setup_logger(f"logs/{hostname}_log.csv")
 
     # Update the dict to set a custom close
     conn_params["on_close"] = _close_iosxe
@@ -100,8 +100,8 @@ async def main(snapshot_name):
     snapshot, using those Scrapli parameters
     """
 
-    # Ensure the vt_logs directory exists for virtual topology test results
-    out_dir = "vt_logs"
+    # Ensure the logs directory exists for virtual topology test results
+    out_dir = "gns3/logs"
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
 
@@ -113,8 +113,9 @@ async def main(snapshot_name):
         "comms_return_char": "\r\n",  # Cisco "Press RETURN to get started."
     }
 
-    # Load device/console port mappings dynamically built from batfish
-    device_file = f"state/{snapshot_name}/scrapli_params.json"
+    # Load device/console port mappings dynamically built from GNS3
+    in_dir = "gns3/params"
+    device_file = f"{in_dir}/{snapshot_name}.json"
     with open(device_file, "r", encoding="utf-8") as handle:
         device_map = json.load(handle)
 

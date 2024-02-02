@@ -25,7 +25,7 @@ def bf(snapshot_name):
     """
 
     # Initialize the BF session and snapshot from CLI argument
-    snap_dir = f"snapshots/{snapshot_name}"
+    snap_dir = f"bf/snapshots/{snapshot_name}"
     bf_session = Session(host="localhost")
     bf_session.set_network(snapshot_name)
     bf_session.init_snapshot(snap_dir, name=snapshot_name, overwrite=True)
@@ -43,14 +43,14 @@ def bf(snapshot_name):
     }
 
     # Ensure the state directory exists for BF answer/topology data
-    out_dir = f"state/{snapshot_name}"
+    out_dir = f"bf/state/{snapshot_name}"
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
 
     # Write each answer to disk in JSON format
     for name, df in bf.items():
         json_data = json.loads(df.to_json(orient="records"))
-        with open(f"{out_dir}/bf_{name}.json", "w", encoding="utf-8") as handle:
+        with open(f"{out_dir}/{name}.json", "w", encoding="utf-8") as handle:
             json.dump(json_data, handle, indent=2)
 
     # Merge dict into bf containing the raw BF session for customization
