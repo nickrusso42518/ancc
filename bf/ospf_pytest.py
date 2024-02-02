@@ -370,6 +370,6 @@ def test_generate_topology(bf, snapshot_name):
         topology["nodes"]["sw"] = "nonbf-gns3-ethsw"
 
     # Write resulting topology to disk in pretty format
-    out_dir = f"state/{snapshot_name}"
-    with open(f"{out_dir}/bf_topology.json", "w", encoding="utf-8") as handle:
+    out_dir = f"bf/state/{snapshot_name}"
+    with open(f"{out_dir}/topology.json", "w", encoding="utf-8") as handle:
         json.dump(topology, handle, indent=2)

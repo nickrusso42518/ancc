@@ -1,23 +1,23 @@
 set system host-name R01
 set interfaces lo0 unit 0 family inet address 10.0.0.1/32
 set protocols ospf area 0.0.0.0 interface lo0.0 passive
-set protocols ospf area 0.0.0.0 interface lo0.0 authentication simple-password OSPF1234
-set protocols ospf area 0.0.0.0 interface lo0.0 metric 5
-set interfaces em0 unit 0 family inet address 10.1.13.1/24
-set interfaces em0 unit 0 description "TO R13"
-set protocols ospf area 0.0.0.3 interface em0.0 interface-type p2p
-set protocols ospf area 0.0.0.3 interface em0.0 metric 7
-set interfaces em1 unit 0 family inet address 10.0.99.1/24
-set interfaces em1 unit 0 description "TO BACKBONE LAN"
-set protocols ospf area 0.0.0.0 interface em1.0 authentication simple-password OSPF1234
-set protocols ospf area 0.0.0.0 interface em1.0 authentication-key OSPF1234
-set protocols ospf area 0.0.0.0 interface em1.0 interface-type broadcast
-set protocols ospf area 0.0.0.0 interface em1.0 priority 0
-set protocols ospf area 0.0.0.0 interface em1.0 metric 5
-set interfaces em2 unit 0 family inet address 10.1.12.1/24
-set interfaces em2 unit 0 description "TO R12"
-set protocols ospf area 0.0.0.3 interface em2.0 interface-type p2p
-set protocols ospf area 0.0.0.3 interface em2.0 metric 7
+set protocols ospf area 0.0.0.0 interface lo0.0 priority 0
+set interfaces ge-0/0/1 unit 0 family inet address 10.1.13.1/24
+set interfaces ge-0/0/1 unit 0 description "TO R13"
+set protocols ospf area 0.0.0.3 interface ge-0/0/1.0
+set protocols ospf area 0.0.0.3 interface ge-0/0/1.0 interface-type p2p
+set protocols ospf area 0.0.0.3 interface ge-0/0/1.0 metric 7
+set interfaces ge-0/0/2 unit 0 family inet address 10.0.99.1/24
+set interfaces ge-0/0/2 unit 0 description "TO BACKBONE LAN"
+set protocols ospf area 0.0.0.0 interface ge-0/0/2.0
+set protocols ospf area 0.0.0.0 interface ge-0/0/2.0 network-type broadcast
+set protocols ospf area 0.0.0.0 interface ge-0/0/2.0 authentication plain-text-password OSPF1234
+set protocols ospf area 0.0.0.0 interface ge-0/0/2.0 priority 0
+set protocols ospf area 0.0.0.0 interface ge-0/0/2.0 metric 5
+set interfaces ge-0/0/3 unit 0 family inet address 10.1.12.1/24
+set interfaces ge-0/0/3 unit 0 description "TO R12"
+set protocols ospf area 0.0.0.3 interface ge-0/0/3.0
+set protocols ospf area 0.0.0.3 interface ge-0/0/3.0 interface-type p2p
+set protocols ospf area 0.0.0.3 interface ge-0/0/3.0 metric 7
 set routing-options router-id 10.0.0.1
 set protocols ospf area 0.0.0.3 stub no-summary
-set system root-authentication plain-text-password-value convert123
