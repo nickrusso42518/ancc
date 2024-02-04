@@ -1,0 +1,3 @@
+#  test comment
+router-id
+area <address> authentication message-digest
