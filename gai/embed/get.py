@@ -8,6 +8,7 @@ and find relevance/similarities.
 
 import backoff
 import openai
+from scipy import spatial
 
 @backoff.on_exception(backoff.expo, openai.RateLimitError)
 def _create_embeddings(client, **kwargs):
@@ -17,6 +18,9 @@ def _create_embeddings(client, **kwargs):
     This could be based on request or token quantities.
     """
     return client.embeddings.create(**kwargs)
+
+def _get_relatedness(e1, e2):
+    return 1 - spatial.distance.cosine(e1, e2)
 
 
 def main():
@@ -51,6 +55,21 @@ def main():
             db[plat][cmd] = emb.embedding
 
     # print(db)
+
+    src_os = "ios"
+    dst_os = "junos"
+    db["map"] = {}
+    # Assume IOS->JUNOS conversion. For each IOS command, measure
+    # relatedness of each JUNOS command.
+    for src_cmd, src_emb in db[src_os].items():
+        for dst_cmd, dst_emb in db[dst_os].items():
+            rel_val = _get_relatedness(src_emb, dst_emb)
+            # print(f"{src_cmd} : {dst_cmd} -> {round(rel_val, 4)}")
+            if not src_cmd in db["map"] or rel_val > db["map"][src_cmd]["rel_val"]:
+                db["map"][src_cmd] = {"dst_cmd": dst_cmd, "rel_val": rel_val}
+
+    print(db["map"])
+
 
 if __name__ == "__main__":
     main()

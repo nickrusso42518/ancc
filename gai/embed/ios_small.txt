@@ -1,3 +1,4 @@
 #  test comment
 router-id
-area <address> authentication message-digest
+area <address> stub
+area <address> nssa

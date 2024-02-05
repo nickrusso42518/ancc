@@ -1,3 +1,4 @@
 # test comment
-set area <area_id> interface
 set routing-options router-id <router-id>
+set area <area_id> stub
+set area <area_id> nssa

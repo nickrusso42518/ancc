@@ -7,3 +7,5 @@ pytest
 scrapli
 scrapli[textfsm]
 ntc-templates
+backoff
+scipy
