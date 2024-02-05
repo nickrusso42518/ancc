@@ -8,7 +8,8 @@ and find relevance/similarities.
 
 import backoff
 import openai
-from scipy import spatial
+import pandas as pd
+
 
 @backoff.on_exception(backoff.expo, openai.RateLimitError)
 def _create_embeddings(client, **kwargs):
@@ -19,9 +20,6 @@ def _create_embeddings(client, **kwargs):
     """
     return client.embeddings.create(**kwargs)
 
-def _get_relatedness(e1, e2):
-    return 1 - spatial.distance.cosine(e1, e2)
-
 
 def main():
     """
@@ -29,17 +27,15 @@ def main():
     """
 
     # Initialize "database", OpenAI client, and model choice
-    db = {"ios": {}, "junos": {}}
     client = openai.OpenAI()
     model = "text-embedding-ada-002"
 
     # Process each key (platform) in the database
-    for plat in db:
-
+    for plat in ["ios", "junos"]:
         # Read in the commands from each file, converting them to
         # a set to guarantee uniqueness (and reduce cost). Strip
         # whitespace and ignore comments denoted by #
-        with open(f"{plat}_small.txt", "r") as handle:
+        with open(f"cmd/{plat}_dump.txt", "r") as handle:
             cmds = list({c.strip() for c in handle if not c.startswith("#")})
 
         # Create embeddings and ensure equal lengths between
@@ -47,28 +43,17 @@ def main():
         resp = _create_embeddings(client, model=model, input=cmds)
         assert len(cmds) == len(resp.data)
 
-        # Loop over embeddings, assigning each giant list of floats to
-        # the corresponding command key. Paranoid check: ensure the
-        # loop counter equals the OpenAI embedding index
-        for i, (cmd, emb) in enumerate(zip(cmds, resp.data)):
-            assert i == emb.index
-            db[plat][cmd] = emb.embedding
+        # Create pandas dataframe (table) mapping the text inputs (commands)
+        # to their just-created OpenAI embeddings. Use a small, anonymous
+        # lambda function to extract the "embedding" object from each data
+        # element in the API response
+        df = pd.DataFrame(
+            {"text": cmds, "embedding": map(lambda emb: emb.embedding, resp.data)}
+        )
 
-    # print(db)
-
-    src_os = "ios"
-    dst_os = "junos"
-    db["map"] = {}
-    # Assume IOS->JUNOS conversion. For each IOS command, measure
-    # relatedness of each JUNOS command.
-    for src_cmd, src_emb in db[src_os].items():
-        for dst_cmd, dst_emb in db[dst_os].items():
-            rel_val = _get_relatedness(src_emb, dst_emb)
-            # print(f"{src_cmd} : {dst_cmd} -> {round(rel_val, 4)}")
-            if not src_cmd in db["map"] or rel_val > db["map"][src_cmd]["rel_val"]:
-                db["map"][src_cmd] = {"dst_cmd": dst_cmd, "rel_val": rel_val}
-
-    print(db["map"])
+        # Write the pandas dataframe to disk; we don't want to spend money
+        # creating embeddings multiple times when we need to consume them
+        df.to_csv(f"csv/{plat}.csv", index=False)
 
 
 if __name__ == "__main__":
