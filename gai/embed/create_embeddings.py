@@ -28,7 +28,7 @@ def main():
 
     # Initialize "database", OpenAI client, and model choice
     client = openai.OpenAI()
-    model = "text-embedding-ada-002"
+    model = "text-embedding-3-large"
 
     # Process each key (platform) in the database
     for plat in ["ios", "junos"]:

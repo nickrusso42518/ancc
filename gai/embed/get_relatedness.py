@@ -40,7 +40,10 @@ def main():
             if not src_cmd in cmd_map or rel_val > cmd_map[src_cmd]["rel_val"]:
                 cmd_map[src_cmd] = {"dst_cmd": dst_cmd, "rel_val": rel_val}
 
-    import json; print(json.dumps(cmd_map, indent=2))
+    #import json; print(json.dumps(cmd_map, indent=2))
+
+    t = "\n".join([f"{k},{v['dst_cmd']}"for k, v in cmd_map.items()])
+    print(f"{src_os},{dst_os}\n{t}")
 
 
 if __name__ == "__main__":
