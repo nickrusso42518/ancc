@@ -46,6 +46,22 @@ gft:
 	head gai/choices/*.txt
 	@echo "Completed GAI fine-tune conversion"
 
+
+.PHONY: mke
+mke:
+	@echo "Starting  make embeddings"
+	python gai/make_embed_cmd_map.py \
+		--src_os cisco_iosxe --dst_os juniper_junos \
+		--model text-embedding-3-large
+	python gai/make_embed_cmd_map.py \
+		--src_os juniper_junos --dst_os cisco_iosxe \
+		--model text-embedding-3-large
+	jq '.["area <address> stub"]' \
+		gai/inputs/cisco_iosxe_2_juniper_junos.json
+	jq '.["set area <area_id> stub"]' \
+		gai/inputs/juniper_junos_2_cisco_iosxe.json
+	@echo "Completed make embeddings"
+
 .PHONY: bf
 bf:
 	@echo "Starting  batfish pytest"

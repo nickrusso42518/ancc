@@ -1,0 +1,146 @@
+{
+  "set area <area_id> nssa area-range <area_range>": {
+    "dst_cmd": "area <address> nssa",
+    "rel_val": 0.6469927130351962
+  },
+  "set area <area_id> stub": {
+    "dst_cmd": "area <address> stub",
+    "rel_val": 0.7229218412272809
+  },
+  "set area <area_id> interface <interface_name> metric <metric>": {
+    "dst_cmd": "<interface> ip ospf <1-65535> area <0-4294967295>",
+    "rel_val": 0.6001120978832789
+  },
+  "set area <area_id> interface <interface_name> authentication simple-password <value>": {
+    "dst_cmd": "area <address> virtual-link <address> authentication",
+    "rel_val": 0.5545334069487088
+  },
+  "set area <area_id> interface <interface_name> disable": {
+    "dst_cmd": "<interface> ip ospf <1-65535> area <0-4294967295>",
+    "rel_val": 0.5882800235220024
+  },
+  "set area <area_id> interface": {
+    "dst_cmd": "<interface> ip ospf <1-65535> area <0-4294967295>",
+    "rel_val": 0.6785532828865858
+  },
+  "set area <area_id> area-range <area_range> exact": {
+    "dst_cmd": "area <address> range <address> <address>",
+    "rel_val": 0.5992272614737068
+  },
+  "set routing-instances <instance_name> routing-options router-id <router-id>": {
+    "dst_cmd": "router-id",
+    "rel_val": 0.5657616348720084
+  },
+  "set area <area_id> inter-area-prefix-export <value>": {
+    "dst_cmd": "<interface> ip ospf <1-65535> area <address>",
+    "rel_val": 0.5715725975208672
+  },
+  "set area <area_id> nssa": {
+    "dst_cmd": "area <address> nssa",
+    "rel_val": 0.7553577858864209
+  },
+  "set area <area_id> interface <interface_name> no-interface-state-traps": {
+    "dst_cmd": "<interface> ip ospf <1-65535> area <0-4294967295>",
+    "rel_val": 0.6057430344642369
+  },
+  "set area <area_id> area-range <area_range> override-metric <override-metric>": {
+    "dst_cmd": "area <address> range <address> <address>",
+    "rel_val": 0.5306779154403303
+  },
+  "set area <area_id> interface <interface_name>": {
+    "dst_cmd": "<interface> ip ospf <1-65535> area <0-4294967295>",
+    "rel_val": 0.6744342941384799
+  },
+  "set area <area_id> nssa area-range <area_range> restrict": {
+    "dst_cmd": "area <address> nssa",
+    "rel_val": 0.6250707998544066
+  },
+  "set area <area_id> interface <interface_name> dynamic-neighbors": {
+    "dst_cmd": "<interface> ip ospf <1-65535> area <address>",
+    "rel_val": 0.6259615178317031
+  },
+  "set area <area_id> nssa area-range <area_range> exact": {
+    "dst_cmd": "area <address> nssa",
+    "rel_val": 0.6479120432122251
+  },
+  "set area <area_id> interface <interface_name> passive": {
+    "dst_cmd": "passive-interface <interface>",
+    "rel_val": 0.7072624570618229
+  },
+  "set area <area_id> nssa no-summaries": {
+    "dst_cmd": "area <address> nssa no-summary",
+    "rel_val": 0.7606654659859423
+  },
+  "set area <area_id> inter-area-prefix-import <value>": {
+    "dst_cmd": "<interface> ip ospf <1-65535> area <address>",
+    "rel_val": 0.584979177676566
+  },
+  "set area <area_id> nssa default-lsa default-metric <default-metric>": {
+    "dst_cmd": "area <address> nssa",
+    "rel_val": 0.5976592537935171
+  },
+  "set area <area_id> area-range <area_range> restrict": {
+    "dst_cmd": "area <address> range <address> <address>",
+    "rel_val": 0.6065027207720307
+  },
+  "set area <area_id> stub default-metric <default-metric>": {
+    "dst_cmd": "area <address> stub",
+    "rel_val": 0.5715365333297416
+  },
+  "set area <area_id> nssa area-range <area_range> override-metric": {
+    "dst_cmd": "area <address> nssa",
+    "rel_val": 0.581500882585592
+  },
+  "set area <area_id> stub no-summaries": {
+    "dst_cmd": "area <address> stub no-summary",
+    "rel_val": 0.750049695550591
+  },
+  "set area <area_id> interface <interface_name> poll-interval <poll-interval>": {
+    "dst_cmd": "<interface> ip ospf <1-65535> area <0-4294967295>",
+    "rel_val": 0.5703208003240051
+  },
+  "set area <area_id> interface <interface_name> authentication md5 <key-id> key <value>": {
+    "dst_cmd": "area <address> virtual-link <address> authentication-key",
+    "rel_val": 0.6237856530443402
+  },
+  "set area <area_id>": {
+    "dst_cmd": "area <address>",
+    "rel_val": 0.5736478624096122
+  },
+  "set area <area_id> interface <interface_name> secondary": {
+    "dst_cmd": "<interface> ip ospf <1-65535> area <0-4294967295>",
+    "rel_val": 0.5673531756869669
+  },
+  "set routing-options router-id <router-id>": {
+    "dst_cmd": "router-id",
+    "rel_val": 0.634979817915198
+  },
+  "set area <area_id> virtual-link neighbor-id <neighbor-id> transit-area <transit-area>": {
+    "dst_cmd": "area <address> virtual-link <address>",
+    "rel_val": 0.6941457142021071
+  },
+  "set area <area_id> sham-link-remote <address>": {
+    "dst_cmd": "area <address> sham-link <address> <address>",
+    "rel_val": 0.815929607584356
+  },
+  "set area <area_id> interface <interface_name> demand-circuit": {
+    "dst_cmd": "<interface> ip ospf demand-circuit",
+    "rel_val": 0.6977965334185644
+  },
+  "set area <area_id> nssa area-range": {
+    "dst_cmd": "area <address> nssa",
+    "rel_val": 0.6979142766054046
+  },
+  "set area <area_id> peer-interface <peer_interface_name>": {
+    "dst_cmd": "<interface> ip ospf <1-65535> area <address>",
+    "rel_val": 0.5919212096921782
+  },
+  "set area <area_id> area-range <area_range>": {
+    "dst_cmd": "area <address> range <address> <address>",
+    "rel_val": 0.6474660826242682
+  },
+  "set area <area_id> interface <interface_name> interface-type": {
+    "dst_cmd": "<interface> ip ospf <1-65535> area <0-4294967295>",
+    "rel_val": 0.6571662117336544
+  }
+}
