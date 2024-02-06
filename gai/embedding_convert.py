@@ -22,12 +22,17 @@ def main(args):
     with open(f"{in_dir}/platforms.json", "r") as handle:
         platforms = json.load(handle)
 
-    conv_str = f"{args.src_os}_2_{args.dst_os}"
-    with open(f"{in_dir}/{cmd_file}.json", "r") as handle:
+    with open(f"{in_dir}/prompt_cmdmap.txt", "r") as handle:
         prompt = handle.read()
 
     with open(args.src_cfg, "r") as handle:
         config_text = handle.read()
+
+    cmd_file = f"{args.src_os}_2_{args.dst_os}.json"
+    with open(f"{in_dir}/{cmd_file}", "r") as handle:
+        cmd_map_data = json.load(handle)
+
+    cmd_map = "\n".join([f"{k},{v['dst_cmd']}" for k, v in cmd_map_data.items()])
 
     # Ensure the choices directory exists to store OpenAI answers
     out_dir = "gai/choices/embedding"
@@ -44,13 +49,12 @@ def main(args):
     question = prompt.format(
         src_type=platforms[args.src_os]["type"],
         dst_type=platforms[args.dst_os]["type"],
-        src_example=src_example,
-        dst_example=dst_example,
+        cmd_map=cmd_map + "\n",
         config_text=config_text,
         intf_map=_make_intf_map(platforms[args.src_os], platforms[args.dst_os]),
         include="\n".join(platforms[args.dst_os]["include"]),
     )
-    print(question); return
+    # print(question); return
 
     # Create an API client and perform the config conversion. Reducing top_p
     # and temperature generates more deterministic, less creative responses.
@@ -61,7 +65,7 @@ def main(args):
     completion = client.chat.completions.create(
         model=args.model,
         n=args.num_choices,
-        max_tokens=2500,
+        max_tokens=1800,
         temperature=0.8,
         presence_penalty=1,
         messages=[
@@ -107,7 +111,7 @@ if __name__ == "__main__":
         required=True,
     )
     parser.add_argument(
-	"--src_cfg",
+        "--src_cfg",
         help="source/original configuration file",
         required=True,
     )

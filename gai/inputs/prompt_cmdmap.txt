@@ -4,9 +4,10 @@ Convert the {src_type} network device configuration below into an equivalent {ds
 {config_text}
 ```
 
-Use the table below as a guide when mapping commands between platforms. These mappings are suggestions based on vector embeddings and may not be precisely correct. Not all mappings will be used.
+Use the CSV table below as a guide when mapping commands from {src_type} to {dst_type}. These mappings are suggestions and may not be precisely correct.
 
 ```
+{src_type},{dst_type}
 {cmd_map}
 ```
 

@@ -27,14 +27,14 @@ lint:
 	find . -name "*.py" -not -path "./.old/*" | xargs pylint
 	@echo "Completed lint"
 
-.PHONY: gai
-gai:
-	@echo "Starting  GAI conversion"
+.PHONY: gfd
+gfd:
+	@echo "Starting  GAI foundation conversion"
 	python gai/foundation_convert.py \
 		--src_os cisco_iosxe --dst_os juniper_junos \
 		--src_cfg bf/snapshots/pre/configs/R01.txt --num_choices 2
-	head gai/choices/*.txt
-	@echo "Completed GAI conversion"
+	head gai/choices/foundation/*.txt
+	@echo "Completed GAI foundation conversion"
 
 .PHONY: gft
 gft:
@@ -43,7 +43,7 @@ gft:
 		--src_os cisco_iosxe --dst_os juniper_junos \
 		--src_cfg bf/snapshots/pre/configs/R01.txt --num_choices 2 \
 		--ft_model ft:gpt-3.5-turbo-0613:personal::8nu4Ddmi
-	head gai/choices/*.txt
+	head gai/choices/finetune/*.txt
 	@echo "Completed GAI fine-tune conversion"
 
 
@@ -61,6 +61,15 @@ mke:
 	jq '.["set area <area_id> stub"]' \
 		gai/inputs/juniper_junos_2_cisco_iosxe.json
 	@echo "Completed make embeddings"
+
+.PHONY: gem
+gem:
+	@echo "Starting  GAI embedding conversion"
+	python gai/embedding_convert.py \
+		--src_os cisco_iosxe --dst_os juniper_junos \
+		--src_cfg bf/snapshots/pre/configs/R01.txt --num_choices 2
+	head gai/choices/embedding/*.txt
+	@echo "Completed GAI embedding conversion"
 
 .PHONY: bf
 bf:

@@ -1,4 +1,0 @@
-# test comment
-set routing-options router-id <router-id>
-set area <area_id> stub
-set area <area_id> nssa

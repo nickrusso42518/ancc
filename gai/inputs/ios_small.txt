@@ -1,4 +1,0 @@
-#  test comment
-router-id
-area <address> stub
-area <address> nssa

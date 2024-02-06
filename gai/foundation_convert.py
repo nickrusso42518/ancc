@@ -39,7 +39,7 @@ def main(args):
         config_text = handle.read()
 
     # Ensure the choices directory exists to store OpenAI answers
-    out_dir = "gai/choices"
+    out_dir = "gai/choices/foundation"
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
 
@@ -92,7 +92,7 @@ def main(args):
     # and code-denoting backticks, but add a final newline. Use the model name
     # to differentiate between outputs between different models
     for i, choice in enumerate(completion.choices):
-        with open(f"{out_dir}/{args.model}_{i}.txt", "w") as handle:
+        with open(f"{out_dir}/{i}.txt", "w") as handle:
             handle.write(choice.message.content.strip().strip("```") + "\n")
 
 

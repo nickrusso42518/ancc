@@ -6,14 +6,14 @@ Purpose: Get embeddings for Cisco and Juniper OSPF commands
 and find relevance/similarities.
 """
 
-import backoff
-import openai
 import os
 import json
-import pandas as pd
 import ast
-from scipy import spatial
 from argparse import ArgumentParser
+import pandas as pd
+import backoff
+import openai
+from scipy import spatial
 
 
 @backoff.on_exception(backoff.expo, openai.RateLimitError)
@@ -42,7 +42,7 @@ def main(args):
 
     # Initialize OpenAI client and other variables
     client = openai.OpenAI()
-    in_dir = f"gai/inputs"
+    in_dir = "gai/inputs"
     emb = {}
 
     # When loading from CSV, convert stringified list to a list. Example:
@@ -51,7 +51,6 @@ def main(args):
 
     # Process each key (platform) in the database
     for plat in [args.src_os, args.dst_os]:
-
         # Check to see if the embedding file already exists. If it does,
         # and we don't want to recreate, load in the existing data and
         # continue to the next loop element
@@ -66,7 +65,7 @@ def main(args):
         # a set to guarantee uniqueness (and reduce cost). Strip
         # whitespace and ignore comments denoted by #
         print(f"Create new {plat} embeddings")
-        with open(f"cmd/{plat}_dump.txt", "r") as handle:
+        with open(f"{in_dir}/{plat}_dump.txt", "r") as handle:
             cmds = list({c.strip() for c in handle if not c.startswith("#")})
 
         # Create embeddings and ensure equal lengths between
@@ -91,7 +90,6 @@ def main(args):
     cmd_map = {}
     for sc, se in zip(emb[args.src_os].text, emb[args.src_os].embedding):
         for dc, de in zip(emb[args.dst_os].text, emb[args.dst_os].embedding):
-
             # Compute relatedness between embedding vectors, and store
             # the new value if it's better than what's already there
             rel_val = _get_relatedness(se, de)
