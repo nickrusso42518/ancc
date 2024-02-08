@@ -1,0 +1,413 @@
+{
+  "nbrs": [
+    {
+      "ip_address": "10.0.99.2",
+      "interface": "em2.0",
+      "state": "Full",
+      "neighbor_id": "10.0.0.2",
+      "priority": "1",
+      "dead_time": "31"
+    },
+    {
+      "ip_address": "10.0.99.14",
+      "interface": "em2.0",
+      "state": "2Way",
+      "neighbor_id": "10.0.0.14",
+      "priority": "0",
+      "dead_time": "39"
+    },
+    {
+      "ip_address": "10.1.13.13",
+      "interface": "em1.0",
+      "state": "Full",
+      "neighbor_id": "10.0.0.13",
+      "priority": "1",
+      "dead_time": "39"
+    },
+    {
+      "ip_address": "10.1.12.12",
+      "interface": "em3.0",
+      "state": "Full",
+      "neighbor_id": "10.0.0.12",
+      "priority": "1",
+      "dead_time": "34"
+    }
+  ],
+  "intfs": [
+    {
+      "intf": "em2.0",
+      "state": "DRother",
+      "area": "0.0.0.0",
+      "dr_id": "10.0.0.2",
+      "bdr_id": "0.0.0.0",
+      "nbrs": "2"
+    },
+    {
+      "intf": "lo0.0",
+      "state": "DRother",
+      "area": "0.0.0.0",
+      "dr_id": "0.0.0.0",
+      "bdr_id": "0.0.0.0",
+      "nbrs": "0"
+    },
+    {
+      "intf": "em1.0",
+      "state": "PtToPt",
+      "area": "0.0.0.3",
+      "dr_id": "0.0.0.0",
+      "bdr_id": "0.0.0.0",
+      "nbrs": "1"
+    },
+    {
+      "intf": "em3.0",
+      "state": "PtToPt",
+      "area": "0.0.0.3",
+      "dr_id": "0.0.0.0",
+      "bdr_id": "0.0.0.0",
+      "nbrs": "1"
+    }
+  ],
+  "lsas": [
+    {
+      "area": "0.0.0.0",
+      "type": "Router",
+      "lsa_id": "10.0.0.1",
+      "adv_rtr": "10.0.0.1",
+      "seq_num": "0x80000004",
+      "age_sec": "1138",
+      "options": "0x22",
+      "chksum": "0xe932",
+      "length": "48"
+    },
+    {
+      "area": "0.0.0.0",
+      "type": "Router",
+      "lsa_id": "10.0.0.2",
+      "adv_rtr": "10.0.0.2",
+      "seq_num": "0x80000007",
+      "age_sec": "1335",
+      "options": "0x22",
+      "chksum": "0x22ef",
+      "length": "48"
+    },
+    {
+      "area": "0.0.0.0",
+      "type": "Router",
+      "lsa_id": "10.0.0.14",
+      "adv_rtr": "10.0.0.14",
+      "seq_num": "0x80000007",
+      "age_sec": "1337",
+      "options": "0x22",
+      "chksum": "0xdd6",
+      "length": "48"
+    },
+    {
+      "area": "0.0.0.0",
+      "type": "Network",
+      "lsa_id": "10.0.99.2",
+      "adv_rtr": "10.0.0.2",
+      "seq_num": "0x80000003",
+      "age_sec": "1335",
+      "options": "0x22",
+      "chksum": "0xcbbd",
+      "length": "36"
+    },
+    {
+      "area": "0.0.0.0",
+      "type": "Summary",
+      "lsa_id": "10.0.0.10",
+      "adv_rtr": "10.0.0.2",
+      "seq_num": "0x80000003",
+      "age_sec": "143",
+      "options": "0x22",
+      "chksum": "0xa669",
+      "length": "28"
+    },
+    {
+      "area": "0.0.0.0",
+      "type": "Summary",
+      "lsa_id": "10.0.0.12",
+      "adv_rtr": "10.0.0.1",
+      "seq_num": "0x80000002",
+      "age_sec": "1321",
+      "options": "0x22",
+      "chksum": "0x7c96",
+      "length": "28"
+    },
+    {
+      "area": "0.0.0.0",
+      "type": "Summary",
+      "lsa_id": "10.0.0.12",
+      "adv_rtr": "10.0.0.14",
+      "seq_num": "0x80000003",
+      "age_sec": "176",
+      "options": "0x22",
+      "chksum": "0x4ab7",
+      "length": "28"
+    },
+    {
+      "area": "0.0.0.0",
+      "type": "Summary",
+      "lsa_id": "10.0.0.13",
+      "adv_rtr": "10.0.0.1",
+      "seq_num": "0x80000001",
+      "age_sec": "1326",
+      "options": "0x22",
+      "chksum": "0x749e",
+      "length": "28"
+    },
+    {
+      "area": "0.0.0.0",
+      "type": "Summary",
+      "lsa_id": "10.0.0.13",
+      "adv_rtr": "10.0.0.14",
+      "seq_num": "0x80000003",
+      "age_sec": "176",
+      "options": "0x22",
+      "chksum": "0x40c0",
+      "length": "28"
+    },
+    {
+      "area": "0.0.0.0",
+      "type": "Summary",
+      "lsa_id": "10.1.12.0",
+      "adv_rtr": "10.0.0.1",
+      "seq_num": "0x80000003",
+      "age_sec": "722",
+      "options": "0x22",
+      "chksum": "0x58b9",
+      "length": "28"
+    },
+    {
+      "area": "0.0.0.0",
+      "type": "Summary",
+      "lsa_id": "10.1.12.0",
+      "adv_rtr": "10.0.0.14",
+      "seq_num": "0x80000003",
+      "age_sec": "176",
+      "options": "0x22",
+      "chksum": "0x6e8c",
+      "length": "28"
+    },
+    {
+      "area": "0.0.0.0",
+      "type": "Summary",
+      "lsa_id": "10.1.13.0",
+      "adv_rtr": "10.0.0.1",
+      "seq_num": "0x80000003",
+      "age_sec": "399",
+      "options": "0x22",
+      "chksum": "0x4dc3",
+      "length": "28"
+    },
+    {
+      "area": "0.0.0.0",
+      "type": "Summary",
+      "lsa_id": "10.1.13.0",
+      "adv_rtr": "10.0.0.14",
+      "seq_num": "0x80000003",
+      "age_sec": "176",
+      "options": "0x22",
+      "chksum": "0x6396",
+      "length": "28"
+    },
+    {
+      "area": "0.0.0.0",
+      "type": "Summary",
+      "lsa_id": "10.2.10.0",
+      "adv_rtr": "10.0.0.2",
+      "seq_num": "0x80000003",
+      "age_sec": "143",
+      "options": "0x22",
+      "chksum": "0x7a94",
+      "length": "28"
+    },
+    {
+      "area": "0.0.0.0",
+      "type": "Summary",
+      "lsa_id": "10.12.14.0",
+      "adv_rtr": "10.0.0.1",
+      "seq_num": "0x80000002",
+      "age_sec": "1321",
+      "options": "0x22",
+      "chksum": "0x24d7",
+      "length": "28"
+    },
+    {
+      "area": "0.0.0.0",
+      "type": "Summary",
+      "lsa_id": "10.12.14.0",
+      "adv_rtr": "10.0.0.14",
+      "seq_num": "0x80000003",
+      "age_sec": "176",
+      "options": "0x22",
+      "chksum": "0x8d67",
+      "length": "28"
+    },
+    {
+      "area": "0.0.0.0",
+      "type": "Summary",
+      "lsa_id": "10.13.14.0",
+      "adv_rtr": "10.0.0.1",
+      "seq_num": "0x80000001",
+      "age_sec": "1326",
+      "options": "0x22",
+      "chksum": "0x1ae1",
+      "length": "28"
+    },
+    {
+      "area": "0.0.0.0",
+      "type": "Summary",
+      "lsa_id": "10.13.14.0",
+      "adv_rtr": "10.0.0.14",
+      "seq_num": "0x80000003",
+      "age_sec": "176",
+      "options": "0x22",
+      "chksum": "0x8172",
+      "length": "28"
+    },
+    {
+      "area": "0.0.0.3",
+      "type": "Router",
+      "lsa_id": "10.0.0.1",
+      "adv_rtr": "10.0.0.1",
+      "seq_num": "0x80000005",
+      "age_sec": "1138",
+      "options": "0x20",
+      "chksum": "0x69da",
+      "length": "72"
+    },
+    {
+      "area": "0.0.0.3",
+      "type": "Router",
+      "lsa_id": "10.0.0.12",
+      "adv_rtr": "10.0.0.12",
+      "seq_num": "0x80000005",
+      "age_sec": "1322",
+      "options": "0x20",
+      "chksum": "0x419c",
+      "length": "84"
+    },
+    {
+      "area": "0.0.0.3",
+      "type": "Router",
+      "lsa_id": "10.0.0.13",
+      "adv_rtr": "10.0.0.13",
+      "seq_num": "0x80000004",
+      "age_sec": "1329",
+      "options": "0x20",
+      "chksum": "0xefe5",
+      "length": "84"
+    },
+    {
+      "area": "0.0.0.3",
+      "type": "Router",
+      "lsa_id": "10.0.0.14",
+      "adv_rtr": "10.0.0.14",
+      "seq_num": "0x80000004",
+      "age_sec": "176",
+      "options": "0x20",
+      "chksum": "0xae22",
+      "length": "72"
+    },
+    {
+      "area": "0.0.0.3",
+      "type": "Summary",
+      "lsa_id": "0.0.0.0",
+      "adv_rtr": "10.0.0.1",
+      "seq_num": "0x80000002",
+      "age_sec": "76",
+      "options": "0x20",
+      "chksum": "0x4fe2",
+      "length": "28"
+    },
+    {
+      "area": "0.0.0.3",
+      "type": "Summary",
+      "lsa_id": "0.0.0.0",
+      "adv_rtr": "10.0.0.14",
+      "seq_num": "0x80000003",
+      "age_sec": "176",
+      "options": "0x20",
+      "chksum": "0xfe25",
+      "length": "28"
+    },
+    {
+      "area": "0.0.0.3",
+      "type": "Summary",
+      "lsa_id": "10.0.0.1",
+      "adv_rtr": "10.0.0.14",
+      "seq_num": "0x80000001",
+      "age_sec": "1332",
+      "options": "0x20",
+      "chksum": "0x9e78",
+      "length": "28"
+    },
+    {
+      "area": "0.0.0.3",
+      "type": "Summary",
+      "lsa_id": "10.0.0.2",
+      "adv_rtr": "10.0.0.14",
+      "seq_num": "0x80000003",
+      "age_sec": "176",
+      "options": "0x20",
+      "chksum": "0x9a78",
+      "length": "28"
+    },
+    {
+      "area": "0.0.0.3",
+      "type": "Summary",
+      "lsa_id": "10.0.0.10",
+      "adv_rtr": "10.0.0.14",
+      "seq_num": "0x80000003",
+      "age_sec": "176",
+      "options": "0x20",
+      "chksum": "0xae52",
+      "length": "28"
+    },
+    {
+      "area": "0.0.0.3",
+      "type": "Summary",
+      "lsa_id": "10.0.0.14",
+      "adv_rtr": "10.0.0.14",
+      "seq_num": "0x80000003",
+      "age_sec": "176",
+      "options": "0x20",
+      "chksum": "0xef1c",
+      "length": "28"
+    },
+    {
+      "area": "0.0.0.3",
+      "type": "Summary",
+      "lsa_id": "10.0.99.0",
+      "adv_rtr": "10.0.0.14",
+      "seq_num": "0x80000003",
+      "age_sec": "176",
+      "options": "0x20",
+      "chksum": "0x5f53",
+      "length": "28"
+    },
+    {
+      "area": "0.0.0.3",
+      "type": "Summary",
+      "lsa_id": "10.2.10.0",
+      "adv_rtr": "10.0.0.14",
+      "seq_num": "0x80000003",
+      "age_sec": "176",
+      "options": "0x20",
+      "chksum": "0x827d",
+      "length": "28"
+    },
+    {
+      "area": "0.0.0.3",
+      "type": "Extern",
+      "lsa_id": "192.168.0.0",
+      "adv_rtr": "10.0.0.2",
+      "seq_num": "0x80000003",
+      "age_sec": "143",
+      "options": "0x20",
+      "chksum": "0x7ba8",
+      "length": "36"
+    }
+  ]
+}

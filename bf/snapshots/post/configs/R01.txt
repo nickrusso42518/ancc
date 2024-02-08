@@ -18,5 +18,5 @@ set protocols ospf area 0.0.0.0 interface em2.0 priority 0
 set protocols ospf area 0.0.0.0 interface em2.0 metric 5
 set protocols ospf area 0.0.0.0 interface em2.0 authentication simple-password OSPF1234
 set protocols ospf area 0.0.0.0 interface lo0.0 passive
-exit configuration-mode
 # commit
+exit configuration-mode

@@ -35,9 +35,32 @@ async def juniper_junos(hostname, snapshot_name, conn_params):
 
         # Load the initial config (cannot be done via GNS3 API)
         filepath = f"bf/snapshots/{snapshot_name}/configs/{hostname.upper()}.txt"
+        # TODO timeout_ops increase for commit?
         await conn.send_configs_from_file(filepath, stop_on_failed=True)
 
-        # TODO
+        # Collect the OSPF neighbors, interfaces, and LSDB
+        resps = await conn.send_commands(
+            [
+                "show ospf neighbor",
+                "show ospf interface",
+                "show ospf database",
+            ]
+        )
+
+        # Use a dict since we need to conduct parsing using a mix of
+        # built-in and custom templates. Templatize the path to reduce typing
+        tmpl = "gns3/textfsm/templates/juniper_junos_show_ospf_{}.textfsm"
+        data = {
+            "nbrs": resps[0].textfsm_parse_output(),
+            "intfs": resps[1].textfsm_parse_output(
+                template=tmpl.format("interface")
+            ),
+            "lsas": resps[2].textfsm_parse_output(
+                template=tmpl.format("database")
+            ),
+        }
+
+        # TODO write tests
 
     # Coroutines can return data, too; just return the prompt
     return prompt
@@ -53,6 +76,7 @@ async def cisco_iosxe(hostname, snapshot_name, conn_params):
     logger = setup_logger(f"gns3/logs/{hostname}_log.csv")
 
     # Update the dict to set a custom close
+    # Scrapli is smart enough to send "enable" if needed on open
     conn_params["on_close"] = _close_iosxe
 
     # Open async connection to the node and auto-close when context ends
@@ -84,38 +108,66 @@ async def cisco_iosxe(hostname, snapshot_name, conn_params):
         # Only include dicts that match this host for node-specific testing
         with open(f"bf/state/{snapshot_name}/compat.json", "r") as handle:
             compat = {
-                c["Interface"]["hostname"]["interface"]: c
-                for c in json.load(handle)
-                if c["Interface"]["hostname"].lower() == hostname
+                nbr["Interface"]["interface"]: nbr
+                for nbr in json.load(handle)
+                if nbr["Interface"]["hostname"].lower() == hostname
             }
 
         # Loop over textfsm-parsed OSPF interfaces
         areas_seen = set()
         for intf in data[intfs]:
-            # Convert Et to Ethernet for comparison (lazy, could use a map)
-            long_intf = intf["intf"].replace("Et", "Ethernet")
+            # Convert Et to Ethernet for comparison
+            long_intf = _expand_intf(intf["interface"])
 
-            # Ensure the area and IP addresses match what batfish thinks
-            test(compat[long_intf]["IP"], op.eq, intf["ip_address"])
-            test(int(compat[long_intf]["Area"]), op.eq, intf["area"])
-            areas_seen.add(intf["area"])
+            # Ensure the area and IP addresses match what batfish thinks.
+            # Don't try this on loopbacks as they never have neighbors
+            if not "Loopback" in long_intf:
+                test(compat[long_intf]["IP"], op.eq, intf["ip_address"], logger)
+                test(compat[long_intf]["Area"], op.eq, int(intf["area"]), logger)
+                areas_seen.add(compat[long_intf]["Area"])
 
         # If this router is in area 0 ...
         if 0 in areas_seen and hostname.lower() != "r02":
             # It must have a FULL neighbor with R2, the LAN segment DR
-            r02 = [n for n in data[nbrs] if n["neighbor_id"] == "10.0.99.2"][0]
-            test(int(r02["priority"]), op.eq, 1)
-            test(r02["state"], op.eq, "FULL/  -")
-            test(r02["address"], op.eq, "10.0.0.2")
+            r02 = [n for n in data[nbrs] if n["neighbor_id"] == "10.0.0.2"][0]
+            test(int(r02["priority"]), op.eq, 1, logger)
+            test(r02["state"], op.eq, "FULL/DR", logger)
+            test(r02["ip_address"], op.eq, "10.0.99.2", logger)
 
             # It must also have R2's network LSA
-            lsa2 = [l for l in data[lsas] if l["router_id"] == "10.0.99.2"][0]
-            test(lsa2["adv_router"], op.eq, "10.0.0.2")
+            lsa2 = [l for l in data[lsas] if l["link_id"] == "10.0.99.2"][0]
+            test(lsa2["adv_router"], op.eq, "10.0.0.2", logger)
 
         # You get the idea ... challenge: add more tests!
 
     # Coroutines can return data, too; just return the prompt
     return prompt
+
+
+def _expand_intf(short_intf):
+    """
+    Convert a short Cisco interface string (eg "Et0/0") into its
+    full-length equivalent (eg "Ethernet0/0"). If there is no
+    mapping, return the interface unchanged.
+    """
+
+    # Examine the first two characters of the short intf
+    match short_intf[:2]:
+        case "Lo":
+            long_intf = "Loopback"
+        case "Et":
+            long_intf = "Ethernet"
+        case "Fa":
+            long_intf = "FastEthernet"
+        case "Gi":
+            long_intf = "GigabitEthernet"
+        case "Se":
+            long_intf = "Serial"
+        case _:
+            return short_intf
+
+    # Prepend long intf string to the slot/port string
+    return long_intf + short_intf[2:]
 
 
 async def main(snapshot_name):
@@ -154,9 +206,19 @@ async def main(snapshot_name):
     task_future = asyncio.gather(*tasks)
     await task_future
 
-    # TODO delete
+    # We now have the future results. Print them (the prompts) to indicate
+    # successful validation of those nodes
+    print("Validated nodes:")
     for result in task_future.result():
         print(result)
+
+
+async def _open_junos2(conn):
+    await conn.send_command("\n")
+
+
+async def _close_junos2(conn):
+    await conn.send_command("\n")
 
 
 async def _open_junos(conn):
@@ -165,7 +227,6 @@ async def _open_junos(conn):
     terminal settings.
     """
 
-    # TODO use sync scrapli as standalone?
     # Low-level interactions to enter the CLI
     login_interactions = [
         ("\n", "Amnesiac (ttyd0)\n\nlogin:"),
