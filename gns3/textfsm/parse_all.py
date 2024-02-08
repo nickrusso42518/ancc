@@ -42,7 +42,7 @@ def parse_custom(prefix, data):
     """
 
     # Open the textfsm template, initialize the FSM, and parse the records
-    tmpl_dir = "textfsm/templates"
+    tmpl_dir = "gns3/textfsm/templates"
     with open(f"{tmpl_dir}/{prefix}.textfsm", "r") as handle:
         fsm = textfsm.TextFSM(handle)
         records = fsm.ParseText(data.strip())
@@ -59,12 +59,12 @@ def main():
     """
 
     # Create the outputs/ directory if it doesn't exist
-    out_dir = "textfsm/outputs"
+    out_dir = "gns3/textfsm/outputs"
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
 
     # For each desired output in the global list
-    in_dir = "textfsm/inputs"
+    in_dir = "gns3/textfsm/inputs"
     for input_file in os.listdir(in_dir):
         # Load the input data from plain-text file
         print(f"Processing input: {input_file}")

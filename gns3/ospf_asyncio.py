@@ -9,7 +9,7 @@ similar to Batfish, except using simulated devices and "show" commands.
 import asyncio
 import logging
 import json
-import operator
+import operator as op
 import os
 import sys
 from scrapli import AsyncScrapli
@@ -31,14 +31,15 @@ async def juniper_junos(hostname, snapshot_name, conn_params):
     async with AsyncScrapli(**conn_params) as conn:
         # Get the prompt and ensure the supplied hostname matches
         prompt = await conn.get_prompt()
-        test(prompt.strip(), operator.eq, "root>", logger)
+        test(prompt.strip(), op.eq, "root>", logger)
 
         # Load the initial config (cannot be done via GNS3 API)
         filepath = f"bf/snapshots/{snapshot_name}/configs/{hostname.upper()}.txt"
         await conn.send_configs_from_file(filepath, stop_on_failed=True)
 
-        # TODO collect neighbors, interfaces, and LSDB
-        # TODO custom textfsm for interfaces
+        # TODO
+
+    # Coroutines can return data, too; just return the prompt
     return prompt
 
 
@@ -53,44 +54,67 @@ async def cisco_iosxe(hostname, snapshot_name, conn_params):
 
     # Update the dict to set a custom close
     conn_params["on_close"] = _close_iosxe
-    # TODO data = {}
 
     # Open async connection to the node and auto-close when context ends
     async with AsyncScrapli(**conn_params) as conn:
         # Get the prompt and ensure the supplied hostname matches
         prompt = await conn.get_prompt()
-        test(prompt.lower().strip(), operator.eq, hostname + "#", logger)
+        test(prompt.lower().strip(), op.eq, hostname + "#", logger)
 
         # NOT NEEDED FOR IOU, but you can perform IOS-XE initialization
         # for a specified snapshot here, if necessary. Example:
         # filepath = f"snapshots/{snapshot_name}/configs/{hostname.upper()}.txt"
         # await conn.send_configs_from_file(filepath, stop_on_failed=True)
 
-        _ = """
-        # Collect the OSPF neighbors/interfaces, then parse with custom template
-        nbrs = await conn.send_command("show ip ospf neighbor")
-        data["nbrs"] = nbrs.textfsm_parse_output("textfsm/ospf_nbrs.textfsm")
-
-        intfs = await conn.send_command("show ip ospf interface brief")
-        data["intfs"] = intfs.textfsm_parse_output("textfsm/ospf_intfs.textfsm")
-
-        # TODO use new data to compare against batfish for correctness
-
-        # TODO parse a MultiResponse directly?
-        # Collect all router (type 1) and network (type 2) LSAs from the LSDB.
-        # Use the existing NTC templates to parse rather than custom templates
-        lsa12 = await conn.send_commands(
-            ["show ip ospf database router", "show ip ospf database router"]
+        # Collect the OSPF neighbors, interfaces, and LSDB
+        resps = await conn.send_commands(
+            [
+                "show ip ospf neighbor",
+                "show ip ospf interface brief",
+                "show ip ospf database",
+            ]
         )
-        for i, lsa in enumerate(lsa12):
-            data[f"lsa{i+1}"] = lsa.textfsm_parse_output()
 
-        # TODO assert 6 LSA1, 1 LSA2 ... 6 dynamic, but 1 static (lazy)
-        # what about areas? which area is the router in?
-        assert len(data["lsa1"] == 6)
-        assert len(data["lsa2"] == 1)
-        """
+        # Create named indexes to improve readability, then parse with textfsm
+        nbrs, intfs, lsas = range(3)
+        data = [resp.textfsm_parse_output() for resp in resps]
 
+        # Load in the compatible OSPF neighbors fromm batfish, then create
+        # a dict keyed by the unique interface name referencing the main dict.
+        # Only include dicts that match this host for node-specific testing
+        with open(f"bf/state/{snapshot_name}/compat.json", "r") as handle:
+            compat = {
+                c["Interface"]["hostname"]["interface"]: c
+                for c in json.load(handle)
+                if c["Interface"]["hostname"].lower() == hostname
+            }
+
+        # Loop over textfsm-parsed OSPF interfaces
+        areas_seen = set()
+        for intf in data[intfs]:
+            # Convert Et to Ethernet for comparison (lazy, could use a map)
+            long_intf = intf["intf"].replace("Et", "Ethernet")
+
+            # Ensure the area and IP addresses match what batfish thinks
+            test(compat[long_intf]["IP"], op.eq, intf["ip_address"])
+            test(int(compat[long_intf]["Area"]), op.eq, intf["area"])
+            areas_seen.add(intf["area"])
+
+        # If this router is in area 0 ...
+        if 0 in areas_seen and hostname.lower() != "r02":
+            # It must have a FULL neighbor with R2, the LAN segment DR
+            r02 = [n for n in data[nbrs] if n["neighbor_id"] == "10.0.99.2"][0]
+            test(int(r02["priority"]), op.eq, 1)
+            test(r02["state"], op.eq, "FULL/  -")
+            test(r02["address"], op.eq, "10.0.0.2")
+
+            # It must also have R2's network LSA
+            lsa2 = [l for l in data[lsas] if l["router_id"] == "10.0.99.2"][0]
+            test(lsa2["adv_router"], op.eq, "10.0.0.2")
+
+        # You get the idea ... challenge: add more tests!
+
+    # Coroutines can return data, too; just return the prompt
     return prompt
 
 
@@ -208,10 +232,10 @@ def setup_logger(log_file):
     return logger
 
 
-def test(v1, op, v2, logger=None):
+def test(v1, oper, v2, logger=None):
     """
     Compare values v1 and v2 using the operator specified. Prints a
-    message in the format "v1,op,v2,result" separated by commas for
+    message in the format "v1,oper,v2,result" separated by commas for
     easy logging via the specified logger, or to to stdout if
     no logger is specified.
     """
@@ -224,9 +248,9 @@ def test(v1, op, v2, logger=None):
         "le": "<=",
         "contains": "in",
     }
-    name = op.__name__
+    name = oper.__name__
     display_method = logger.info if logger else print
-    display_method(f"{v1},{sym.get(name, name)},{v2},{op(v1, v2)}")
+    display_method(f"{v1},{sym.get(name, name)},{v2},{oper(v1, v2)}")
 
 
 if __name__ == "__main__":

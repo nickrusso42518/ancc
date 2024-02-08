@@ -88,8 +88,8 @@ gns3:
 .PHONY: txt
 txt:
 	@echo "Starting  textfsm parsing"
-	python textfsm/parse_all.py
-	./textfsm/tabulate.sh
+	python gns3/textfsm/parse_all.py
+	./gns3/textfsm/tabulate.sh
 	@echo "Completed textfsm parsing"
 
 .PHONY: aio

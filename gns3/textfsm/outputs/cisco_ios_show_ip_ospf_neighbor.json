@@ -4,7 +4,7 @@
     "priority": 0,
     "state": "FULL/  -",
     "dead_time": "00:00:32",
-    "address": "10.0.1.1",
+    "ip_address": "10.0.1.1",
     "interface": "Port-channel1"
   },
   {
@@ -12,7 +12,7 @@
     "priority": 0,
     "state": "FULL/  -",
     "dead_time": "00:00:33",
-    "address": "10.0.2.1",
+    "ip_address": "10.0.2.1",
     "interface": "Port-channel2"
   },
   {
@@ -20,7 +20,7 @@
     "priority": 0,
     "state": "FULL/  -",
     "dead_time": "00:00:39",
-    "address": "10.0.3.1",
+    "ip_address": "10.0.3.1",
     "interface": "Vlan1000"
   }
 ]

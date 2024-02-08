@@ -3,7 +3,8 @@
     "interface": "Lo0",
     "process": 1,
     "area": 0,
-    "ip_address_mask": "172.16.0.11/32",
+    "ip_address": "172.16.0.11",
+    "prefix_length": 32,
     "cost": 1,
     "state": "LOOP",
     "neighbors_fc": "0/0"
@@ -12,7 +13,8 @@
     "interface": "Se0/0/0.100",
     "process": 1,
     "area": 0,
-    "ip_address_mask": "172.16.1.1/30",
+    "ip_address": "172.16.1.1",
+    "prefix_length": 30,
     "cost": 50,
     "state": "P2P",
     "neighbors_fc": "1/1"
@@ -21,7 +23,8 @@
     "interface": "Fa0/0",
     "process": 1,
     "area": 0,
-    "ip_address_mask": "10.0.0.5/24",
+    "ip_address": "10.0.0.5",
+    "prefix_length": 24,
     "cost": 1,
     "state": "BDR",
     "neighbors_fc": "1/1"
@@ -30,7 +33,8 @@
     "interface": "Fa0/1",
     "process": 1,
     "area": 11,
-    "ip_address_mask": "10.1.2.1/24",
+    "ip_address": "10.1.2.1",
+    "prefix_length": 24,
     "cost": 1,
     "state": "DR",
     "neighbors_fc": "0/0"
@@ -39,7 +43,8 @@
     "interface": "Tu1610",
     "process": 1,
     "area": 0,
-    "ip_address_mask": "0.0.0.0/0",
+    "ip_address": "0.0.0.0",
+    "prefix_length": 0,
     "cost": 50,
     "state": "P2P",
     "neighbors_fc": "0/0"
@@ -48,7 +53,8 @@
     "interface": "Lo5",
     "process": 1,
     "area": 0,
-    "ip_address_mask": "10.48.8.5/32",
+    "ip_address": "10.48.8.5",
+    "prefix_length": 32,
     "cost": 1,
     "state": "LOOP",
     "neighbors_fc": "0/0"
@@ -57,7 +63,8 @@
     "interface": "Lo4",
     "process": 1,
     "area": 0,
-    "ip_address_mask": "10.48.8.4/32",
+    "ip_address": "10.48.8.4",
+    "prefix_length": 32,
     "cost": 1,
     "state": "LOOP",
     "neighbors_fc": "0/0"
@@ -66,7 +73,8 @@
     "interface": "Tu1603",
     "process": 1,
     "area": 0,
-    "ip_address_mask": "0.0.0.0/0",
+    "ip_address": "0.0.0.0",
+    "prefix_length": 0,
     "cost": 50,
     "state": "DOWN",
     "neighbors_fc": "0/0"
@@ -75,7 +83,8 @@
     "interface": "Tu1602",
     "process": 1,
     "area": 0,
-    "ip_address_mask": "0.0.0.0/0",
+    "ip_address": "0.0.0.0",
+    "prefix_length": 0,
     "cost": 50,
     "state": "P2P",
     "neighbors_fc": "0/0"
@@ -84,7 +93,8 @@
     "interface": "PO4/0",
     "process": 1,
     "area": 0,
-    "ip_address_mask": "10.1.232.6/30",
+    "ip_address": "10.1.232.6",
+    "prefix_length": 30,
     "cost": 6,
     "state": "P2P",
     "neighbors_fc": "1/1"
@@ -93,7 +103,8 @@
     "interface": "Se3/2:0",
     "process": 1,
     "area": 0,
-    "ip_address_mask": "10.1.224.218/30",
+    "ip_address": "10.1.224.218",
+    "prefix_length": 30,
     "cost": 6,
     "state": "P2P",
     "neighbors_fc": "1/1"
@@ -102,7 +113,8 @@
     "interface": "Se3/1:0",
     "process": 1,
     "area": 0,
-    "ip_address_mask": "10.1.225.150/30",
+    "ip_address": "10.1.225.150",
+    "prefix_length": 30,
     "cost": 6,
     "state": "P2P",
     "neighbors_fc": "1/1"
