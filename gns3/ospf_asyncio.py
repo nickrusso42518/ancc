@@ -25,7 +25,7 @@ async def juniper_junos(hostname, snapshot_name, conn_params):
     logger = setup_logger(f"gns3/logs/{hostname}_log.csv")
 
     # Update the dict to set custom open/close actions
-    conn_params |= {"on_open": _open_junos, "on_close": _close_junos}
+    conn_params |= {"on_open": _open_junos2, "on_close": _close_junos2}
 
     # Open async connection to the node and auto-close when context ends
     async with AsyncScrapli(**conn_params) as conn:
@@ -35,8 +35,23 @@ async def juniper_junos(hostname, snapshot_name, conn_params):
 
         # Load the initial config (cannot be done via GNS3 API)
         filepath = f"bf/snapshots/{snapshot_name}/configs/{hostname.upper()}.txt"
-        # TODO timeout_ops increase for commit?
         await conn.send_configs_from_file(filepath, stop_on_failed=True)
+
+        # Prompt changes after hostname change. Example: root@R01>
+        new_prompt = f"root@{hostname.upper()}>"
+
+        # Commit and quit config mode, check for new prompt.
+        # This can take several minutes if running on a laptop
+        await conn.send_and_read(
+            channel_input="commit and-quit",
+            expected_outputs=new_prompt,
+            timeout_ops=180,
+            read_duration=180,
+        )
+
+        # Test for the presence of the new prompt
+        prompt = await conn.get_prompt()
+        test(prompt.strip(), op.eq, new_prompt, logger)
 
         # Collect the OSPF neighbors, interfaces, and LSDB
         resps = await conn.send_commands(
@@ -60,7 +75,46 @@ async def juniper_junos(hostname, snapshot_name, conn_params):
             ),
         }
 
-        # TODO write tests
+        # Load in the OSPF interfaces from batfish, then create
+        # a dict keyed by the unique interface name referencing the main dict.
+        # Only include dicts that match this host for node-specific testing
+        with open(f"bf/state/{snapshot_name}/intfs.json", "r") as handle:
+            bf_intfs = {
+                intf["Interface"]["interface"]: intf
+                for intf in json.load(handle)
+                if intf["Interface"]["hostname"].lower() == hostname
+            }
+
+        # Validate interfaces by checking for correct area, never having BDR,
+        # and only having a DR with R2 on port 2
+        for intf in data["intfs"]:
+            test(
+                int(intf["area"][-1]),
+                op.eq,
+                bf_intfs[intf["intf"]]["OSPF_Area_Name"],
+                logger,
+            )
+            test(intf["bdr_id"], op.eq, "0.0.0.0", logger)
+            if intf["intf"] == "em2.0":
+                test(intf["dr_id"], op.eq, "10.0.0.2", logger)
+            else:
+                test(intf["dr_id"], op.eq, "0.0.0.0", logger)
+
+        # Validate neighbors by checking for FULL state if priority is more
+        # zero, or 2WAY otherwise (correct in our design, at least)
+        for nbr in data["nbrs"]:
+            state = "Full" if int(nbr["priority"]) > 0 else "2Way"
+            test(nbr["state"], op.eq, state, logger)
+
+        # Validate LSDB by ensuring there is exactly one Network LSA
+        # originated by R2 (DR) on LAN segment
+        lsa2_count = 0
+        for lsa in data["lsas"]:
+            if lsa["type"] == "Network":
+                lsa2_count += 1
+                test(lsa["lsa_id"], op.eq, "10.0.99.2", logger)
+
+        test(lsa2_count, op.eq, 1, logger)
 
     # Coroutines can return data, too; just return the prompt
     return prompt
@@ -103,7 +157,7 @@ async def cisco_iosxe(hostname, snapshot_name, conn_params):
         nbrs, intfs, lsas = range(3)
         data = [resp.textfsm_parse_output() for resp in resps]
 
-        # Load in the compatible OSPF neighbors fromm batfish, then create
+        # Load in the compatible OSPF neighbors from batfish, then create
         # a dict keyed by the unique interface name referencing the main dict.
         # Only include dicts that match this host for node-specific testing
         with open(f"bf/state/{snapshot_name}/compat.json", "r") as handle:

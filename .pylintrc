@@ -436,7 +436,6 @@ disable=raw-checker-failed,
         consider-using-enumerate,
         broad-exception-caught,
         duplicate-code,
-        fixme,
         unused-argument,
         unspecified-encoding
 
