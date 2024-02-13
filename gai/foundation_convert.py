@@ -10,8 +10,6 @@ consumption of Cisco Enterprise ChatGPT API service.
 import json
 import os
 from argparse import ArgumentParser
-
-# from cisco_ai import get_client_and_user
 from utils import _make_intf_map
 from openai import OpenAI
 
