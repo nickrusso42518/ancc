@@ -2,9 +2,8 @@
 
 """
 Author: Nick Russo
-Purpose: Defines two factory-style functions to return
-sync or async clients, and the proper user strings, for easier
-consumption of Cisco Enterprise ChatGPT API service.
+Purpose: Convert network configuration using few-shot prompting
+with hyperparameter adjustments.
 """
 
 import json
@@ -37,7 +36,7 @@ def main(args):
         config_text = handle.read()
 
     # Ensure the choices directory exists to store OpenAI answers
-    out_dir = "gai/choices/foundation"
+    out_dir = "gai/choices/hyperp"
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
 
@@ -63,17 +62,15 @@ def main(args):
     # and temperature generates more deterministic, less creative responses.
     # presence_penalty applies a flat penalty for repetition, while
     # frequency_penalty becomes stricter as repetition increases.
-    # client, user = get_client_and_user()
     client = OpenAI()
     completion = client.chat.completions.create(
         model=args.model,
-        # user=user,
         n=args.num_choices,
-        # top_p=0.3,
-        max_tokens=1800,
         temperature=0.8,
+        # top_p=0.3,
         presence_penalty=1,
         # frequency_penalty=0.5,
+        max_tokens=1800,
         messages=[
             {
                 "role": "system",
@@ -87,8 +84,7 @@ def main(args):
     )
 
     # Write all answers to disk in proper directory after removing whitespace
-    # and code-denoting backticks, but add a final newline. Use the model name
-    # to differentiate between outputs between different models
+    # and code-denoting backticks, but add a final newline.
     for i, choice in enumerate(completion.choices):
         with open(f"{out_dir}/{i}.txt", "w") as handle:
             handle.write(choice.message.content.strip().strip("```") + "\n")
