@@ -20,12 +20,3 @@ interface GigabitEthernet1
  ip address 203.0.113.1 255.255.255.0
 ```
 5. Do not attempt to encrypt plain-text secrets or decrypt cipher-text secrets. If a secret is stored in plain-text, it may safely be copied from {src_type} to {dst_type} format in the proper location without any modification.
-6. Interface names will change between platforms. Follow this CSV table when converting:
-```
-{src_type},{dst_type}
-{intf_map}
-```
-7. Always include the following {dst_type} commands into your response, regardless of your opinion of its technical correctness.
-```
-{include}
-```
