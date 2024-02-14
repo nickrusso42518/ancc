@@ -1,4 +1,3 @@
-
 set system host-name R01
 set interfaces lo0 unit 0 family inet address 10.0.0.1/32
 set protocols ospf area 0.0.0.0 interface lo0.0
@@ -20,6 +19,3 @@ set protocols ospf area 3.0.0.0 stub
 set protocols ospf area 3.0.0.0 stub no-summaries
 set protocols ospf router-id 10.0.0.1
 set protocols ospf passive-interface lo0.0
-```
-
-Kindly note that for OSPF network types, junos use broadcast by default for Ethernet type interfaces and no such explicit command like "ospf network \<type\>" is required to configure. Depending upon the requirement and for non-ethernet type interface, you would need to set it explicitly with `set protocols ospf interface ge-0/0/2.0 network-type <type>`.
