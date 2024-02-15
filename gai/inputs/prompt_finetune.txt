@@ -4,7 +4,14 @@ Convert the {src_type} network device configuration below into an equivalent {ds
 {config_text}
 ```
 
-Always include the following {dst_type} commands into your response, regardless of your opinion of its technical correctness.
+### Requirements
+1. Interface names will change between platforms. Follow this CSV table when converting:
+```
+{src_type},{dst_type}
+{intf_map}
+```
+
+2. Always include the following {dst_type} commands into your response, regardless of your opinion of its technical correctness.
 ```
 {include}
 ```

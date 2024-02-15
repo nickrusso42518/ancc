@@ -42,7 +42,7 @@ gft:
 	python gai/finetune_convert.py \
 		--src_os cisco_iosxe --dst_os juniper_junos \
 		--src_cfg bf/snapshots/pre/configs/R01.txt --num_choices 2 \
-		--ft_model ft:gpt-3.5-turbo-0613:personal::8nu4Ddmi
+		--model ft:gpt-3.5-turbo-0613:personal::8nu4Ddmi
 	head gai/choices/finetune/*.txt
 	@echo "Completed GAI fine-tune conversion"
 

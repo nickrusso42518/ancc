@@ -2,14 +2,14 @@
 
 """
 Author: Nick Russo
-Purpose: Defines two factory-style functions to return
-sync or async clients, and the proper user strings, for easier
-consumption of Cisco Enterprise ChatGPT API service.
+Purpose: Convert network configuration using a finely-tuned
+model with a minimalist prompt.
 """
 
 import json
 import os
 from argparse import ArgumentParser
+from utils import _make_intf_map
 from openai import OpenAI
 
 
@@ -45,17 +45,15 @@ def main(args):
         src_type=platforms[args.src_os]["type"],
         dst_type=platforms[args.dst_os]["type"],
         config_text=config_text,
+        intf_map=_make_intf_map(platforms[args.src_os], platforms[args.dst_os]),
         include="\n".join(platforms[args.dst_os]["include"]),
     )
     # print(question); return
 
-    # Create an API client and perform the config conversion. Reducing top_p
-    # and temperature generates more deterministic, less creative responses.
-    # presence_penalty applies a flat penalty for repetition, while
-    # frequency_penalty becomes stricter as repetition increases.
+    # Create an API client and perform the config conversion.
     client = OpenAI()
     completion = client.chat.completions.create(
-        model=args.ft_model,
+        model=args.model,
         n=args.num_choices,
         messages=[
             {
@@ -70,8 +68,7 @@ def main(args):
     )
 
     # Write all answers to disk in proper directory after removing whitespace
-    # and code-denoting backticks, but add a final newline. Use the model name
-    # to differentiate between outputs between different models
+    # and code-denoting backticks, but add a final newline.
     for i, choice in enumerate(completion.choices):
         with open(f"{out_dir}/{i}.txt", "w") as handle:
             handle.write(choice.message.content.strip().strip("```") + "\n")
@@ -107,7 +104,7 @@ if __name__ == "__main__":
         required=True,
     )
     parser.add_argument(
-        "--ft_model",
+        "--model",
         help="Fine-tune LLM to use",
         required=True,
     )

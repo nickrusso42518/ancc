@@ -34,11 +34,11 @@ def main():
         with open(f"{in_dir}/example_{plat}.txt", "r") as handle:
             examples[plat] = handle.read()
 
-    # Open the platform map and fine-tune prompt template
+    # Open the platform map and training prompt template
     with open(f"{in_dir}/platforms.json", "r") as handle:
         platforms = json.load(handle)
 
-    with open(f"{in_dir}/prompt_zeroshot.txt", "r") as handle:
+    with open(f"{in_dir}/prompt_train.txt", "r") as handle:
         prompt = handle.read()
 
     # Render the prompt template by providing the required inputs
