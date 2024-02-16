@@ -85,6 +85,9 @@ def main(args):
         emb[plat].to_csv(emb_file, index=False)
         print(f"Wrote {plat} embeddings to {emb_file}")
 
+    # Uncomment to generate embeddings alone for testing
+    # print(emb); return
+
     # Iterate over src/dst commands/embeddings to find the most related
     # (highest relatedness value) commands, mapping src:dst in the cmd_map.
     cmd_map = {}

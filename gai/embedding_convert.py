@@ -2,7 +2,7 @@
 
 """
 Author: Nick Russo
-Purpose:
+Purpose: Convert network configuration using embeddings and a command map.
 """
 
 import json
@@ -22,11 +22,11 @@ def main(args):
     with open(f"{in_dir}/platforms.json", "r") as handle:
         platforms = json.load(handle)
 
-    with open(f"{in_dir}/prompt_cmdmap.txt", "r") as handle:
-        prompt = handle.read()
-
     with open(args.src_cfg, "r") as handle:
         config_text = handle.read()
+
+    with open(f"{in_dir}/prompt_cmdmap.txt", "r") as handle:
+        prompt = handle.read()
 
     cmd_file = f"{args.src_os}_2_{args.dst_os}.json"
     with open(f"{in_dir}/{cmd_file}", "r") as handle:
@@ -56,18 +56,11 @@ def main(args):
     )
     # print(question); return
 
-    # Create an API client and perform the config conversion. Reducing top_p
-    # and temperature generates more deterministic, less creative responses.
-    # presence_penalty applies a flat penalty for repetition, while
-    # frequency_penalty becomes stricter as repetition increases.
-    # client, user = get_client_and_user()
+    # Create an API client and perform the config conversion.
     client = OpenAI()
     completion = client.chat.completions.create(
         model=args.model,
         n=args.num_choices,
-        max_tokens=1800,
-        temperature=0.8,
-        presence_penalty=1,
         messages=[
             {
                 "role": "system",
@@ -81,8 +74,7 @@ def main(args):
     )
 
     # Write all answers to disk in proper directory after removing whitespace
-    # and code-denoting backticks, but add a final newline. Use the model name
-    # to differentiate between outputs between different models
+    # and code-denoting backticks, but add a final newline.
     for i, choice in enumerate(completion.choices):
         with open(f"{out_dir}/{i}.txt", "w") as handle:
             handle.write(choice.message.content.strip().strip("```") + "\n")
