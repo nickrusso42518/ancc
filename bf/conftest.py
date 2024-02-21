@@ -2,8 +2,8 @@
 
 """
 Author: Nick Russo
-Purpose: Tests Batfish on sample Cisco Live sessions focused
-on the OSPF routing protocol using archived configurations.
+Purpose: Provides Batfish with the "snapshot_name" input
+option and corresponding fixture for use in tests.
 """
 
 import pytest

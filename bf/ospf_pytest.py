@@ -62,7 +62,7 @@ def cle(bf):
     """
     Returns a string:bool mapping to determine whether a node can
     learn OSPF external routes or not. Routers that cannot are non-ABRs
-    existing only within stub/NSSA areas.
+    existing only within stub/NSSA areas. Short for "can learn externals".
     """
 
     # Map node name to true (has externals) or false (lacks externals)
@@ -138,7 +138,7 @@ def test_symmetric_costs(bf):
 def test_complementary_descriptions(bf):
     """
     Routers on P2P links should have descriptions ending with the peer's
-    hostname, such as "TO R01" from the perspective of R12/R13.
+    hostname, such as "TO R10" on R02's link towards R10.
     """
     iprops = bf["iprops"]
     nbrs = bf["nbrs"]
@@ -150,7 +150,7 @@ def test_complementary_descriptions(bf):
     for p2p in p2ps:
         desc = iprops.loc[iprops["Interface"] == p2p, "Description"].values[0]
         nbr = nbrs.loc[nbrs["Interface"] == p2p, "Remote_Interface"].values[0]
-        assert desc.lower().endswith(nbr.hostname)
+        assert desc == f"TO {nbr.hostname.upper()}"
 
 
 def test_stubs_lack_externals(bf, cle):
