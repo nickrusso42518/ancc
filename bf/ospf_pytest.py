@@ -236,19 +236,32 @@ def _run_traceroute(bf, params):
     """
     Helper function to run a undirectional traceroute based on the params
     dict, including "src" and "dest" targets formatted as "node[intf]".
-    Ensures ACCEPTED disposition and returns traceroute dataframe.
+    Ensures ACCEPTED disposition and returns pandas dataframe.
     """
+
+    # Define source/dest traceroute and run it
     headers = HeaderConstraints(dstIps=params["dest"])
-    tracert = (
+    df = (
         bf.q.traceroute(startLocation=params["src"], headers=headers)
         .answer()
         .frame()
     )
-    assert tracert.Traces[0][0].disposition == "ACCEPTED"
-    return tracert
+
+    # Write traceroute to disk in JSON format
+    out_dir = f"bf/state/{params['snap']}"
+    json_data = json.loads(df.to_json(orient="records"))
+
+    # Example filename format: "r13[Loopback0]_2_r10[Loopback1].json"
+    name = f"{params['src']}_2_{params['dest']}"
+    with open(f"{out_dir}/{name}.json", "w") as handle:
+        json.dump(json_data, handle, indent=2)
+
+    # Perform basic assertion that probes were accepted
+    assert df.Traces[0][0].disposition == "ACCEPTED"
+    return df
 
 
-def test_traceroute_stub_to_nssa_interarea(bf, cle):
+def test_traceroute_stub_to_nssa_interarea(bf, cle, snapshot_name):
     """
     Run unidirectional traceroute from stub nodes to an NSSA inter-area
     destination, which must follow longer matches via R14.
@@ -257,11 +270,15 @@ def test_traceroute_stub_to_nssa_interarea(bf, cle):
         params = {
             "src": f"{node}[Loopback0]",
             "dest": "r10[Loopback0]",
+            "snap": snapshot_name,
         }
         tracert = _run_traceroute(bf["bf"], params)
 
+        # Loop over routing steps only
         for tstep in tracert.Traces[0][0][0].steps:
             if isinstance(tstep.detail, RoutingStepDetail):
+
+                # Extract the first route and check prefix/next-hop
                 route = tstep.detail.routes[0]
                 assert route.network != "0.0.0.0/0"
                 assert route.nextHop.ip.startswith("10.")
@@ -269,7 +286,7 @@ def test_traceroute_stub_to_nssa_interarea(bf, cle):
                 break
 
 
-def test_traceroute_stub_to_nssa_external(bf, cle):
+def test_traceroute_stub_to_nssa_external(bf, cle, snapshot_name):
     """
     Run unidirectional traceroute from stub nodes to an NSSA external
     destination, which must follow the default route via R01.
@@ -278,98 +295,17 @@ def test_traceroute_stub_to_nssa_external(bf, cle):
         params = {
             "src": f"{node}[Loopback0]",
             "dest": "r10[Loopback1]",
+            "snap": snapshot_name,
         }
         tracert = _run_traceroute(bf["bf"], params)
 
+        # Loop over routing steps only
         for tstep in tracert.Traces[0][0][0].steps:
             if isinstance(tstep.detail, RoutingStepDetail):
+
+                # Extract the first route and check prefix/next-hop
                 route = tstep.detail.routes[0]
                 assert route.network == "0.0.0.0/0"
                 assert route.nextHop.ip.startswith("10.1.")
                 assert route.nextHop.ip.endswith(".1")
                 break
-
-
-def test_generate_topology(bf, snapshot_name):
-    """
-    Collects the OSPF edges and writes them to disk in JSON format.
-    It also reforms the topology to dynamically discover multi-access networks
-    so that GNS3 can add an "etherswitch" to the topology.
-    This can be consumed by the lab simulation topology builder script.
-    """
-
-    # Get the unidirectional OSPF neighbors (links) and load them as JSON data
-    json_data = json.loads(bf["nbrs"].to_json(orient="records"))
-
-    # Find links that have a duplicate "Interface" dict, indicating a
-    # multi-access network. Use an anomymous lambda function to create a
-    # hashable dict of each "Interface" within the json_data list.
-    seen = set()
-    dupes = []
-    for intf in map(lambda d: frozenset(d["Interface"].items()), json_data):
-        # If we haven't seen this hostname/interface pair, it's unique
-        if not intf in seen:
-            seen.add(intf)
-
-        # We've seen it before, so it's a duplicate (ie, multi-access network)
-        else:
-            dupes.append(intf)
-
-    # Extract the duplication hostnames via set comprehension
-    remaining_hosts = {dict(dupe)["hostname"] for dupe in dupes}
-
-    # Increment counter for the GNS3 "etherswitch" interface numbering
-    # and initialize an empty list to track those "reverse" links
-    sw_intf = 0
-    sw_to_node_links = []
-
-    # Check entire topology for those duplicate interfaces
-    for link in json_data:
-        if frozenset(link["Interface"].items()) in dupes:
-            # If we haven't processed that duplicate, process the swap
-            if link["Interface"]["hostname"] in remaining_hosts:
-                # Overwrite the remote hostname and interface accordingly,
-                # and remove the host from the set because it's just been processed
-                link["Remote_Interface"]["hostname"] = "sw"
-                link["Remote_Interface"]["interface"] = f"0/{sw_intf}"
-                remaining_hosts.remove(link["Interface"]["hostname"])
-
-                # Generate the "reverse" link from etherswitch to node
-                sw_to_node_links.append(
-                    {
-                        "Interface": {
-                            "hostname": "sw",
-                            "interface": f"0/{sw_intf}",
-                        },
-                        "Remote_Interface": {
-                            "hostname": link["Interface"]["hostname"],
-                            "interface": link["Interface"]["interface"],
-                        },
-                    }
-                )
-
-                # Increment the switch interface counter
-                sw_intf += 1
-
-            # Host was already processed; mark duplicate element for removal
-            else:
-                link["remove"] = True
-
-    # Rebuild the topology list by excluding items marked as "remove",
-    # then extend the etherswitch "reverse" links to the end
-    all_links = [link for link in json_data if not link.get("remove")]
-    all_links.extend(sw_to_node_links)
-
-    # Augment the topological links with node information
-    topology = {"all_links": all_links, "nodes": {}}
-    for _, node in bf["nodes"].iterrows():
-        topology["nodes"][node["Node"]] = node["Configuration_Format"]
-
-    # Add the Ethernet switch as a node, despite Batfish not seeing it
-    if len(dupes) > 0:
-        topology["nodes"]["sw"] = "nonbf-gns3-ethsw"
-
-    # Write resulting topology to disk in pretty format
-    out_dir = f"bf/state/{snapshot_name}"
-    with open(f"{out_dir}/topology.json", "w") as handle:
-        json.dump(topology, handle, indent=2)
