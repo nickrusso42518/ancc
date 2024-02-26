@@ -232,6 +232,22 @@ def test_nonstubs_have_externals(bf, cle):
                 assert len(conn.loc[conn["Network"] == unique_oe2]) == 1
 
 
+def _run_traceroute(bf, params):
+    """
+    Helper function to run a undirectional traceroute based on the params
+    dict, including "src" and "dest" targets formatted as "node[intf]".
+    Ensures ACCEPTED disposition and returns traceroute dataframe.
+    """
+    headers = HeaderConstraints(dstIps=params["dest"])
+    tracert = (
+        bf.q.traceroute(startLocation=params["src"], headers=headers)
+        .answer()
+        .frame()
+    )
+    assert tracert.Traces[0][0].disposition == "ACCEPTED"
+    return tracert
+
+
 def test_traceroute_stub_to_nssa_interarea(bf, cle):
     """
     Run unidirectional traceroute from stub nodes to an NSSA inter-area
@@ -272,22 +288,6 @@ def test_traceroute_stub_to_nssa_external(bf, cle):
                 assert route.nextHop.ip.startswith("10.1.")
                 assert route.nextHop.ip.endswith(".1")
                 break
-
-
-def _run_traceroute(bf, params):
-    """
-    Helper function to run a undirectional traceroute based on the params
-    dict, including "src" and "dest" targets formatted as "node[intf]".
-    Ensures ACCEPTED disposition and returns traceroute dataframe.
-    """
-    headers = HeaderConstraints(dstIps=params["dest"])
-    tracert = (
-        bf.q.traceroute(startLocation=params["src"], headers=headers)
-        .answer()
-        .frame()
-    )
-    assert tracert.Traces[0][0].disposition == "ACCEPTED"
-    return tracert
 
 
 def test_generate_topology(bf, snapshot_name):
