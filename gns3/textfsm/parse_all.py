@@ -67,7 +67,7 @@ def main():
     in_dir = "gns3/textfsm/inputs"
     for input_file in os.listdir(in_dir):
         # Load the input data from plain-text file
-        print(f"Processing input: {input_file}")
+        print(f"\nProcessing input: {input_file}")
         with open(f"{in_dir}/{input_file}", "r") as handle:
             data = handle.read()
 
