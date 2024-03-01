@@ -14,5 +14,13 @@
     "neighbor_id": "3.3.3.3",
     "priority": 1,
     "dead_time": 31
+  },
+  {
+    "ip_address": "10.1.4.4",
+    "interface": "em2.0",
+    "state": "2Way",
+    "neighbor_id": "4.4.4.4",
+    "priority": 128,
+    "dead_time": 7
   }
 ]

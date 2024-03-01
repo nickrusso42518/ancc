@@ -17,7 +17,7 @@
     "prefix_length": 30,
     "cost": 50,
     "state": "P2P",
-    "neighbors_fc": "1/1"
+    "neighbors_fc": "0/1"
   },
   {
     "interface": "Fa0/0",
@@ -37,86 +37,16 @@
     "prefix_length": 24,
     "cost": 1,
     "state": "DR",
-    "neighbors_fc": "0/0"
+    "neighbors_fc": "2/2"
   },
   {
-    "interface": "Tu1610",
-    "process": 1,
-    "area": 0,
-    "ip_address": "0.0.0.0",
-    "prefix_length": 0,
-    "cost": 50,
-    "state": "P2P",
-    "neighbors_fc": "0/0"
-  },
-  {
-    "interface": "Lo5",
-    "process": 1,
-    "area": 0,
-    "ip_address": "10.48.8.5",
-    "prefix_length": 32,
-    "cost": 1,
-    "state": "LOOP",
-    "neighbors_fc": "0/0"
-  },
-  {
-    "interface": "Lo4",
-    "process": 1,
-    "area": 0,
-    "ip_address": "10.48.8.4",
-    "prefix_length": 32,
-    "cost": 1,
-    "state": "LOOP",
-    "neighbors_fc": "0/0"
-  },
-  {
-    "interface": "Tu1603",
-    "process": 1,
-    "area": 0,
-    "ip_address": "0.0.0.0",
-    "prefix_length": 0,
-    "cost": 50,
-    "state": "DOWN",
-    "neighbors_fc": "0/0"
-  },
-  {
-    "interface": "Tu1602",
-    "process": 1,
-    "area": 0,
-    "ip_address": "0.0.0.0",
-    "prefix_length": 0,
-    "cost": 50,
-    "state": "P2P",
-    "neighbors_fc": "0/0"
-  },
-  {
-    "interface": "PO4/0",
-    "process": 1,
-    "area": 0,
-    "ip_address": "10.1.232.6",
+    "interface": "Se3/2:10",
+    "process": 55,
+    "area": 1,
+    "ip_address": "172.31.1.1",
     "prefix_length": 30,
-    "cost": 6,
-    "state": "P2P",
-    "neighbors_fc": "1/1"
-  },
-  {
-    "interface": "Se3/2:0",
-    "process": 1,
-    "area": 0,
-    "ip_address": "10.1.224.218",
-    "prefix_length": 30,
-    "cost": 6,
-    "state": "P2P",
-    "neighbors_fc": "1/1"
-  },
-  {
-    "interface": "Se3/1:0",
-    "process": 1,
-    "area": 0,
-    "ip_address": "10.1.225.150",
-    "prefix_length": 30,
-    "cost": 6,
-    "state": "P2P",
-    "neighbors_fc": "1/1"
+    "cost": 600,
+    "state": "P2MP",
+    "neighbors_fc": "4/4"
   }
 ]
