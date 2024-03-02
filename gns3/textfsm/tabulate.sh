@@ -5,5 +5,5 @@ for file in gns3/textfsm/outputs/*.csv
 do
   echo ""
   echo $file
-  column -s, -t $file | head -n 1000
+  column -s, -t $file | head -n 3
 done
