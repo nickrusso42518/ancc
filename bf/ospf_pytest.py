@@ -277,7 +277,6 @@ def test_traceroute_stub_to_nssa_interarea(bf, cle, snapshot_name):
         # Loop over routing steps only
         for tstep in tracert.Traces[0][0][0].steps:
             if isinstance(tstep.detail, RoutingStepDetail):
-
                 # Extract the first route and check prefix/next-hop
                 route = tstep.detail.routes[0]
                 assert route.network != "0.0.0.0/0"
@@ -302,7 +301,6 @@ def test_traceroute_stub_to_nssa_external(bf, cle, snapshot_name):
         # Loop over routing steps only
         for tstep in tracert.Traces[0][0][0].steps:
             if isinstance(tstep.detail, RoutingStepDetail):
-
                 # Extract the first route and check prefix/next-hop
                 route = tstep.detail.routes[0]
                 assert route.network == "0.0.0.0/0"
