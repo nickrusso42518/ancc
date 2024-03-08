@@ -49,6 +49,7 @@ def main(base_url, snapshot_name):
 
     # Sanity check; unique links must be half as big as the full topology
     assert len(topology["all_links"]) == len(unique_links) * 2
+    # print(*[l for l in unique_links], sep="\n"); return
 
     with httpx.Client() as client:
         # Loop over all templates and expected OS attrs, then populate those
