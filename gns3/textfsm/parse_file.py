@@ -3,7 +3,7 @@
 """
 Author: Nick Russo
 Purpose: Test textfsm parsing using Network To Code (NTC) templates
-as an introductory example.
+as an introductory example. Writes output to JSON/CSV files.
 See https://github.com/networktocode/ntc-templates for more templates.
 """
 
@@ -24,8 +24,8 @@ def to_json_file(out_dir, prefix, records):
 
 def to_csv_file(out_dir, prefix, records):
     """
-    Write the records to the output file named <prefix>.json on disk. The
-    resulting JSON structure is always a single-depth list of dictionaries.
+    Write the records to the output file named <prefix>.csv on disk. The
+    resulting CSV table contains the dict keys as headers and records as rows.
     """
     with open(f"{out_dir}/{prefix}.csv", "w") as handle:
         dict_writer = DictWriter(handle, records[0].keys())

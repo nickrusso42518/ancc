@@ -3,7 +3,7 @@
 """
 Author: Nick Russo
 Purpose: Test textfsm parsing using Network To Code (NTC) templates
-as an introductory example.
+as an introductory example. Writes output to console for quick checking.
 See https://github.com/networktocode/ntc-templates for more templates.
 """
 
