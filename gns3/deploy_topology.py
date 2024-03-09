@@ -69,7 +69,7 @@ def main(base_url, snapshot_name):
             client=client,
             method="post",
             url=f"{base_url}/projects",
-            json={"name": f"ancc_{snapshot_name}"},
+            json={"name": f"psai_{snapshot_name}"},
         ).json()["project_id"]
 
         # Iterate over the unique nodes, deploying each based on the
