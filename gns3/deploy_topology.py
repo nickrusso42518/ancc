@@ -174,7 +174,7 @@ def main(base_url, snapshot_name):
 
             # Print the link's interconnected members and ID
             print(
-                f"Connected {a_data['node']}-{a_data['node']} with id {link_id}"
+                f"Connected {a_data['node']}-{b_data['node']} with id {link_id}"
             )
 
         # Nodes and links done; start all nodes (no response)
