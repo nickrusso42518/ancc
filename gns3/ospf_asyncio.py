@@ -15,6 +15,49 @@ import sys
 from scrapli import AsyncScrapli
 
 
+async def main(snapshot_name):
+    """
+    Execution starts here (coroutine). Targets a specific Batfish
+    snapshot, using those Scrapli parameters
+    """
+
+    # Ensure the logs directory exists for virtual topology test results
+    out_dir = "gns3/logs"
+    if not os.path.exists(out_dir):
+        os.makedirs(out_dir)
+
+    # Basic parameters common to all nodes in the topology
+    base_params = {
+        "host": "192.168.120.128",  # Targetting GNS3 VM, not laptop client
+        "transport": "asynctelnet",  # or "asyncssh" if desired
+        "auth_bypass": True,  # don't perform telnet authentication
+        "comms_return_char": "\r\n",  # Cisco "Press RETURN to get started."
+    }
+
+    # Load device/console port mappings dynamically built from GNS3
+    in_dir = "gns3/params"
+    device_file = f"{in_dir}/{snapshot_name}.json"
+    with open(device_file, "r") as handle:
+        device_map = json.load(handle)
+
+    # Instantiate coroutines into objects, assemble into list for
+    # all devices. Regardless of OS, they can all run together
+    coros = [
+        globals()[params["platform"]](device, snapshot_name, base_params | params)
+        for device, params in device_map.items()
+    ]
+
+    # Encapsulate all coro objects in a future, then await concurrent completion
+    coro_future = asyncio.gather(*coros)
+    await coro_future
+
+    # We now have the future results. Print them (the prompts) to indicate
+    # successful validation of those nodes
+    print("Validated nodes:")
+    for result in coro_future.result():
+        print(result)
+
+
 async def juniper_junos(hostname, snapshot_name, conn_params):
     """
     Coroutine to collect information from Juniper JunOS devices. The
@@ -25,7 +68,7 @@ async def juniper_junos(hostname, snapshot_name, conn_params):
     logger = setup_logger(f"gns3/logs/{hostname}_log.csv")
 
     # Update the dict to set custom open/close actions
-    conn_params |= {"on_open": _open_junos2, "on_close": _close_junos2}
+    conn_params |= {"on_open": _open_junos, "on_close": _close_junos}
 
     # Open async connection to the node and auto-close when context ends
     async with AsyncScrapli(**conn_params) as conn:
@@ -41,13 +84,13 @@ async def juniper_junos(hostname, snapshot_name, conn_params):
         new_prompt = f"root@{hostname.upper()}>"
 
         # Commit and quit config mode, check for new prompt.
-        # This can take several minutes if running on a laptop
         await conn.send_and_read(
             channel_input="commit and-quit",
             expected_outputs=new_prompt,
             timeout_ops=180,
             read_duration=180,
         )
+        await asyncio.sleep(60)
 
         # Test for the presence of the new prompt
         prompt = await conn.get_prompt()
@@ -153,7 +196,7 @@ async def cisco_iosxe(hostname, snapshot_name, conn_params):
             ]
         )
 
-        # Create named indexes to improve readability, then parse with textfsm
+        # Create named indices to improve readability, then parse with textfsm
         nbrs, intfs, lsas = range(3)
         data = [resp.textfsm_parse_output() for resp in resps]
 
@@ -224,57 +267,6 @@ def _expand_intf(short_intf):
     return long_intf + short_intf[2:]
 
 
-async def main(snapshot_name):
-    """
-    Execution starts here (coroutine). Targets a specific Batfish
-    snapshot, using those Scrapli parameters
-    """
-
-    # Ensure the logs directory exists for virtual topology test results
-    out_dir = "gns3/logs"
-    if not os.path.exists(out_dir):
-        os.makedirs(out_dir)
-
-    # Basic parameters common to all nodes in the topology
-    base_params = {
-        "host": "192.168.120.128",  # Targetting GNS3 VM, not laptop client
-        "transport": "asynctelnet",  # or "asyncssh" if desired
-        "auth_bypass": True,  # don't perform telnet authentication
-        "comms_return_char": "\r\n",  # Cisco "Press RETURN to get started."
-    }
-
-    # Load device/console port mappings dynamically built from GNS3
-    in_dir = "gns3/params"
-    device_file = f"{in_dir}/{snapshot_name}.json"
-    with open(device_file, "r") as handle:
-        device_map = json.load(handle)
-
-    # Instantiate coroutines into tasks, assemble into list for
-    # all devices. Regardless of OS, they can all run together
-    tasks = [
-        globals()[params["platform"]](device, snapshot_name, base_params | params)
-        for device, params in device_map.items()
-    ]
-
-    # Encapsulate all tasks in a future, then await concurrent completion
-    task_future = asyncio.gather(*tasks)
-    await task_future
-
-    # We now have the future results. Print them (the prompts) to indicate
-    # successful validation of those nodes
-    print("Validated nodes:")
-    for result in task_future.result():
-        print(result)
-
-
-async def _open_junos2(conn):
-    await conn.send_command("\n")
-
-
-async def _close_junos2(conn):
-    await conn.send_command("\n")
-
-
 async def _open_junos(conn):
     """
     Perform initial console login and enter the CLI, then apply the standard
@@ -300,8 +292,8 @@ async def _open_junos(conn):
         resp = await conn.send_and_read(
             channel_input=cmd,
             expected_outputs=[resp],
-            read_duration=10,
-            timeout_ops=10,
+            read_duration=20,
+            timeout_ops=20,
         )
 
     # Send terminal settings, don't care about result
